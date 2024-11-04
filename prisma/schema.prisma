@@ -1,0 +1,288 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  firstName    String   @db.VarChar(255)
+  middleName   String?  @db.VarChar(255)
+  lastName     String   @db.VarChar(255)
+  gender       String   @db.VarChar(50)
+  profilePhoto String   @db.VarChar(255)
+
+  // Relations to specific profiles
+  student Student?
+  teacher Teacher?
+  staff   Staff?
+  parent  Parent?
+  address Address?
+}
+
+model Student {
+  id          Int      @id @default(autoincrement())
+  dateOfBirth DateTime
+  ethnicity   String   @db.VarChar(255)
+
+  // Relations
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId  Int   @unique
+  level   Level @relation(fields: [levelId], references: [id])
+  levelId Int
+
+  // Many-to-many relation with Parent through the join table StudentParent
+  parents       StudentParent[]
+  StudentCourse StudentCourse[]
+  Grade         Grade[]
+  Position      Position[]
+  StudentReport StudentReport[]
+  ReportDetail  ReportDetail[]
+}
+
+model StudentParent {
+  id Int @id @default(autoincrement())
+
+  // Foreign keys to link Student and Parent
+  studentId Int
+  parentId  Int
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  // Unique constraint to prevent duplicate entries for the same student-parent pairing
+  @@unique([studentId, parentId])
+}
+
+model Teacher {
+  id       Int      @id @default(autoincrement())
+  subject  String   @db.VarChar(255)
+  hireDate DateTime
+
+  // Relations
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        Int             @unique
+  salary        Salary          @relation(fields: [salaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  salaryId      Int
+  TeacherCourse TeacherCourse[]
+  TeacherClass  TeacherClass[]
+  Grade         Grade[]
+  Position      Position[]
+}
+
+model Staff {
+  id       Int      @id @default(autoincrement())
+  position String   @db.VarChar(255)
+  hireDate DateTime
+
+  // Relations
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   Int        @unique
+  salary   Salary     @relation(fields: [salaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  salaryId Int
+  Position Position[]
+}
+
+model Parent {
+  id          Int    @id @default(autoincrement())
+  phoneNumber String @db.VarChar(15)
+
+  // Relations
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
+
+  // Many-to-many relation with Student through the join table StudentParent
+  students StudentParent[]
+}
+
+model Address {
+  id             Int     @id @default(autoincrement())
+  city           String  @db.VarChar(50)
+  region         String  @db.VarChar(50)
+  country        String  @db.VarChar(255)
+  postalCode     String? @db.VarChar(255)
+  digitalAddress String  @db.VarChar(255)
+
+  // Relations
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
+}
+
+model Course {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(50)
+
+  TeacherCourse TeacherCourse[]
+  StudentCourse StudentCourse[]
+  Grade         Grade[]
+  ReportDetail  ReportDetail[]
+}
+
+model StudentCourse {
+  id Int @id @default(autoincrement())
+
+  // Foreign keys to link Student and Course
+  studentId Int
+  courseId  Int
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Unique constraint 
+  @@unique([studentId, courseId])
+}
+
+model TeacherCourse {
+  id Int @id @default(autoincrement())
+
+  // Foreign keys to link Teacher and Course
+  teacherId Int
+  courseId  Int
+
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
+}
+
+model TeacherClass {
+  id Int @id @default(autoincrement())
+
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+
+  // Foreign keys to link Teacher and Class
+  teacherId Int
+  classId   Int
+}
+
+model Salary {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  currency    String   @db.VarChar(10)
+  paymentDate DateTime
+  frequency   String   @db.VarChar(50)
+  bonus       Float?
+  deductions  Float?
+  notes       String?  @db.VarChar(255)
+
+  // Relations
+  teacher Teacher[]
+  Staff   Staff[]
+}
+
+model Level {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50) // Name of the level, e.g., "Class 3", "JHS 3"
+  code        String    @unique @db.VarChar(20) // Unique code for the level, e.g., "CLS3", "JHS3"
+  description String?   @db.VarChar(255) // Optional description, e.g., "Primary School Level 3"
+  order       Int // Ordering number to sort levels, e.g., 3 for Class 3, 9 for JHS 3
+  Student     Student[]
+  Class       Class[]
+}
+
+model Class {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(255)
+  code        String  @db.VarChar(50)
+  description String? @db.VarChar(255)
+  schedule    String? @db.VarChar(255)
+  roomNumber  String? @db.VarChar(50)
+
+  // Relations
+  level        Level          @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  levelId      Int
+  TeacherClass TeacherClass[]
+}
+
+model Grade {
+  id          Int      @id @default(autoincrement())
+  score       Float // Numeric grade or score
+  letterGrade String?  @db.VarChar(5) // Optional, e.g., "A", "B+", etc.
+  dateAwarded DateTime // Date when the grade was awarded
+  comments    String?  @db.VarChar(255) // Optional comments about the grade
+  gradingType String   @db.VarChar(50) // e.g., "Midterm", "Final", "Quiz"
+
+  // Foreign keys for relations
+  studentId Int
+  courseId  Int
+  teacherId Int
+
+  // Relations
+  student      Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher      Teacher?       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  ReportDetail ReportDetail[]
+
+  // Index for quick lookup of grades by student and course
+  @@index([studentId, courseId])
+  @@index([studentId, dateAwarded])
+}
+
+model Position {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100) // e.g., "Class President", "Head of Department"
+  holderType  String    @db.VarChar(50) // Type of holder: "Student", "Teacher", "Staff"
+  startDate   DateTime? // Optional start date for the position
+  endDate     DateTime? // Optional end date for the position
+  description String?   @db.VarChar(255) // Description of position
+
+  // Optional foreign keys for different holder types
+  studentId Int? // Position held by a student
+  teacherId Int? // Position held by a teacher
+  staffId   Int? // Position held by a staff member
+
+  // Relations to holders
+  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  staff   Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([title, holderType])
+}
+
+model StudentReport {
+  id              Int      @id @default(autoincrement())
+  studentId       Int
+  period          String   @db.VarChar(50) // e.g., "2023 Semester 1", "2024 Q1"
+  issueDate       DateTime @default(now())
+  overallGrade    Float? // Optional overall grade for the period
+  positionInClass Int
+  comments        String?  @db.VarChar(255) // General remarks about the student's performance
+
+  // Relations
+  student       Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reportDetails ReportDetail[]
+
+  // Index for quick lookup
+  @@unique([studentId, period])
+}
+
+model ReportDetail {
+  id               Int     @id @default(autoincrement())
+  reportId         Int
+  studentId        Int
+  courseId         Int
+  gradeId          Int
+  positionInCourse Int
+  courseComments   String? @db.VarChar(255) // Comments on performance for the specific course
+
+  // Relations
+  studentReport StudentReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course        Course        @relation(fields: [courseId], references: [id])
+  grade         Grade         @relation(fields: [gradeId], references: [id])
+
+  // Unique constraint to prevent duplicate entries for the same report and course
+  @@unique([reportId, courseId])
+}
