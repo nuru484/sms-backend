@@ -24,11 +24,13 @@ model User {
   profilePhoto String   @db.VarChar(255)
 
   // Relations to specific profiles
-  student Student?
-  teacher Teacher?
-  staff   Staff?
-  parent  Parent?
-  address Address?
+  student          Student?
+  teacher          Teacher?
+  staff            Staff?
+  parent           Parent?
+  address          Address?
+  EventParticipant EventParticipant[]
+  Trip             Trip[]
 }
 
 model Student {
@@ -43,15 +45,18 @@ model Student {
   levelId Int
 
   // Many-to-many relation with Parent through the join table StudentParent
-  parents       StudentParent[]
-  StudentCourse StudentCourse[]
-  Grade         Grade[]
-  Position      Position[]
-  StudentReport StudentReport[]
-  ReportDetail  ReportDetail[]
-  Attendance    Attendance[]
-  Payment       Payment[]
-  Sale          Sale[]
+  parents            StudentParent[]
+  StudentCourse      StudentCourse[]
+  Grade              Grade[]
+  Position           Position[]
+  StudentReport      StudentReport[]
+  ReportDetail       ReportDetail[]
+  Attendance         Attendance[]
+  Payment            Payment[]
+  Sale               Sale[]
+  BookIssue          BookIssue[]
+  DisciplinaryAction DisciplinaryAction[]
+  Trip               Trip[]
 }
 
 model StudentParent {
@@ -84,6 +89,7 @@ model Teacher {
   Grade         Grade[]
   Position      Position[]
   Attendance    Attendance[]
+  Exam          Exam[]
 }
 
 model Staff {
@@ -97,6 +103,7 @@ model Staff {
   salary   Salary     @relation(fields: [salaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   salaryId Int
   Position Position[]
+  Vehicle  Vehicle[]
 }
 
 model Parent {
@@ -132,6 +139,8 @@ model Course {
   StudentCourse StudentCourse[]
   Grade         Grade[]
   ReportDetail  ReportDetail[]
+  Exam          Exam[]
+  Curriculum    Curriculum[]
 }
 
 model StudentCourse {
@@ -213,6 +222,8 @@ model Grade {
   course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
   teacher      Teacher?       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   ReportDetail ReportDetail[]
+  Exam         Exam?          @relation(fields: [examId], references: [id])
+  examId       Int?
 
   // Index for quick lookup of grades by student and course
   @@index([studentId, courseId])
@@ -306,8 +317,10 @@ model Payment {
   // Relations
   student      Student              @relation(fields: [studentId], references: [id])
   fee          Fee                  @relation(fields: [feeId], references: [id])
+  saleItem     SaleItem             @relation(fields: [saleItemId], references: [id])
   installments PaymentInstallment[] // Link to individual installments
   Transaction  Transaction[]
+  saleItemId   Int
 
   @@index([studentId, feeId])
 }
@@ -420,6 +433,8 @@ model SaleItem {
   saleId   Int
   item     Item  @relation(fields: [itemId], references: [id])
   itemId   Int
+
+  Payment Payment[]
 }
 
 model Restock {
@@ -436,4 +451,148 @@ enum SaleStatus {
   CANCELLED
   PENDING
   REFUNDED
+}
+
+// Model representing exams taken by students in a course
+model Exam {
+  id          Int      @id @default(autoincrement()) // Unique identifier for each exam
+  name        String   @db.VarChar(100) // Name of the exam (e.g., "Midterm Exam")
+  description String?  @db.VarChar(255) // Optional description of the exam
+  date        DateTime // Date the exam will take place
+  courseId    Int // Foreign key to the course associated with this exam
+  teacherId   Int? // Foreign key to the teacher who created or oversees this exam
+
+  course     Course    @relation(fields: [courseId], references: [id]) // Relation to Course model
+  teacher    Teacher?  @relation(fields: [teacherId], references: [id]) // Optional relation to Teacher model
+  grades     Grade[] // Relation to Grade model for recording scores related to this exam
+  ExamType   ExamType? @relation(fields: [examTypeId], references: [id])
+  examTypeId Int?
+}
+
+// Model defining types of exams, such as "Midterm" or "Final"
+model ExamType {
+  id          Int     @id @default(autoincrement()) // Unique identifier for each exam type
+  name        String  @unique // Unique name for the exam type
+  description String? // Optional description for the exam type
+  exams       Exam[] // Relation to Exam model, representing exams of this type
+}
+
+// Model representing the curriculum details for a course
+model Curriculum {
+  id         Int     @id @default(autoincrement()) // Unique identifier for each curriculum entry
+  courseId   Int // Foreign key to the course associated with this curriculum
+  objectives String  @db.VarChar(255) // Brief overview of the learning objectives
+  syllabus   String? @db.Text // Detailed syllabus for the course
+  resources  String? @db.Text // Optional list of resources (e.g., textbooks, videos)
+
+  course Course @relation(fields: [courseId], references: [id]) // Relation to Course model
+}
+
+// Model representing books available in the school library
+model Book {
+  id            Int       @id @default(autoincrement()) // Unique identifier for each book
+  title         String    @db.VarChar(255) // Title of the book
+  author        String    @db.VarChar(255) // Author of the book
+  ISBN          String    @unique @db.VarChar(13) // Unique ISBN number for the book
+  publisher     String?   @db.VarChar(255) // Optional publisher name
+  publishedDate DateTime? // Optional publication date of the book
+  quantity      Int       @default(1) // Quantity of this book available in the library
+  categoryId    Int? // Foreign key to the category of the book
+
+  category BookCategory? @relation(fields: [categoryId], references: [id]) // Relation to BookCategory model
+  issues   BookIssue[] // Relation to BookIssue model for tracking issued books
+}
+
+// Model tracking each instance of a book being issued to a student
+model BookIssue {
+  id         Int       @id @default(autoincrement()) // Unique identifier for each book issue record
+  studentId  Int // Foreign key to the student borrowing the book
+  bookId     Int // Foreign key to the issued book
+  issueDate  DateTime  @default(now()) // Date when the book was issued
+  dueDate    DateTime // Due date for the return of the book
+  returnDate DateTime? // Date when the book was actually returned (if applicable)
+  status     String    @default("Issued") // Status of the book issue (e.g., "Issued", "Returned", "Overdue")
+
+  student Student @relation(fields: [studentId], references: [id]) // Relation to Student model
+  book    Book    @relation(fields: [bookId], references: [id]) // Relation to Book model
+}
+
+// Model categorizing books in the library (e.g., "Fiction", "Science")
+model BookCategory {
+  id          Int     @id @default(autoincrement()) // Unique identifier for each book category
+  name        String  @db.VarChar(255) // Name of the category
+  description String? // Optional description of the category
+  books       Book[] // Relation to Book model, representing books in this category
+}
+
+// Model representing school-wide events (e.g., meetings, sports events)
+model Event {
+  id          Int      @id @default(autoincrement()) // Unique identifier for each event
+  name        String   @db.VarChar(100) // Name of the event
+  description String?  @db.Text // Optional description of the event
+  eventDate   DateTime // Date the event is scheduled to take place
+  location    String?  @db.VarChar(255) // Optional location of the event
+
+  participants EventParticipant[] // Relation to EventParticipant model for tracking participants
+}
+
+// Model linking users (students, teachers, or parents) to an event
+model EventParticipant {
+  id      Int    @id @default(autoincrement()) // Unique identifier for each event participant
+  userId  Int // Foreign key to the participating user
+  eventId Int // Foreign key to the event
+  role    String @db.VarChar(50) // Role of the participant (e.g., "Speaker", "Guest")
+
+  user  User  @relation(fields: [userId], references: [id]) // Relation to User model
+  event Event @relation(fields: [eventId], references: [id]) // Relation to Event model
+}
+
+// Model tracking disciplinary actions taken against students
+model DisciplinaryAction {
+  id        Int      @id @default(autoincrement()) // Unique identifier for each disciplinary action
+  studentId Int // Foreign key to the student involved in the action
+  date      DateTime @default(now()) // Date of the action
+  action    String   @db.VarChar(255) // Type of action (e.g., "Suspension", "Detention")
+  reason    String   @db.Text // Reason for the disciplinary action
+  status    String   @default("Pending") // Status of the action (e.g., "Resolved", "Pending")
+  remarks   String?  @db.VarChar(255) // Optional remarks about the action
+
+  student Student @relation(fields: [studentId], references: [id]) // Relation to Student model
+}
+
+// Model representing vehicles used for student transportation
+model Vehicle {
+  id           Int    @id @default(autoincrement()) // Unique identifier for each vehicle
+  licensePlate String @unique // License plate of the vehicle
+  type         String @db.VarChar(50) // Type of vehicle (e.g., "Bus", "Van")
+  capacity     Int // Capacity of the vehicle (number of passengers)
+  driverId     Int? // Foreign key to the staff member driving the vehicle
+
+  driver Staff?  @relation(fields: [driverId], references: [id]) // Relation to Staff model
+  routes Route[] // Relation to Route model for vehicle routes
+}
+
+// Model representing routes that school vehicles take
+model Route {
+  id          Int     @id @default(autoincrement()) // Unique identifier for each route
+  name        String  @db.VarChar(255) // Name of the route
+  description String? // Optional description of the route
+  vehicleId   Int // Foreign key to the assigned vehicle
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id]) // Relation to Vehicle model
+  trips   Trip[] // Relation to Trip model for tracking individual trips
+}
+
+// Model representing individual transportation trips on specific routes
+model Trip {
+  id        Int      @id @default(autoincrement()) // Unique identifier for each trip
+  routeId   Int // Foreign key to the route of the trip
+  tripDate  DateTime // Date the trip took place
+  status    String   @db.VarChar(50) // Status of the trip (e.g., "Completed", "In Progress")
+  studentId Int // Foreign key to the student on the trip
+  userId    Int // Foreign key to the user tracking the trip
+
+  route   Route   @relation(fields: [routeId], references: [id]) // Relation to Route model
+  student Student @relation(fields: [studentId], references: [id]) // Relation to Student model
+  user    User    @relation(fields: [userId], references: [id]) // Relation to User model tracking the trip
 }
