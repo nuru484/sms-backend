@@ -49,6 +49,8 @@ model Student {
   Position      Position[]
   StudentReport StudentReport[]
   ReportDetail  ReportDetail[]
+  Attendance    Attendance[]
+  Payment       Payment[]
 }
 
 model StudentParent {
@@ -80,6 +82,7 @@ model Teacher {
   TeacherClass  TeacherClass[]
   Grade         Grade[]
   Position      Position[]
+  Attendance    Attendance[]
 }
 
 model Staff {
@@ -165,21 +168,6 @@ model TeacherClass {
   // Foreign keys to link Teacher and Class
   teacherId Int
   classId   Int
-}
-
-model Salary {
-  id          Int      @id @default(autoincrement())
-  amount      Float
-  currency    String   @db.VarChar(10)
-  paymentDate DateTime
-  frequency   String   @db.VarChar(50)
-  bonus       Float?
-  deductions  Float?
-  notes       String?  @db.VarChar(255)
-
-  // Relations
-  teacher Teacher[]
-  Staff   Staff[]
 }
 
 model Level {
@@ -285,4 +273,84 @@ model ReportDetail {
 
   // Unique constraint to prevent duplicate entries for the same report and course
   @@unique([reportId, courseId])
+}
+
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  date      DateTime // The date of the attendance record
+  status    String   @db.VarChar(20) // e.g., "Present", "Absent", "Late", "Excused"
+  remarks   String?  @db.VarChar(255) // Optional comments, e.g., "Excused due to illness"
+
+  // Relations
+  student        Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  recordedByUser Teacher @relation(fields: [teacherId], references: [id])
+  teacherId      Int
+
+  @@index([studentId, date])
+}
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  studentId     Int
+  feeId         Int
+  amountPaid    Float // Amount paid
+  paymentDate   DateTime // Date of payment
+  paymentMethod String // e.g., "Cash", "Bank Transfer"
+  status        String // e.g., "Completed", "Pending"
+
+  student Student @relation(fields: [studentId], references: [id])
+  fee     Fee     @relation(fields: [feeId], references: [id])
+
+  transactions Transaction[] // Link to transactions for payment
+}
+
+model Fee {
+  id       Int       @id @default(autoincrement())
+  name     String // e.g., "Tuition Fee", "Admission Fee"
+  amount   Float // Fee amount
+  term     String // e.g., "First Term", "Second Term"
+  dueDate  DateTime // Due date for the fee
+  payments Payment[] // Relation to payments
+}
+
+model Salary {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  currency    String   @db.VarChar(10)
+  paymentDate DateTime
+  frequency   String   @db.VarChar(50)
+  bonus       Float?
+  deductions  Float?
+  notes       String?  @db.VarChar(255)
+
+  // Relations
+  teacher Teacher[]
+  Staff   Staff[]
+
+  transactions Transaction[] // Link to transactions for salary payments
+}
+
+model Transaction {
+  id              Int      @id @default(autoincrement())
+  type            String // e.g., "Payment", "Salary", "Expense"
+  salaryId        Int? // Could reference Payment ID or Salary ID
+  amount          Float // Amount of the transaction
+  transactionDate DateTime // Date of transaction
+  details         String? // Optional details about the transaction
+  accountId       Int // Link to an account
+
+  salary    Salary?  @relation(fields: [salaryId], references: [id]) // Link to Salary
+  account   Account  @relation(fields: [accountId], references: [id]) // Link to Account
+  Payment   Payment? @relation(fields: [paymentId], references: [id])
+  paymentId Int?
+}
+
+model Account {
+  id      Int    @id @default(autoincrement())
+  name    String // e.g., "General Fund", "Salary Account"
+  type    String // e.g., "Income", "Expense"
+  balance Float  @default(0) // Current balance of the account
+
+  transactions Transaction[] // Link to transactions associated with this account
 }
