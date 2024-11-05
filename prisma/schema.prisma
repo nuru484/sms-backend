@@ -51,6 +51,7 @@ model Student {
   ReportDetail  ReportDetail[]
   Attendance    Attendance[]
   Payment       Payment[]
+  Sale          Sale[]
 }
 
 model StudentParent {
@@ -294,15 +295,36 @@ model Payment {
   id            Int      @id @default(autoincrement())
   studentId     Int
   feeId         Int
-  amountPaid    Float // Amount paid
-  paymentDate   DateTime // Date of payment
+  totalAmount   Float // Total amount due for the payment
+  amountPaid    Float    @default(0) // Total amount paid so far
+  balanceDue    Float    @default(0) // Remaining balance
+  paymentDate   DateTime @default(now()) // Date when payment was initiated
   paymentMethod String // e.g., "Cash", "Bank Transfer"
-  status        String // e.g., "Completed", "Pending"
+  status        String // e.g., "Completed", "Pending", "Partially Paid"
+  description   String?  @db.VarChar(255) // Optional description of the payment
 
-  student Student @relation(fields: [studentId], references: [id])
-  fee     Fee     @relation(fields: [feeId], references: [id])
+  // Relations
+  student      Student              @relation(fields: [studentId], references: [id])
+  fee          Fee                  @relation(fields: [feeId], references: [id])
+  installments PaymentInstallment[] // Link to individual installments
+  Transaction  Transaction[]
 
-  transactions Transaction[] // Link to transactions for payment
+  @@index([studentId, feeId])
+}
+
+model PaymentInstallment {
+  id              Int      @id @default(autoincrement())
+  paymentId       Int
+  installmentDate DateTime @default(now()) // Date of the installment payment
+  amount          Float // Amount of this specific installment
+  status          String   @db.VarChar(50) // e.g., "Completed", "Pending"
+  paymentMethod   String // e.g., "Cash", "Bank Transfer"
+  remarks         String?  @db.VarChar(255) // Optional remarks about this installment
+
+  // Relations
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId, installmentDate])
 }
 
 model Fee {
@@ -353,4 +375,65 @@ model Account {
   balance Float  @default(0) // Current balance of the account
 
   transactions Transaction[] // Link to transactions associated with this account
+}
+
+model ItemCategory {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(100)
+  description String? @db.VarChar(255)
+  items       Item[]
+}
+
+model Item {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  code        String       @unique @db.VarChar(50)
+  description String?      @db.VarChar(255)
+  price       Float
+  costPrice   Float
+  quantity    Int
+  image       String?      @db.VarChar(255)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  category    ItemCategory @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  salesItems  SaleItem[]
+  restocks    Restock[]
+}
+
+model Sale {
+  id          Int        @id @default(autoincrement())
+  saleDate    DateTime   @default(now())
+  totalAmount Float
+  status      SaleStatus
+  balanceDue  Float      @default(0)
+  student     Student?   @relation(fields: [studentId], references: [id])
+  studentId   Int?
+  SaleItem    SaleItem[]
+}
+
+model SaleItem {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float
+  sale     Sale  @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleId   Int
+  item     Item  @relation(fields: [itemId], references: [id])
+  itemId   Int
+}
+
+model Restock {
+  id          Int      @id @default(autoincrement())
+  item        Item     @relation(fields: [itemId], references: [id])
+  itemId      Int
+  quantity    Int
+  costPrice   Float
+  restockDate DateTime @default(now())
+}
+
+enum SaleStatus {
+  COMPLETED
+  CANCELLED
+  PENDING
+  REFUNDED
 }

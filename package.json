@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "dev": "node --watch server.js",
-    "start": "node server.js",
+    "dev": "node --watch --env-file=.env server.js",
+    "start": "node --env-file=.env server.js",
     "migrate": "npx prisma migrate dev --name init"
   },
   "author": "",
