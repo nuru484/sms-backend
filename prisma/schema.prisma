@@ -41,7 +41,7 @@ model Student {
   // Relations
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId  Int   @unique
-  level   Level @relation(fields: [levelId], references: [id])
+  level   Level @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   levelId Int
 
   // Many-to-many relation with Parent through the join table StudentParent
@@ -67,8 +67,8 @@ model StudentParent {
   parentId  Int
 
   // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   // Unique constraint to prevent duplicate entries for the same student-parent pairing
   @@unique([studentId, parentId])
@@ -151,8 +151,8 @@ model StudentCourse {
   courseId  Int
 
   // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   // Unique constraint 
   @@unique([studentId, courseId])
@@ -165,8 +165,8 @@ model TeacherCourse {
   teacherId Int
   courseId  Int
 
-  teacher Teacher @relation(fields: [teacherId], references: [id])
-  course  Course  @relation(fields: [courseId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model TeacherClass {
