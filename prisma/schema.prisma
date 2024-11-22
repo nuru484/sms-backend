@@ -245,6 +245,14 @@ model Position {
   @@index([title, holderType])
 }
 
+model Term {
+  id    Int      @id @default(autoincrement())
+  name  String
+  year  DateTime
+  start DateTime
+  end   DateTime
+}
+
 model StudentReport {
   id              Int      @id @default(autoincrement())
   studentId       Int
