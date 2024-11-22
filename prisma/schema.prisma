@@ -218,6 +218,8 @@ model Grade {
   ReportDetail ReportDetail[]
   Exam         Exam?          @relation(fields: [examId], references: [id])
   examId       Int?
+  term         Term           @relation(fields: [termId], references: [id])
+  termId       Int
 
   // Index for quick lookup of grades by student and course
   @@index([studentId, courseId])
@@ -231,32 +233,38 @@ model Position {
   startDate   DateTime? // Optional start date for the position
   endDate     DateTime? // Optional end date for the position
   description String?   @db.VarChar(255) // Description of position
-
+  term        Term      @relation(fields: [termId], references: [id])
   // Optional foreign keys for different holder types
-  studentId Int? // Position held by a student
-  teacherId Int? // Position held by a teacher
-  staffId   Int? // Position held by a staff member
+  studentId   Int? // Position held by a student
+  teacherId   Int? // Position held by a teacher
+  staffId     Int? // Position held by a staff member
 
   // Relations to holders
   student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
   teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   staff   Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  termId  Int
 
   @@index([title, holderType])
 }
 
 model Term {
-  id    Int      @id @default(autoincrement())
-  name  String
-  year  DateTime
-  start DateTime
-  end   DateTime
+  id            Int             @id @default(autoincrement())
+  name          String
+  year          DateTime
+  start         DateTime
+  end           DateTime
+  StudentReport StudentReport[]
+  ReportDetail  ReportDetail[]
+  Position      Position[]
+  Grade         Grade[]
+  Exam          Exam[]
 }
 
 model StudentReport {
   id              Int      @id @default(autoincrement())
   studentId       Int
-  period          String   @db.VarChar(50) // e.g., "2023 Semester 1", "2024 Q1"
+  term            Term     @relation(fields: [termId], references: [id])
   issueDate       DateTime @default(now())
   overallGrade    Float? // Optional overall grade for the period
   positionInClass Int
@@ -265,25 +273,26 @@ model StudentReport {
   // Relations
   student       Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
   reportDetails ReportDetail[]
+  termId        Int
 
-  // Index for quick lookup
-  @@unique([studentId, period])
+  @@unique([studentId, termId])
 }
 
 model ReportDetail {
-  id               Int     @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   reportId         Int
   studentId        Int
   courseId         Int
   gradeId          Int
   positionInCourse Int
-  courseComments   String? @db.VarChar(255) // Comments on performance for the specific course
-
+  courseComments   String?       @db.VarChar(255) // Comments on performance for the specific course
+  term             Term          @relation(fields: [termId], references: [id])
   // Relations
-  studentReport StudentReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course        Course        @relation(fields: [courseId], references: [id])
-  grade         Grade         @relation(fields: [gradeId], references: [id])
+  studentReport    StudentReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  student          Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course           Course        @relation(fields: [courseId], references: [id])
+  grade            Grade         @relation(fields: [gradeId], references: [id])
+  termId           Int
 
   // Unique constraint to prevent duplicate entries for the same report and course
   @@unique([reportId, courseId])
@@ -469,6 +478,8 @@ model Exam {
   grades     Grade[] // Relation to Grade model for recording scores related to this exam
   ExamType   ExamType? @relation(fields: [examTypeId], references: [id])
   examTypeId Int?
+  term       Term      @relation(fields: [termId], references: [id])
+  termId     Int
 }
 
 // Model defining types of exams, such as "Midterm" or "Final"
