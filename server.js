@@ -3,6 +3,9 @@ import { config } from 'dotenv';
 config();
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import expressSession from 'express-session';
+import { PrismaClient } from '@prisma/client';
 
 import routes from './src/routes/index.js';
 
@@ -26,6 +29,22 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(
+  expressSession({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+    },
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    store: new PrismaSessionStore(new PrismaClient(), {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  })
+);
 
 app.use('/', routes);
 
