@@ -4,11 +4,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch --env-file=.env server.js",
+    "dev": "node --watch --env-file=.env server",
     "migrate": "npx prisma migrate dev --name init",
     "build": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "start": "node server.js"
+    "start": "node server"
   },
   "author": "",
   "license": "ISC",

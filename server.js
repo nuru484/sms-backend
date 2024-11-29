@@ -2,8 +2,9 @@ import express from 'express';
 import { config } from 'dotenv';
 config();
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
-import routes from './src/routes';
+import routes from './src/routes/index.js';
 
 const app = express();
 
@@ -22,6 +23,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.use('/', routes);
 
