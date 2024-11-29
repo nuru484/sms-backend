@@ -4,26 +4,31 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const initialize = (passport) => {
-  // Define the local strategy for Passport.js
   passport.use(
     new LocalStrategy(
-      { usernameField: 'email' },
-      async (email, password, done) => {
+      {
+        usernameField: 'credential',
+        passwordField: 'password',
+      },
+      async (credential, password, done) => {
         try {
-          // Find user by email
+          // Check if the credential is an email or username
+          const isEmail = credential.includes('@');
+
+          // Find user by email or username
           const user = await prisma.user.findUnique({
-            where: { email: email },
+            where: isEmail ? { email: credential } : { username: credential },
           });
 
           // If user is not found
           if (!user) {
-            return done(null, false, { message: 'Incorrect email' });
+            return done(null, false, { message: 'Invalid credentials' });
           }
 
           // Compare the password with bcrypt
           const match = await bcrypt.compare(password, user.password);
           if (!match) {
-            return done(null, false, { message: 'Incorrect password' });
+            return done(null, false, { message: 'Invalid credentials' });
           }
 
           // Successful login
@@ -40,14 +45,14 @@ const initialize = (passport) => {
 
   // Serialize user (store user ID in session)
   passport.serializeUser((user, done) => {
-    done(null, user.id); // Store user ID in the session
+    done(null, user.id);
   });
 
   // Deserialize user (retrieve user from session)
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await prisma.user.findUnique({
-        where: { id },
+        where: { id: id },
       });
 
       if (!user) {
