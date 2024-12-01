@@ -1,25 +1,29 @@
-// src/services/momoApiUser.js
-import { v4 as uuidv4 } from 'uuid';
-import ENV from '../config/env.js';
-import logger from '../utils/logger.js';
-import { CustomError } from '../utils/middleware/errorHandler.js';
+// Importing necessary modules
+import { v4 as uuidv4 } from 'uuid'; // For generating unique reference IDs
+import ENV from '../config/env.js'; // Environment variables for configuration
+import logger from '../utils/logger.js'; // Logger utility for logging events and errors
+import { CustomError } from '../utils/middleware/errorHandler.js'; // Custom error class for standardized error handling
 
 /**
- * Create or retrieve the MTN MoMo API user.
+ * Creates or retrieves the MTN MoMo API user.
+ *
+ * @returns {Promise<Object>} - The reference ID and provider callback host.
+ * @throws {CustomError} - If user creation fails or user already exists.
  */
 const createMoMoApiUser = async () => {
-  const referenceId = uuidv4();
+  const referenceId = uuidv4(); // Generate a unique reference ID
   const headers = {
     'X-Reference-Id': referenceId,
     'Content-Type': 'application/json',
-    'Ocp-Apim-Subscription-Key': ENV.Ocp_Apim_Subscription_Key,
+    'Ocp-Apim-Subscription-Key': ENV.Ocp_Apim_Subscription_Key, // Subscription key from environment variables
   };
 
   const body = JSON.stringify({
-    providerCallbackHost: 'hkdk.events',
+    providerCallbackHost: 'hkdk.events', // Callback host URL for notifications
   });
 
   try {
+    // Make a POST request to create the MoMo API user
     const response = await fetch(ENV.MTN_MOMO_API_USER_URL, {
       method: 'POST',
       headers: headers,
@@ -28,6 +32,7 @@ const createMoMoApiUser = async () => {
 
     console.log(response);
 
+    // Handle response statuses
     if (response.status === 201) {
       logger.info('User created successfully.');
       return { referenceId, providerCallbackHost: 'hkdk.events' };
@@ -49,15 +54,21 @@ const createMoMoApiUser = async () => {
 };
 
 /**
- * Create or retrieve an API key for the given API user.
+ * Generates an API key for a given MoMo API user.
+ *
+ * @param {string} referenceId - The unique reference ID of the API user.
+ * @returns {Promise<string>} - The generated API key.
+ * @throws {CustomError} - If the API key creation fails.
  */
 const createMoMoApiKey = async (referenceId) => {
+  // Replace placeholder in the API URL with the reference ID
   const apiUrl = ENV.MTN_MOMO_API_KEY_URL.replace(
     '{X-Reference-Id}',
     referenceId
   );
 
   try {
+    // Make a POST request to generate the API key
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -81,12 +92,19 @@ const createMoMoApiKey = async (referenceId) => {
 };
 
 /**
- * Create an access token for MoMo API using the API user ID and API key.
+ * Generates an access token for the MoMo API.
+ *
+ * @param {string} referenceId - The unique reference ID of the API user.
+ * @param {string} apiKey - The API key for the user.
+ * @returns {Promise<string>} - The generated access token.
+ * @throws {CustomError} - If the access token creation fails.
  */
 const createAccessToken = async (referenceId, apiKey) => {
+  // Create a Basic Authentication header
   const authHeader = Buffer.from(`${referenceId}:${apiKey}`).toString('base64');
 
   try {
+    // Make a POST request to generate the access token
     const response = await fetch(ENV.MTN_MOMO_ACCESS_TOKEN_URL, {
       method: 'POST',
       headers: {
@@ -109,4 +127,5 @@ const createAccessToken = async (referenceId, apiKey) => {
   }
 };
 
+// Exporting the functions for external use in other parts of the application
 export { createMoMoApiUser, createMoMoApiKey, createAccessToken };
