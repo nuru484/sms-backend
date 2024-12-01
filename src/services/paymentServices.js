@@ -6,7 +6,6 @@ import {
   createMomoTransaction,
   updateMomoTransactionStatus,
 } from '../repositories/transactionRepository.js';
-import { response } from 'express';
 
 const processMomoPayment = async (
   accessToken,
