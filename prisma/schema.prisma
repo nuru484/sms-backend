@@ -357,10 +357,10 @@ model Payment {
   // Relations
   student      Student              @relation(fields: [studentId], references: [id])
   fee          Fee                  @relation(fields: [feeId], references: [id])
-  saleItem     SaleItem             @relation(fields: [saleItemId], references: [id])
+  saleItem     SaleItem?            @relation(fields: [saleItemId], references: [id])
   installments PaymentInstallment[] // Link to individual installments
   Transaction  Transaction[]
-  saleItemId   Int
+  saleItemId   Int?
 
   @@index([studentId, feeId])
 }
@@ -406,17 +406,31 @@ model Salary {
   transactions Transaction[] // Link to transactions for salary payments
 }
 
+model momoUser {
+  id          Int    @id @default(autoincrement())
+  referenceId String
+  apiKey      String
+}
+
 model Transaction {
-  id              Int      @id @default(autoincrement())
-  type            String // e.g., "Payment", "Salary", "Expense"
-  salaryId        Int? // Could reference Payment ID or Salary ID
-  amount          Float // Amount of the transaction
-  transactionDate DateTime // Date of transaction
-  details         String? // Optional details about the transaction
-  accountId       Int // Link to an account
+  id                     Int      @id @default(autoincrement())
+  type                   String // e.g., "Payment", "Salary", "Expense"
+  amount                 Float // Amount of the transaction
+  currency               String
+  transactionDate        DateTime // Date of transaction
+  status                 String
+  payerAccountType       String?
+  payerAccountNumber     String
+  financialTransactionId String?  @unique
+  externalId             String   @unique
+  details                String?
+  accessToken            String   @unique
+  referenceId            String?  @unique
 
   salary    Salary?  @relation(fields: [salaryId], references: [id]) // Link to Salary
-  account   Account  @relation(fields: [accountId], references: [id]) // Link to Account
+  salaryId  Int? // Could reference Payment ID or Salary ID
+  account   Account? @relation(fields: [accountId], references: [id]) // Link to Account
+  accountId Int? // Link to an account
   Payment   Payment? @relation(fields: [paymentId], references: [id])
   paymentId Int?
 }

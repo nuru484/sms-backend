@@ -1,7 +1,10 @@
 // src/routes/index.js
-import express from 'express';
-const routes = express.Router();
+import { Router } from 'express';
 
-// router.use('/', userRouter);
+import paymentRoutes from './paymentRoutes.js';
+
+const routes = Router();
+
+routes.use('/api/v1', paymentRoutes);
 
 export default routes;

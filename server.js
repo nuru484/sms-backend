@@ -8,6 +8,7 @@ import expressSession from 'express-session';
 import { PrismaClient } from '@prisma/client';
 
 import routes from './src/routes/index.js';
+import { handleError } from './src/utils/middleware/errorHandler.js';
 
 const app = express();
 
@@ -47,6 +48,9 @@ app.use(
 );
 
 app.use('/', routes);
+
+// Error-handling middleware
+app.use(handleError);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

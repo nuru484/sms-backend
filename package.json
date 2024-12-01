@@ -8,7 +8,8 @@
     "migrate": "npx prisma migrate dev --name init",
     "build": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "start": "node server"
+    "start": "node server",
+    "momo": "node src/services/initiallised.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,11 +22,15 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
     "express-session": "^1.18.1",
     "express-validator": "^7.2.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "pino": "^9.5.0",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "pino-pretty": "^13.0.0",
     "prisma": "^5.22.0"
   }
 }

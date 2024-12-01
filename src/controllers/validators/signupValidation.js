@@ -1,6 +1,5 @@
 // Prisma client for database access
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../../../prismaClient';
 
 import { body } from 'express-validator';
 
