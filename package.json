@@ -8,8 +8,7 @@
     "migrate": "npx prisma migrate dev --name init",
     "build": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "start": "node server",
-    "momo": "node src/services/initiallised.js"
+    "start": "node server"
   },
   "author": "",
   "license": "ISC",

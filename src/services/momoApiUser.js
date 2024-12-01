@@ -30,8 +30,6 @@ const createMoMoApiUser = async () => {
       body: body,
     });
 
-    console.log(response);
-
     // Handle response statuses
     if (response.status === 201) {
       logger.info('User created successfully.');
