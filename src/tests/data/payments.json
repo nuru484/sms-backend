@@ -1,0 +1,23 @@
+{
+  "MTN MoMo Payment Callback request body": {
+    "financialTransactionId": "wywyeyh",
+    "externalId": "sdfds",
+    "amount": "3934",
+    "currency": "EUR",
+    "payer": {
+      "partyIdType": "MSISDN",
+      "partyId": "0245367457"
+    },
+    "payeeNote": "Incoming Payment",
+    "status": "SUCCESSFUL",
+    "reason": "Failed"
+  },
+
+  "Initiating payment request body": {
+    "amount": "0.1",
+    "currency": "EUR",
+    "externalId": "sdfds",
+    "payerId": "4673312345",
+    "payerMessage": "Voucher payment"
+  }
+}
