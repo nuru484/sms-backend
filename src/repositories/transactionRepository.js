@@ -1,5 +1,6 @@
 // src/repositories/transactionRepository.js
 import prisma from '../../prismaClient.js';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import logger from '../utils/logger.js';
 import { CustomError } from '../utils/middleware/errorHandler.js';
 
@@ -68,16 +69,21 @@ const updateMomoTransactionStatus = async (externalId, updateData) => {
       data: updateData,
     });
 
-    if (!transaction) {
-      throw new CustomError(
-        404,
-        `Transaction not found for payer: ${externalId}`
-      );
-    }
-
     return transaction;
   } catch (error) {
-    logger.error(`Database error: ${error}`);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        // Record not found
+        logger.error(`Transaction not found for externalId: ${externalId}`);
+        throw new CustomError(
+          404,
+          `Transaction not found for externalId: ${externalId}`
+        );
+      }
+    }
+
+    // General error
+    logger.error(`Database error: ${error.message}`);
     throw new CustomError(500, `Database error: ${error.message}`);
   }
 };

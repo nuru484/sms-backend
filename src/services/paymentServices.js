@@ -2,8 +2,11 @@
 import logger from '../utils/logger.js';
 import { CustomError } from '../utils/middleware/errorHandler.js';
 import { requestToPay } from './requestToPay.js';
-import { updateMomoTransactionStatus } from '../repositories/transactionRepository.js';
-import { createMomoTransaction } from '../repositories/transactionRepository.js';
+import {
+  createMomoTransaction,
+  updateMomoTransactionStatus,
+} from '../repositories/transactionRepository.js';
+import { response } from 'express';
 
 const processMomoPayment = async (
   accessToken,
@@ -89,28 +92,30 @@ const processMomoPaymentStatus = async (paymentDetails) => {
   const { payer, status, financialTransactionId, reason, externalId } =
     paymentDetails;
 
-  logger.info('Processing payment status', { payer, status });
+  logger.info({ 'Processing payment status': { payer, status } });
 
   try {
     if (status === 'SUCCESSFUL') {
-      await updateMomoTransactionStatus(externalId, {
+      const response = await updateMomoTransactionStatus(externalId, {
         status,
         financialTransactionId,
       });
+
       return {
         message: 'Payment processed successfully.',
-        status,
-        financialTransactionId,
+        status: response.status,
+        financialTransactionId: response.financialTransactionId,
       };
     } else {
-      await updateMomoTransactionStatus(externalId, {
-        status,
-        details: reason || 'No reason provided',
-      });
-      return {
-        message: 'Payment recorded, but not completed.',
+      const response = await updateMomoTransactionStatus(externalId, {
         status,
         reason,
+      });
+
+      return {
+        message: 'Payment recorded, but not completed.',
+        status: response.status,
+        reason: response.details,
       };
     }
   } catch (error) {

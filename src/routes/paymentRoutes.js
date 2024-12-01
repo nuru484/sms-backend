@@ -6,7 +6,10 @@ import {
   paymentCallback,
   initializeMomoTransaction,
 } from '../controllers/paymentController.js';
-import { validateInitializeMomoTransaction } from '../controllers/validators/paymentValidation.js';
+import {
+  validateInitializeMomoTransaction,
+  validateMtnCallbackRequestBody,
+} from '../controllers/validators/paymentValidation.js';
 
 router.post(
   '/initiatePayment',
@@ -14,6 +17,11 @@ router.post(
   validateInitializeMomoTransaction(),
   initializeMomoTransaction
 );
-router.post('/paymentCallback', authLimiter, paymentCallback);
+router.post(
+  '/paymentCallback',
+  authLimiter,
+  validateMtnCallbackRequestBody(),
+  paymentCallback
+);
 
 export default router;

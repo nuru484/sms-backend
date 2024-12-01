@@ -51,6 +51,13 @@ const initializeMomoTransaction = async (req, res, next) => {
 
 const paymentCallback = async (req, res, next) => {
   try {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // Return validation errors to the client
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const paymentDetails = req.body;
 
     const response = await processMomoPaymentStatus(paymentDetails);
