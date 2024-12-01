@@ -39,7 +39,7 @@ const createMomoTransaction = async (paymentDetails) => {
     await prisma.transaction.create({
       data: {
         accessToken: paymentDetails.accessToken,
-        amount: paymentDetails.amount,
+        amount: parseFloat(paymentDetails.amount),
         currency: paymentDetails.currency,
         payerAccountNumber: paymentDetails.payerId,
         externalId: paymentDetails.externalId,

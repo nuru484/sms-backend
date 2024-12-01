@@ -1,5 +1,4 @@
 // src/services/requestToPay.js
-
 import { v4 as uuidv4 } from 'uuid';
 import ENV from '../config/env.js';
 import logger from '../utils/logger.js';
@@ -20,7 +19,7 @@ const requestToPay = async (
   const referenceId = uuidv4();
   const headers = {
     Authorization: `Bearer ${accessToken}`,
-    'X-Callback-Url': 'http://hkdk.events/xanuc5qainshjl',
+    // 'X-Callback-Url': 'http://hkdk.events/xanuc5qainshjl',
     'X-Reference-Id': referenceId,
     'X-Target-Environment': ENV.MTN_MOMO_TARGET_ENVIRONMENT,
     'Ocp-Apim-Subscription-Key': ENV.Ocp_Apim_Subscription_Key,

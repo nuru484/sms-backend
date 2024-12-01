@@ -47,7 +47,7 @@ const processMomoPayment = async (
 
     const paymentDetails = {
       accessToken,
-      amount: parseFloat(amount),
+      amount,
       currency,
       externalId,
       payerId,
