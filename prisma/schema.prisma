@@ -21,11 +21,12 @@ model User {
   firstName    String   @db.VarChar(255)
   middleName   String?  @db.VarChar(255)
   lastName     String   @db.VarChar(255)
-  username     String   @db.VarChar(255)
+  username     String   @unique @db.VarChar(255)
   gender       String   @db.VarChar(50)
-  profilePhoto String   @db.VarChar(255)
-  email        String?
+  profilePhoto String?  @db.VarChar(255)
+  email        String?  @unique
   password     String?
+  phoneNumber  String?  @unique @db.VarChar(15)
 
   // Relations to specific profiles
   student          Student?
@@ -36,6 +37,7 @@ model User {
   EventParticipant EventParticipant[]
   Trip             Trip[]
   identityNumber   identityNumber[]
+  Position         Position[]
 }
 
 model identityNumber {
@@ -47,22 +49,21 @@ model identityNumber {
 }
 
 model Student {
-  id                Int                   @id @default(autoincrement())
-  dateOfBirth       DateTime
-  ethnicity         String                @db.VarChar(255)
-  admimissionStatus admissionStatus
+  id              Int                    @id @default(autoincrement())
+  dateOfBirth     DateTime
+  ethnicity       String                 @db.VarChar(255)
+  admissionStatus admissionStatus
   // Relations
-  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId            Int                   @unique
-  level             Level?                @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  levelId           Int?
-  previousSchool    studentPreviousSchool @relation(fields: [studentPreviousSchoolId], references: [id])
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId          Int                    @unique
+  level           Level?                 @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  levelId         Int?
+  previousSchool  studentPreviousSchool? @relation(fields: [studentPreviousSchoolId], references: [id])
 
   // Many-to-many relation with Parent through the join table StudentParent
   parents                 StudentParent[]
   StudentCourse           StudentCourse[]
   Grade                   Grade[]
-  Position                Position[]
   StudentReport           StudentReport[]
   ReportDetail            ReportDetail[]
   Attendance              Attendance[]
@@ -71,7 +72,7 @@ model Student {
   BookIssue               BookIssue[]
   DisciplinaryAction      DisciplinaryAction[]
   Trip                    Trip[]
-  studentPreviousSchoolId Int
+  studentPreviousSchoolId Int?
 }
 
 enum admissionStatus {
@@ -116,28 +117,26 @@ model Teacher {
   TeacherCourse TeacherCourse[]
   TeacherClass  TeacherClass[]
   Grade         Grade[]
-  Position      Position[]
   Attendance    Attendance[]
   Exam          Exam[]
 }
 
 model Staff {
   id       Int      @id @default(autoincrement())
-  position String   @db.VarChar(255)
   hireDate DateTime
 
   // Relations
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId   Int        @unique
-  salary   Salary     @relation(fields: [salaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   Int    @unique
+  salary   Salary @relation(fields: [salaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   salaryId Int
-  Position Position[]
-  Vehicle  Vehicle[]
+
+  Vehicle Vehicle[]
 }
 
 model Parent {
-  id          Int    @id @default(autoincrement())
-  phoneNumber String @db.VarChar(15)
+  id                    Int    @id @default(autoincrement())
+  relationshipToStudent String
 
   // Relations
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -268,17 +267,11 @@ model Position {
   startDate   DateTime? // Optional start date for the position
   endDate     DateTime? // Optional end date for the position
   description String?   @db.VarChar(255) // Description of position
-  term        Term      @relation(fields: [termId], references: [id])
-  // Optional foreign keys for different holder types
-  studentId   Int? // Position held by a student
-  teacherId   Int? // Position held by a teacher
-  staffId     Int? // Position held by a staff member
 
-  // Relations to holders
-  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
-  teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
-  staff   Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
-  termId  Int
+  term   Term @relation(fields: [termId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  termId Int
+  userId Int
 
   @@index([title, holderType])
 }
