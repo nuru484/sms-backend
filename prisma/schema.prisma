@@ -21,8 +21,11 @@ model User {
   firstName    String   @db.VarChar(255)
   middleName   String?  @db.VarChar(255)
   lastName     String   @db.VarChar(255)
+  username     String   @db.VarChar(255)
   gender       String   @db.VarChar(50)
   profilePhoto String   @db.VarChar(255)
+  email        String?
+  password     String?
 
   // Relations to specific profiles
   student          Student?
@@ -44,29 +47,31 @@ model identityNumber {
 }
 
 model Student {
-  id                Int             @id @default(autoincrement())
+  id                Int                   @id @default(autoincrement())
   dateOfBirth       DateTime
-  ethnicity         String          @db.VarChar(255)
+  ethnicity         String                @db.VarChar(255)
   admimissionStatus admissionStatus
   // Relations
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId            Int             @unique
-  level             Level?          @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId            Int                   @unique
+  level             Level?                @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   levelId           Int?
+  previousSchool    studentPreviousSchool @relation(fields: [studentPreviousSchoolId], references: [id])
 
   // Many-to-many relation with Parent through the join table StudentParent
-  parents            StudentParent[]
-  StudentCourse      StudentCourse[]
-  Grade              Grade[]
-  Position           Position[]
-  StudentReport      StudentReport[]
-  ReportDetail       ReportDetail[]
-  Attendance         Attendance[]
-  Payment            Payment[]
-  Sale               Sale[]
-  BookIssue          BookIssue[]
-  DisciplinaryAction DisciplinaryAction[]
-  Trip               Trip[]
+  parents                 StudentParent[]
+  StudentCourse           StudentCourse[]
+  Grade                   Grade[]
+  Position                Position[]
+  StudentReport           StudentReport[]
+  ReportDetail            ReportDetail[]
+  Attendance              Attendance[]
+  Payment                 Payment[]
+  Sale                    Sale[]
+  BookIssue               BookIssue[]
+  DisciplinaryAction      DisciplinaryAction[]
+  Trip                    Trip[]
+  studentPreviousSchoolId Int
 }
 
 enum admissionStatus {
@@ -78,9 +83,10 @@ enum admissionStatus {
 }
 
 model studentPreviousSchool {
-  id    Int    @id @default(autoincrement())
-  name  String
-  level String
+  id                  Int       @id @default(autoincrement())
+  previousSchoolName  String
+  previousSchoolLevel String
+  Student             Student[]
 }
 
 model StudentParent {
