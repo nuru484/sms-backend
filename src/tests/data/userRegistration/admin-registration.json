@@ -1,0 +1,24 @@
+{
+  "admin registration req body": {
+    "firstName": "John",
+    "middleName": "Alexander",
+    "lastName": "Doe",
+    "profilePhoto": "http://example.com/images/profile.jpg",
+    "gender": "Male",
+    "role": "ADMIN",
+    "username": "johndoe123",
+    "email": "admin@example.com",
+    "phoneNumber": "+1234567890",
+    "password": "SecureP@ssword1",
+    "confirmPassword": "SecureP@ssword1",
+
+    "city": "New York",
+    "country": "United States",
+    "region": "New York",
+    "postalCode": "10001",
+    "digitalAddress": "NY-123-4567"
+  },
+  "endpoint url for admin registration": {
+    "student registration": "http://localhost:8080/api/v1/user-registration/admin/register"
+  }
+}

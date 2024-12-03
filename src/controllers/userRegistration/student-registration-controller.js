@@ -1,5 +1,5 @@
 import logger from '../../utils/logger.js';
-import processStudentRegistration from '../../services/userRegistration/student.js';
+import processStudentRegistration from '../../services/userRegistration/student-registration-service.js';
 
 export const registerStudent = async (req, res, next) => {
   const studentRegistrationPayload = req.body;

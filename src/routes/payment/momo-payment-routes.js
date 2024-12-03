@@ -9,12 +9,12 @@ import authLimiter from '../../utils/middleware/rateLimit.js';
 import {
   paymentCallback, // Handles callbacks from the payment gateway
   initializeMomoTransaction, // Initiates a new MoMo (Mobile Money) transaction
-} from '../../controllers/payment/momo-payment-controller.js';
+} from '../../controllers/payment/index.js';
 
 import {
   validateMomoTransaction,
   validateMomoPaymentCallback,
-} from '../../validators/validationMiddleware/payment-validation-middleware.js';
+} from '../../validators/validationMiddleware/payment/momo-payment-validation-middleware.js';
 
 // Route for initiating a payment transaction
 // - Applies rate limiting to protect from abuse

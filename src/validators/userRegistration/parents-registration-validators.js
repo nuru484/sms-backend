@@ -9,7 +9,7 @@ const createParentValidators = (prefix) => ({
   validateLastName: validateInput(`${prefix}LastName`),
   validateProfilePhoto: validateInput(`${prefix}ProfilePhoto`),
   validatePhoneNumber: validateInput(`${prefix}PhoneNumber`, { maxLength: 15 }),
-  validateEthnicity: validateInput(`${prefix}Role`)
+  validateRole: validateInput(`${prefix}Role`)
     .isIn(Object.values(role))
     .withMessage(`Invalid ${prefix} role.`),
   validateGender: validateInput(`${prefix}Gender`, { maxLength: 50 }),

@@ -9,7 +9,7 @@
     "studentFatherUsername": "john_doe",
     "studentFatherRole": "PARENT",
     "studentFatherRelationshipToStudent": "Biological Father",
-    "studentFatherEmail": "johndoe@example.com",
+    "studentFatherEmail": "studentfather@example.com",
 
     "studentMotherFirstName": "Jane",
     "studentMotherMiddleName": "Elizabeth",
@@ -20,7 +20,7 @@
     "studentMotherUsername": "jane_doe",
     "studentMotherRole": "PARENT",
     "studentMotherRelationshipToStudent": "Biological Mother",
-    "studentMotherEmail": "janedoe@example.com",
+    "studentMotherEmail": "studentmother@example.com",
 
     "studentFirstName": "Alice",
     "studentMiddleName": "Marie",
@@ -41,7 +41,7 @@
     "postalCode": "10001",
     "digitalAddress": "NY-123-4567"
   },
-  "endpoint urls for user registration": {
+  "endpoint url for student registration": {
     "student registration": "http://localhost:8080/api/v1/user-registration/student/register"
   }
 }

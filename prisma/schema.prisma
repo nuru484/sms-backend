@@ -26,7 +26,7 @@ model User {
   profilePhoto String?  @db.VarChar(255)
   email        String?  @unique
   password     String?
-  phoneNumber  String?  @unique @db.VarChar(15)
+  phoneNumber  String?  @db.VarChar(15)
   role         role
 
   // Relations to specific profiles
