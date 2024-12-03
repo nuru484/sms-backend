@@ -26,10 +26,7 @@ const fatherValidators = createParentValidators('studentFather');
 const motherValidators = createParentValidators('studentMother');
 
 // Export grouped validators for route handlers
-const studentFatherRegistrationValidators = Object.values(fatherValidators);
-const studentMotherRegistrationValidators = Object.values(motherValidators);
-
-export {
-  studentFatherRegistrationValidators,
-  studentMotherRegistrationValidators,
-};
+export const studentFatherRegistrationValidators =
+  Object.values(fatherValidators);
+export const studentMotherRegistrationValidators =
+  Object.values(motherValidators);

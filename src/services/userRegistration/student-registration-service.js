@@ -1,4 +1,6 @@
 // src/services/userRegistration/student-registration-service.js
+
+// Import required repository functions for user and student data handling
 import {
   createUserBasicDetails,
   createUserAddress,
@@ -14,7 +16,9 @@ import {
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 
+// Main function to process student registration
 const processStudentRegistration = async (payload) => {
+  // Destructure all required fields from the payload
   const {
     studentFatherFirstName,
     studentFatherMiddleName,
@@ -59,7 +63,7 @@ const processStudentRegistration = async (payload) => {
   } = payload;
 
   try {
-    // Create Student User
+    // Step 1: Create Student User Record
     const student = await createUserBasicDetails({
       firstName: studentFirstName,
       middleName: studentMiddleName,
@@ -70,7 +74,7 @@ const processStudentRegistration = async (payload) => {
       profilePhoto: studentProfilePhoto,
     });
 
-    // Create Previous School Details if Provided
+    // Step 2: Optionally Create Previous School Details (if provided)
     const studentPreviousSchool =
       previousSchoolName && previousSchoolLevel
         ? await createStudentPreviousSchool({
@@ -79,16 +83,16 @@ const processStudentRegistration = async (payload) => {
           })
         : null;
 
-    // Create Student Personal Details
+    // Step 3: Create Student Personal Details
     const studentPersonalDetails = await createStudentPersonalDetails({
       dateOfBirth,
       ethnicity,
       admissionStatus,
-      userId: student.id, // Use the correct ID
-      studentPreviousSchoolId: studentPreviousSchool?.id || null,
+      userId: student.id, // Use the student's ID for reference
+      studentPreviousSchoolId: studentPreviousSchool?.id || null, // Connect previous school if exists
     });
 
-    // Create Student Address
+    // Step 4: Create Student Address
     const studentAddress = await createUserAddress({
       city,
       country,
@@ -98,7 +102,7 @@ const processStudentRegistration = async (payload) => {
       userId: student.id,
     });
 
-    // Create Father User
+    // Step 5: Create Father User Record
     const studentFather = await createUserBasicDetails({
       firstName: studentFatherFirstName,
       middleName: studentFatherMiddleName,
@@ -111,20 +115,19 @@ const processStudentRegistration = async (payload) => {
       email: studentFatherEmail,
     });
 
-    // Create Father Personal Details
+    // Step 6: Create Father Personal Details
     const studentFatherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentFatherRelationshipToStudent,
       userId: studentFather.id,
     });
 
-    // Connect Father to Student
-
+    // Step 7: Connect Father to Student
     const connectStudentToFather = await createStudentParentRelation({
       studentId: studentPersonalDetails.id,
       parentId: studentFatherPersonalDetails.id,
     });
 
-    // Create Mother User
+    // Step 8: Create Mother User Record
     const studentMother = await createUserBasicDetails({
       firstName: studentMotherFirstName,
       middleName: studentMotherMiddleName,
@@ -137,23 +140,25 @@ const processStudentRegistration = async (payload) => {
       email: studentMotherEmail,
     });
 
-    // Create Mother Personal Details
+    // Step 9: Create Mother Personal Details
     const studentMotherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentMotherRelationshipToStudent,
       userId: studentMother.id,
     });
 
-    // Connect Mother to Student
+    // Step 10: Connect Mother to Student
     const connectStudentToMother = await createStudentParentRelation({
       studentId: studentPersonalDetails.id,
       parentId: studentMotherPersonalDetails.id,
     });
 
+    // Return success message after all steps are successfully completed
     return {
       message: 'Student registration successful.',
-      admissionStatus: 'PENDING',
+      admissionStatus: 'PENDING', // The admission status is set to pending initially
     };
   } catch (error) {
+    // Log the error details for debugging purposes
     logger.error({
       'Error processing student registration': {
         error: error.message,
@@ -161,8 +166,10 @@ const processStudentRegistration = async (payload) => {
       },
     });
 
+    // Throw a custom error with an appropriate error message
     throw new CustomError(500, `Student registration failed: ${error.message}`);
   }
 };
 
+// Export the student registration service for use elsewhere in the application
 export default processStudentRegistration;
