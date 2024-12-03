@@ -23,6 +23,7 @@ const processStudentRegistration = async (payload) => {
     studentFatherPhoneNumber,
     studentFatherGender,
     studentFatherUsername,
+    studentFatherRole,
     studentFatherRelationshipToStudent,
     studentFatherEmail,
 
@@ -33,6 +34,7 @@ const processStudentRegistration = async (payload) => {
     studentMotherPhoneNumber,
     studentMotherGender,
     studentMotherUsername,
+    studentMotherRole,
     studentMotherRelationshipToStudent,
     studentMotherEmail,
 
@@ -42,6 +44,7 @@ const processStudentRegistration = async (payload) => {
     studentProfilePhoto,
     studentGender,
     ethnicity,
+    studentRole,
     previousSchoolName,
     previousSchoolLevel,
     dateOfBirth,
@@ -63,6 +66,7 @@ const processStudentRegistration = async (payload) => {
         middleName: studentMiddleName,
         lastName: studentLastName,
         username: studentUsername,
+        role: studentRole,
         gender: studentGender,
         profilePhoto: studentProfilePhoto,
       });
@@ -101,6 +105,7 @@ const processStudentRegistration = async (payload) => {
         middleName: studentFatherMiddleName,
         lastName: studentFatherLastName,
         username: studentFatherUsername,
+        role: studentFatherRole,
         gender: studentFatherGender,
         profilePhoto: studentFatherProfilePhoto,
         phoneNumber: studentFatherPhoneNumber,
@@ -125,6 +130,7 @@ const processStudentRegistration = async (payload) => {
         middleName: studentMotherMiddleName,
         lastName: studentMotherLastName,
         username: studentMotherUsername,
+        role: studentMotherRole,
         gender: studentMotherGender,
         profilePhoto: studentMotherProfilePhoto,
         phoneNumber: studentMotherPhoneNumber,

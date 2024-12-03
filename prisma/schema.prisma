@@ -27,6 +27,7 @@ model User {
   email        String?  @unique
   password     String?
   phoneNumber  String?  @unique @db.VarChar(15)
+  role         role
 
   // Relations to specific profiles
   student          Student?
@@ -38,6 +39,14 @@ model User {
   Trip             Trip[]
   identityNumber   identityNumber[]
   Position         Position[]
+}
+
+enum role {
+  ADMIN
+  TEACHER
+  STUDENT
+  STAFF
+  PARENT
 }
 
 model identityNumber {

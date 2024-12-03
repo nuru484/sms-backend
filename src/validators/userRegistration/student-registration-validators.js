@@ -1,6 +1,6 @@
 // src/controllers/validators/registration/student/studentRegistrationValidators.js
 import { validateInput, validateDateInput } from '../general-validators.js';
-import { admissionStatus } from '@prisma/client';
+import { admissionStatus, role } from '@prisma/client';
 
 // Factory function to generate student-specific validators
 const createStudentValidators = () => ({
@@ -10,6 +10,9 @@ const createStudentValidators = () => ({
   validateProfilePhoto: validateInput('studentProfilePhoto'),
   validateGender: validateInput('studentGender', { maxLength: 50 }),
   validateEthnicity: validateInput('ethnicity'),
+  validateEthnicity: validateInput('studentRole')
+    .isIn(Object.values(role))
+    .withMessage('Invalid student role.'),
   validatePreviousSchoolName: validateInput('previousSchoolName', {
     required: false,
   }),

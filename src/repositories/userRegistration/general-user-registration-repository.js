@@ -15,6 +15,7 @@ const createUserBasicDetails = async ({
   email,
   password,
   phoneNumber,
+  role,
 }) => {
   const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
@@ -28,6 +29,7 @@ const createUserBasicDetails = async ({
     email: email || null,
     password: hashedPassword,
     phoneNumber: phoneNumber || null,
+    role,
   };
 
   try {

@@ -7,6 +7,7 @@
     "studentFatherPhoneNumber": "1234567890",
     "studentFatherGender": "Male",
     "studentFatherUsername": "john_doe",
+    "studentFatherRole": "PARENT",
     "studentFatherRelationshipToStudent": "Biological Father",
     "studentFatherEmail": "johndoe@example.com",
 
@@ -17,6 +18,7 @@
     "studentMotherPhoneNumber": "0987654321",
     "studentMotherGender": "Female",
     "studentMotherUsername": "jane_doe",
+    "studentMotherRole": "PARENT",
     "studentMotherRelationshipToStudent": "Biological Mother",
     "studentMotherEmail": "janedoe@example.com",
 
@@ -26,6 +28,7 @@
     "studentProfilePhoto": "https://example.com/photos/alice.jpg",
     "studentGender": "Female",
     "ethnicity": "Hispanic",
+    "studentRole": "STUDENT",
     "previousSchoolName": "Greenwood High School",
     "previousSchoolLevel": "Secondary",
     "dateOfBirth": "2005-06-15",
