@@ -1,0 +1,44 @@
+{
+  "student registration req body": {
+    "studentFatherFirstName": "John",
+    "studentFatherMiddleName": "Michael",
+    "studentFatherLastName": "Doe",
+    "studentFatherProfilePhoto": "https://example.com/photos/john_doe.jpg",
+    "studentFatherPhoneNumber": "1234567890",
+    "studentFatherGender": "Male",
+    "studentFatherUsername": "john_doe",
+    "studentFatherRelationshipToStudent": "Biological Father",
+    "studentFatherEmail": "johndoe@example.com",
+
+    "studentMotherFirstName": "Jane",
+    "studentMotherMiddleName": "Elizabeth",
+    "studentMotherLastName": "Doe",
+    "studentMotherProfilePhoto": "https://example.com/photos/jane_doe.jpg",
+    "studentMotherPhoneNumber": "0987654321",
+    "studentMotherGender": "Female",
+    "studentMotherUsername": "jane_doe",
+    "studentMotherRelationshipToStudent": "Biological Mother",
+    "studentMotherEmail": "janedoe@example.com",
+
+    "studentFirstName": "Alice",
+    "studentMiddleName": "Marie",
+    "studentLastName": "Johnson",
+    "studentProfilePhoto": "https://example.com/photos/alice.jpg",
+    "studentGender": "Female",
+    "ethnicity": "Hispanic",
+    "previousSchoolName": "Greenwood High School",
+    "previousSchoolLevel": "Secondary",
+    "dateOfBirth": "2005-06-15",
+    "admissionStatus": "PENDING",
+    "studentUsername": "alice_johnson",
+
+    "city": "New York",
+    "country": "United States",
+    "region": "New York",
+    "postalCode": "10001",
+    "digitalAddress": "NY-123-4567"
+  },
+  "endpoint urls for user registration": {
+    "student registration": "http://localhost:8080/api/v1/user-registration/student/register"
+  }
+}

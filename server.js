@@ -59,7 +59,7 @@ app.use(
 );
 
 // Register routes for the app
-app.use('/', routes);
+app.use('/api/v1', routes);
 
 // Global error-handling middleware for catching and formatting errors
 app.use(handleError);
