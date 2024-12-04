@@ -13,12 +13,6 @@ const createStudentValidators = () => ({
   validateEthnicity: validateInput('studentRole')
     .isIn(Object.values(role))
     .withMessage('Invalid student role.'),
-  validatePreviousSchoolName: validateInput('previousSchoolName', {
-    required: false,
-  }),
-  validatePreviousSchoolLevel: validateInput('previousSchoolLevel', {
-    required: false,
-  }),
   validateDateOfBirth: validateDateInput('dateOfBirth'),
   validateAdmissionStatus: validateInput('admissionStatus')
     .isIn(Object.values(admissionStatus))

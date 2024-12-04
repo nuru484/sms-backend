@@ -1,12 +1,15 @@
 import { validateInput } from '../general-validators.js';
 
 const createInitializeMomoTransactionValidators = () => ({
-  validateFirstName: validateInput('currency'),
-  validateMiddleName: validateInput('payerId', {
+  validateCurrency: validateInput('currency'),
+  validatePayerPartyId: validateInput('partyId', {
     maxLength: 10,
   }).isLength({ min: 10 }),
-  validateLastName: validateInput('externalId'),
-  validateBody: validateInput('amount')
+  validateExternalId: validateInput('externalId'),
+  validatePayerPartyIdType: validateInput('partyIdType'),
+  validatePayeeNote: validateInput('payeeNote'),
+  validatePayerMessage: validateInput('payerMessage'),
+  validateAmount: validateInput('amount')
     .isFloat({ gt: 0 })
     .withMessage('Transaction amount must be a positive number')
     .escape(),
@@ -21,17 +24,15 @@ export const InitializeMomoTransactionValidators = Object.values(
 
 // Create MTN Callback Validators
 const createMtnCallbackValidators = () => ({
-  validateExternalId: validateInput('externalId', { required: true }),
-  validateAmount: validateInput('amount', { required: true })
+  validateExternalId: validateInput('externalId'),
+  validateAmount: validateInput('amount')
     .isNumeric()
     .withMessage('amount must be a numeric value')
     .escape(),
   validateCurrency: validateInput('currency', {
     maxLength: 3,
   }).isLength({ min: 3 }),
-  validatePayerPartyIdType: validateInput('payer.partyIdType', {
-    required: true,
-  })
+  validatePayerPartyIdType: validateInput('payer.partyIdType')
     .isIn(['MSISDN', 'EMAIL', 'ACCOUNT'])
     .withMessage('payer.partyIdType must be one of MSISDN, EMAIL, ACCOUNT')
     .escape(),
@@ -39,8 +40,8 @@ const createMtnCallbackValidators = () => ({
     maxLength: 10,
     required: true,
   }).isLength({ min: 10 }),
-  validatePayeeNote: validateInput('payeeNote', { required: true }),
-  validateStatus: validateInput('status', { required: true })
+  validatePayeeNote: validateInput('payeeNote'),
+  validateStatus: validateInput('status')
     .isIn(['FAILED', 'SUCCESSFUL', 'PENDING'])
     .withMessage('status must be one of FAILED, SUCCESSFUL, PENDING')
     .escape(),

@@ -17,8 +17,10 @@
     "amount": "0.1",
     "currency": "EUR",
     "externalId": "sdfds",
-    "payerId": "4673312345",
-    "payerMessage": "Voucher payment"
+    "partyId": "4673312345",
+    "partyIdType": "MSISDN",
+    "payerMessage": "Voucher payment",
+    "payeeNote": "Thnank You"
   },
 
   "endpoints": {

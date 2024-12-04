@@ -23,6 +23,7 @@ const createUserBasicDetails = async ({
   email,
   password,
   phoneNumber,
+  dateOfBirth,
   role,
 }) => {
   // Hash the password if provided, using bcrypt for secure storage.
@@ -39,6 +40,7 @@ const createUserBasicDetails = async ({
     email: email || null, // Default to null if no email is provided.
     password: hashedPassword,
     phoneNumber: phoneNumber || null, // Default to null if no phone number is provided.
+    dateOfBirth: dateOfBirth || null,
     role,
   };
 

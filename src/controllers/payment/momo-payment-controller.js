@@ -20,8 +20,15 @@ import moMoApiAccessToken from '../../services/momoApi/create-MoMo-api-accesstok
 export const initializeMomoTransaction = async (req, res, next) => {
   try {
     // Extract required payment details from the request body
-    const { amount, currency, externalId, payerId, payerMessage, payeeNote } =
-      req.body;
+    const {
+      amount,
+      currency,
+      externalId,
+      partyId,
+      partyIdType,
+      payerMessage,
+      payeeNote,
+    } = req.body;
 
     // Log the incoming request details for debugging and traceability
     logger.info({ 'Initializing MoMo Transaction': { requestBody: req.body } });
@@ -36,7 +43,8 @@ export const initializeMomoTransaction = async (req, res, next) => {
       amount,
       currency,
       externalId,
-      payerId,
+      partyId,
+      partyIdType,
       payerMessage,
       payeeNote
     );

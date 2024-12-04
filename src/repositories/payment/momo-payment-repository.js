@@ -21,7 +21,7 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
  * @param {string} paymentDetails.accessToken - Authentication token for the transaction.
  * @param {number} paymentDetails.amount - The transaction amount.
  * @param {string} paymentDetails.currency - The currency code (e.g., 'USD').
- * @param {string} paymentDetails.payerId - The ID of the payer.
+ * @param {string} paymentDetails.partyId - The ID of the payer.
  * @param {string} paymentDetails.referenceId - Unique identifier for the transaction.
  * @param {string} paymentDetails.status - The status of the transaction (e.g., 'Pending').
  * @returns {Promise<void>}
@@ -29,52 +29,33 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
  */
 export const createMomoTransaction = async (paymentDetails) => {
   try {
-    // Validate required fields in the payment details
-    if (
-      !paymentDetails.accessToken ||
-      !paymentDetails.amount ||
-      !paymentDetails.currency ||
-      !paymentDetails.payerId ||
-      !paymentDetails.referenceId ||
-      !paymentDetails.status
-    ) {
-      throw new CustomError(
-        400,
-        'Invalid payment details: Missing required fields'
-      );
-    }
-
-    // Validate the transaction amount
-    if (isNaN(paymentDetails.amount) || paymentDetails.amount <= 0) {
-      throw new CustomError(400, 'Invalid payment amount');
-    }
-
-    // Validate the currency format (ISO 4217, 3-letter code)
-    if (!/^[A-Z]{3}$/.test(paymentDetails.currency)) {
-      throw new CustomError(400, 'Invalid currency format');
-    }
-
     // Log transaction details for traceability
     logger.info('Creating MoMo transaction in the database', {
       amount: paymentDetails.amount,
       currency: paymentDetails.currency,
-      payerId: paymentDetails.payerId,
+      partyId: paymentDetails.partyId,
       referenceId: paymentDetails.referenceId,
       status: paymentDetails.status,
+      externalId: paymentDetails.externalId,
+      partyIdType: paymentDetails.partyIdType,
+      payerMessage: paymentDetails.payerMessage,
+      payeeNote: paymentDetails.payeeNote,
     });
 
     // Create a new transaction record in the database
-    await prisma.transaction.create({
+    await prisma.mobileMoneyTransaction.create({
       data: {
         accessToken: paymentDetails.accessToken,
         amount: parseFloat(paymentDetails.amount), // Ensure the amount is a valid float
         currency: paymentDetails.currency,
-        payerAccountNumber: paymentDetails.payerId,
+        partyId: paymentDetails.partyId,
         externalId: paymentDetails.externalId,
         referenceId: paymentDetails.referenceId,
         status: paymentDetails.status,
-        type: 'Incoming Payment', // Static type for the transaction
         transactionDate: new Date(), // Automatically sets the transaction date
+        partyIdType: paymentDetails.partyIdType,
+        payerMessage: paymentDetails.payerMessage,
+        payeeNote: paymentDetails.payeeNote,
       },
     });
   } catch (error) {
@@ -105,7 +86,7 @@ export const createMomoTransaction = async (paymentDetails) => {
 export const updateMomoTransactionStatus = async (externalId, updateData) => {
   try {
     // Update the transaction record in the database
-    const transaction = await prisma.transaction.update({
+    const transaction = await prisma.mobileMoneyTransaction.update({
       where: { externalId }, // Locate the transaction by its external ID
       data: updateData, // Apply the updates provided in updateData
     });

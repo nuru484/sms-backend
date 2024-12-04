@@ -13,24 +13,19 @@ import logger from '../../utils/logger.js'; // Logger for logging operations and
  * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
  */
 export const createStudentPersonalDetails = async ({
-  dateOfBirth,
   ethnicity,
   admissionStatus,
   userId,
-  studentPreviousSchoolId,
 }) => {
   try {
     // Prepare data to be stored, including user connection and optional previous school connection.
-    const studentData = { dateOfBirth, ethnicity, admissionStatus };
+    const studentData = { ethnicity, admissionStatus };
 
     const studentDataToCreate = {
       ...studentData,
       user: {
         connect: { id: userId }, // Connect the student to the user via the user ID
       },
-      previousSchool: studentPreviousSchoolId
-        ? { connect: { id: studentPreviousSchoolId } } // Optionally connect to a previous school
-        : null, // Use null if no previous school ID is provided
     };
 
     // Log the attempt to create student personal details in the database.
@@ -67,65 +62,6 @@ export const createStudentPersonalDetails = async ({
       throw new CustomError(
         400,
         `Duplicate user details: ${error.meta?.target || error.message}`
-      );
-    }
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
-  }
-};
-
-/**
- * Repository function to create and save the previous school details for a student.
- *
- * @param {Object} schoolDetails - Object containing previous school details such as name and level.
- * @returns {Promise<Object>} - Returns the created previous school details object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
- */
-export const createStudentPreviousSchool = async ({
-  previousSchoolName,
-  previousSchoolLevel,
-}) => {
-  const studentPreviousSchoolDetails = {
-    previousSchoolName,
-    previousSchoolLevel,
-  };
-
-  try {
-    // Log the attempt to create the student previous school details in the database
-    logger.info({
-      'Attempting to create student previous school details in the database': {
-        data: studentPreviousSchoolDetails,
-      },
-    });
-
-    // Create the student previous school details in the database using Prisma
-    const previousSchool = await prisma.studentPreviousSchool.create({
-      data: studentPreviousSchoolDetails,
-    });
-
-    // Log the successful creation of the previous school details
-    logger.info(
-      'Student previous school details successfully created in the database.'
-    );
-
-    return previousSchool; // Return the created previous school details object
-  } catch (error) {
-    // Log any errors encountered during the creation of previous school details
-    logger.error({
-      'Database error during student previous school details creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate previous school details: ${
-          error.meta?.target || error.message
-        }`
       );
     }
 

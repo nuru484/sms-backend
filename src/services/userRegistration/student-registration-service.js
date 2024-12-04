@@ -8,7 +8,6 @@ import {
 
 import {
   createStudentPersonalDetails,
-  createStudentPreviousSchool,
   createStudentParentRelation,
   createParentPersonalDetails,
 } from '../../repositories/userRegistration/student-registration-repository.js';
@@ -49,8 +48,6 @@ const processStudentRegistration = async (payload) => {
     studentGender,
     ethnicity,
     studentRole,
-    previousSchoolName,
-    previousSchoolLevel,
     dateOfBirth,
     admissionStatus,
     studentUsername,
@@ -72,24 +69,14 @@ const processStudentRegistration = async (payload) => {
       role: studentRole,
       gender: studentGender,
       profilePhoto: studentProfilePhoto,
+      dateOfBirth,
     });
-
-    // Step 2: Optionally Create Previous School Details (if provided)
-    const studentPreviousSchool =
-      previousSchoolName && previousSchoolLevel
-        ? await createStudentPreviousSchool({
-            previousSchoolName,
-            previousSchoolLevel,
-          })
-        : null;
 
     // Step 3: Create Student Personal Details
     const studentPersonalDetails = await createStudentPersonalDetails({
-      dateOfBirth,
       ethnicity,
       admissionStatus,
       userId: student.id, // Use the student's ID for reference
-      studentPreviousSchoolId: studentPreviousSchool?.id || null, // Connect previous school if exists
     });
 
     // Step 4: Create Student Address

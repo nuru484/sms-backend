@@ -31,22 +31,16 @@ const processMomoPayment = async (
   amount,
   currency,
   externalId,
-  payerId,
+  partyId,
+  partyIdType,
   payerMessage,
   payeeNote
 ) => {
-  // Validate inputs to ensure all required parameters are present
-  if (!accessToken || !amount || !currency || !externalId || !payerId) {
-    throw new CustomError(
-      400,
-      'Missing required parameters for processing payment'
-    );
-  }
-
   // Log the details of the payment being processed
   logger.info({
     'Processing MoMo payment': {
-      payerId,
+      partyId,
+      partyIdType,
       amount,
       externalId,
       currency,
@@ -62,7 +56,8 @@ const processMomoPayment = async (
       amount,
       currency,
       externalId,
-      payerId,
+      partyId,
+      partyIdType,
       payerMessage,
       payeeNote
     );
@@ -73,7 +68,8 @@ const processMomoPayment = async (
       amount,
       currency,
       externalId,
-      payerId,
+      partyId,
+      partyIdType,
       payerMessage,
       payeeNote,
       referenceId: requestToPayResponse.referenceId,
@@ -86,7 +82,7 @@ const processMomoPayment = async (
     // Log a successful payment processing event
     logger.info({
       'MoMo payment processed successfully': {
-        payerId,
+        partyId,
         externalId,
         response: requestToPayResponse,
       },
@@ -100,7 +96,7 @@ const processMomoPayment = async (
       'Error processing MoMo payment': {
         error: error.message,
         stack: error.stack,
-        details: { payerId, amount, externalId, currency },
+        details: { partyId, amount, externalId, currency },
       },
     });
 

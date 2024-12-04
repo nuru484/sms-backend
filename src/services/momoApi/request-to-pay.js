@@ -11,7 +11,8 @@ import { CustomError } from '../../utils/middleware/errorHandler.js'; // Standar
  * @param {number} amount - The payment amount.
  * @param {string} currency - The currency for the payment (e.g., "USD").
  * @param {string} externalId - A unique identifier for the transaction.
- * @param {string} payerId - The payer's identifier (e.g., mobile number).
+ * @param {string} partyId - The payer's identifier (e.g., mobile number).
+ * @param {string} partyIdType Payer's identifier type (MSISDN type represents mobile numbers)
  * @param {string} payerMessage - A message from the payer to the payee.
  * @param {string} payeeNote - A note for the payee regarding the transaction.
  * @returns {Promise<Object>} - Returns details about the payment request, including its status and reference ID.
@@ -22,7 +23,8 @@ const requestToPay = async (
   amount,
   currency,
   externalId,
-  payerId,
+  partyId,
+  partyIdType,
   payerMessage,
   payeeNote
 ) => {
@@ -40,7 +42,7 @@ const requestToPay = async (
     amount, // Amount to be paid
     currency, // Currency of the payment
     externalId, // External identifier for the transaction
-    payer: { partyIdType: 'MSISDN', partyId: payerId }, // Payer details (MSISDN type represents mobile numbers)
+    payer: { partyIdType, partyId }, // Payer details (MSISDN type represents mobile numbers)
     payerMessage, // Optional message from the payer
     payeeNote, // Optional note for the payee
   });
