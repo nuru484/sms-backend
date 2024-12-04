@@ -1,0 +1,32 @@
+{
+  "teacher registration req body": {
+    "firstName": "John",
+    "middleName": "A.",
+    "lastName": "Doe",
+    "username": "osjojdgpdg",
+    "gender": "Male",
+    "profilePhoto": "https://example.com/photo.jpg",
+    "email": "sjpdpoeg@example.com",
+    "phoneNumber": "+1234567890",
+    "dateOfBirth": "1990-01-01",
+    "role": "TEACHER",
+    "employmentType": "FULL_TIME",
+    "digitalSignature": "UniqueSignatureDataHere",
+    "spokenLanguages": ["English", "French"],
+    "socialMediaHandles": {
+      "twitter": "@johndoe",
+      "linkedin": "linkedin.com/in/johndoe"
+    },
+    "maritalStatus": "Married",
+    "password": "SecurePass123!",
+    "confirmPassword": "SecurePass123!",
+    "courseId": 1,
+    "classId": 1,
+    "city": "New York",
+    "country": "United States",
+    "region": "New York",
+    "postalCode": "10001",
+    "digitalAddress": "NY-123-4567"
+  },
+  "teacher registration endpoint url": "http://localhost:8080/api/v1/user-registration/teacher/register"
+}

@@ -167,10 +167,10 @@ model Parent {
 }
 
 model Teacher {
-  id                 Int     @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   digitalSignature   String
-  spokenLanguages    String
-  socialMediaHandles String?
+  spokenLanguages    String[]
+  socialMediaHandles Json?
   maritalStatus      String
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -304,6 +304,7 @@ model Course {
   ReportDetail  ReportDetail[]
   Exam          Exam[]
   Curriculum    Curriculum[]
+  ClassCourse   CourseForClass[]
 }
 
 model Level {
@@ -325,9 +326,11 @@ model Class {
   roomNumber  String? @db.VarChar(50)
 
   // Relations
-  level        Level          @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  levelId      Int
+  level        Level?           @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  levelId      Int?
   TeacherClass TeacherClass[]
+  ClassCourse  CourseForClass[]
+  ClassCourses ClassCourses[]
 }
 
 // Model representing exams taken by students in a course
@@ -391,6 +394,23 @@ model Term {
   ReportDetail  ReportDetail[]
   Exam          Exam[]
   StudentCourse StudentCourse[]
+}
+
+model ClassCourses {
+  id               Int            @id @default(autoincrement())
+  class            Class          @relation(fields: [classId], references: [id])
+  classId          Int
+  courses          CourseForClass @relation(fields: [courseForClassId], references: [id])
+  courseForClassId Int
+}
+
+model CourseForClass {
+  id           Int            @id @default(autoincrement())
+  course       Course         @relation(fields: [courseId], references: [id])
+  class        Class          @relation(fields: [classId], references: [id])
+  classId      Int
+  courseId     Int
+  ClassCourses ClassCourses[]
 }
 
 model StudentReport {

@@ -1,4 +1,4 @@
-// src/repositories/userRegistration/studentRegistration.js
+// src/repositories/userRegistration/student-registration-repository.js
 
 // Import necessary modules
 import prisma from '../../../prismaClient.js'; // Prisma client for database operations
