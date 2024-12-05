@@ -6,11 +6,7 @@ import {
   createUserAddress,
 } from '../../repositories/userRegistration/general-user-registration-repository.js';
 
-import {
-  createTeacherPersonalDetails,
-  createTeacherCourseRelation,
-  createTeacherClassRelation,
-} from '../../repositories/userRegistration/teacher-registration-repository.js';
+import { createTeacherPersonalDetails } from '../../repositories/userRegistration/teacher-registration-repository.js';
 
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
@@ -42,8 +38,8 @@ const processTeacherRegistration = async (payload) => {
     region,
     postalCode,
     digitalAddress,
-    courseId,
-    classId,
+    coursesIds,
+    classesIds,
   } = payload;
 
   try {
@@ -68,6 +64,8 @@ const processTeacherRegistration = async (payload) => {
       socialMediaHandles,
       maritalStatus,
       userId: teacher.id, // Use the teacher's ID for reference
+      coursesIds,
+      classesIds,
     });
 
     logger.info('Teacher personal details successfully created.');
@@ -83,22 +81,6 @@ const processTeacherRegistration = async (payload) => {
     });
 
     logger.info('Teacher address successfully created.');
-
-    // Step 4: Connect Teacher to Course
-    const teacherCourseRelation = await createTeacherCourseRelation({
-      teacherId: teacherPersonalDetails.id,
-      courseId: parseInt(courseId), // Connect to the course using the course ID from the payload
-    });
-
-    logger.info('Teacher successfully connected to course.');
-
-    // Step 5: Connect Teacher to Class
-    const teacherClassRelation = await createTeacherClassRelation({
-      teacherId: teacherPersonalDetails.id,
-      classId: parseInt(classId), // Connect to the class using the class ID from the payload
-    });
-
-    logger.info('Teacher successfully connected to class.');
 
     // Return success message after all steps are successfully completed
     return {

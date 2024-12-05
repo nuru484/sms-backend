@@ -18,6 +18,8 @@ export const createTeacherPersonalDetails = async ({
   socialMediaHandles,
   maritalStatus,
   userId,
+  coursesIds,
+  classesIds,
 }) => {
   try {
     // Prepare data to be stored
@@ -31,6 +33,12 @@ export const createTeacherPersonalDetails = async ({
       ...teacherData,
       user: {
         connect: { id: userId }, // Connect the teacher to the user via the user ID
+      },
+      courses: {
+        connect: coursesIds.map((id) => ({ id })), // Connect the parent to his son or ward by the wardId user ID
+      },
+      classes: {
+        connect: classesIds.map((id) => ({ id })),
       },
     };
 
@@ -72,116 +80,6 @@ export const createTeacherPersonalDetails = async ({
     }
 
     // Throw a generic internal server error if an unexpected error occurs
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
-  }
-};
-
-/**
- * Repository function to create and associate a teacher-course relationship in the database.
- *
- * @param {Object} teacherCourseData - Object containing teacher and course IDs.
- * @param {number} teacherId - The ID of the teacher.
- * @param {number} courseId - The ID of the course.
- * @returns {Promise<Object>} - Returns the created teacher-course relation object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
- */
-export const createTeacherCourseRelation = async ({ teacherId, courseId }) => {
-  try {
-    // Log the attempt to create the teacher-course relationship in the database
-    logger.info('Attempting to create teacher-course relation in the database');
-
-    // Create the teacher-course relationship using Prisma
-    const teacherCourseRelation = await prisma.teacherCourse.create({
-      data: {
-        teacher: {
-          connect: { id: teacherId }, // Connect to the teacher by teacher ID
-        },
-        course: {
-          connect: { id: courseId }, // Connect to the course by course ID
-        },
-      },
-    });
-
-    // Log the successful creation of the teacher-course relation
-    logger.info(
-      'Teacher-course relation successfully created in the database.'
-    );
-
-    return teacherCourseRelation; // Return the created teacher-course relation object
-  } catch (error) {
-    // Log any errors encountered during the creation of the teacher-course relation
-    logger.error({
-      'Database error during teacher-course relation creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate teacher-course relationship: ${
-          error.meta?.target || error.message
-        }`
-      );
-    }
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
-  }
-};
-
-/**
- * Repository function to create and associate a teacher-class relationship in the database.
- *
- * @param {Object} teacherClassData - Object containing teacher and class IDs.
- * @param {number} teacherId - The ID of the teacher.
- * @param {number} classId - The ID of the class.
- * @returns {Promise<Object>} - Returns the created teacher-class relation object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
- */
-export const createTeacherClassRelation = async ({ teacherId, classId }) => {
-  try {
-    // Log the attempt to create the teacher-class relationship in the database
-    logger.info('Attempting to create teacher-class relation in the database');
-
-    // Create the teacher-class relationship using Prisma
-    const teacherClassRelation = await prisma.teacherClass.create({
-      data: {
-        teacher: {
-          connect: { id: teacherId }, // Connect to the teacher by teacher ID
-        },
-        class: {
-          connect: { id: classId }, // Connect to the class by class ID
-        },
-      },
-    });
-
-    // Log the successful creation of the teacher-class relation
-    logger.info('Teacher-class relation successfully created in the database.');
-
-    return teacherClassRelation; // Return the created teacher-class relation object
-  } catch (error) {
-    // Log any errors encountered during the creation of the teacher-class relation
-    logger.error({
-      'Database error during teacher-class relation creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate teacher-class relationship: ${
-          error.meta?.target || error.message
-        }`
-      );
-    }
-
-    // Throw a generic internal server error if an unexpected error occurs.
     throw new CustomError(500, `Internal Server Error: ${error.message}`);
   }
 };

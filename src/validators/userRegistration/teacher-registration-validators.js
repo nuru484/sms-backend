@@ -9,6 +9,8 @@ import {
   validateDateInput, // Validation function for validating date of birth
 } from '../general-validators.js';
 
+import { body } from 'express-validator';
+
 // Importing the `role` and `employmentType` enums from Prisma client
 import { role, employmentType } from '@prisma/client';
 
@@ -66,10 +68,20 @@ const createTeacherValidators = () => ({
   validateSpokenLanguages: validateInput('spokenLanguages'),
 
   // Validator for course ID
-  validateCourseId: validateInput('courseId'),
+  validateCoursesIds: body('coursesIds')
+    .isArray()
+    .withMessage('Course IDs must be an array')
+    .notEmpty()
+    .withMessage('Course IDs array cannot be empty')
+    .bail(),
 
   // Validator for class ID
-  validateClassId: validateInput('classId'),
+  validateClassesIds: body('classesIds')
+    .isArray()
+    .withMessage('Class IDs must be an array')
+    .notEmpty()
+    .withMessage('Class IDs array cannot be empty')
+    .bail(),
 
   // Validator for social media handles (optional)
   validateSocialMediaHandles: validateInput('socialMediaHandles', {
