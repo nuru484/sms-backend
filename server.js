@@ -6,7 +6,11 @@ import cors from 'cors'; // To enable Cross-Origin Resource Sharing (CORS)
 import cookieParser from 'cookie-parser'; // To parse cookies in the request
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'; // Prisma session store to manage user sessions
 import expressSession from 'express-session'; // Session management for Express
+import passport from 'passport';
 import { PrismaClient } from '@prisma/client'; // Prisma client for database access
+import morgan from 'morgan';
+import logger from './src/utils/logger.js';
+import initializePassport from './src/authentication/passport-config.js';
 
 // Import routes and error-handling middleware
 import routes from './src/routes/index.js';
@@ -42,6 +46,8 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware for parsing cookies from incoming requests
 app.use(cookieParser());
 
+app.use(morgan(':method :url :status :response-time ms'));
+
 // Session management middleware using express-session and Prisma session store
 app.use(
   expressSession({
@@ -58,6 +64,11 @@ app.use(
   })
 );
 
+app.use(expressSession());
+app.use(passport.initialize());
+app.use(passport.session());
+initializePassport(passport);
+
 // Register routes for the app
 app.use('/api/v1', routes);
 
@@ -67,7 +78,7 @@ app.use(handleError);
 // Define the port and start the server
 const port = process.env.PORT || 3000; // Use PORT from .env or default to 3000
 app.listen(port, () => {
-  console.log(`App is listening on port ${port}`); // Log when the server is up
-  console.log('\x1b[34m%s\x1b[0m', ` http://localhost:${port}/`); // Log the server URL
-  console.log(`Allowed origins: ${allowedOrigins}`); // Log the allowed CORS origins
+  logger.info(`App is listening on port ${port}`); // Log when the server is up
+  logger.info('\x1b[34m%s\x1b[0m', ` http://localhost:${port}/`); // Log the server URL
+  logger.info(`Allowed origins: [${Array.from(allowedOrigins)}]`);
 });

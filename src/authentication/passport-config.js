@@ -1,6 +1,6 @@
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
-import prisma from '../../prismaClient';
+import prisma from '../../prismaClient.js';
 
 const initialize = (passport) => {
   passport.use(
@@ -68,4 +68,4 @@ const initialize = (passport) => {
   });
 };
 
-module.exports = initialize;
+export default initialize;
