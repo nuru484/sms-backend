@@ -1,0 +1,28 @@
+{
+  "course creation req body for single course": {
+    "courses": [
+      {
+        "name": "Integrated Science",
+        "code": "SCI101"
+      }
+    ]
+  },
+
+  "course creation req body for multiple courses": {
+    "courses": [
+      {
+        "name": "Integrated Science",
+        "code": "SCI101"
+      },
+      {
+        "name": "Mathematics",
+        "code": "MATH101"
+      },
+      {
+        "name": "English Language",
+        "code": "ENG101"
+      }
+    ]
+  },
+  "course creation endpoint url": "http://localhost:8080/api/v1/course/course-creation/create"
+}
