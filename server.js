@@ -4,13 +4,8 @@ import { config } from 'dotenv'; // To load environment variables from a .env fi
 config(); // Initialize dotenv configuration
 import cors from 'cors'; // To enable Cross-Origin Resource Sharing (CORS)
 import cookieParser from 'cookie-parser'; // To parse cookies in the request
-import { PrismaSessionStore } from '@quixo3/prisma-session-store'; // Prisma session store to manage user sessions
-import expressSession from 'express-session'; // Session management for Express
-import passport from 'passport';
-import { PrismaClient } from '@prisma/client'; // Prisma client for database access
 import morgan from 'morgan';
 import logger from './src/utils/logger.js';
-import initializePassport from './src/authentication/passport-config.js';
 
 // Import routes and error-handling middleware
 import routes from './src/routes/index.js';
@@ -46,28 +41,8 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware for parsing cookies from incoming requests
 app.use(cookieParser());
 
+// Morgan middeleware to log http request and it's details
 app.use(morgan(':method :url :status :response-time ms'));
-
-// Session management middleware using express-session and Prisma session store
-app.use(
-  expressSession({
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // Session expiration time (1 week)
-    },
-    secret: process.env.SESSION_SECRET, // Secret key for session encryption (stored in .env)
-    resave: true, // Forces the session to be saved back to the session store
-    saveUninitialized: true, // Save sessions that are new but not modified
-    store: new PrismaSessionStore(new PrismaClient(), {
-      checkPeriod: 2 * 60 * 1000, // Period for checking the session store (2 minutes)
-      dbRecordIdIsSessionId: true, // Use session ID as the database record ID
-    }),
-  })
-);
-
-app.use(expressSession());
-app.use(passport.initialize());
-app.use(passport.session());
-initializePassport(passport);
 
 // Register routes for the app
 app.use('/api/v1', routes);
@@ -79,6 +54,6 @@ app.use(handleError);
 const port = process.env.PORT || 3000; // Use PORT from .env or default to 3000
 app.listen(port, () => {
   logger.info(`App is listening on port ${port}`); // Log when the server is up
-  logger.info('\x1b[34m%s\x1b[0m', ` http://localhost:${port}/`); // Log the server URL
-  logger.info(`Allowed origins: [${Array.from(allowedOrigins)}]`);
+  logger.info(` http://localhost:${port}/`); // Log the server URL
+  logger.info(`Allowed origins: [${Array.from(allowedOrigins)}]`); // Log allowed origins
 });

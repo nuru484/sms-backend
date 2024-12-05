@@ -12,14 +12,11 @@ import { handleCourseCreation } from '../../controllers/course/index.js';
 import validateCourseDetails from '../../validators/validationMiddleware/course/course-creation-validation-middleware.js';
 
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
-import isAuthenticated from '../../utils/middleware/is-authenticated.js';
 
 // Define the POST route for course creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the course creation logic
 router.post(
   '/create',
-  isAuthenticated,
-  authorizeRole(['ADMIN']),
   validateCourseDetails, // Middleware to validate course details
   handleCourseCreation // Controller to handle the course creation logic
 );
