@@ -1,8 +1,8 @@
 // src/authentication/jwtAuthentication.js
 
 import jwt from 'jsonwebtoken';
-import ENV from '../config/env';
-import logger from '../utils/logger';
+import ENV from '../config/env.js';
+import logger from '../utils/logger.js';
 
 // helper function to verify tokens
 export const verifyToken = (token, secret) =>
@@ -26,6 +26,7 @@ const authenticateJWT = async (req, res, next) => {
 
   try {
     const decodedUser = await verifyToken(token, ENV.ACCESS_TOKEN_SECRET);
+    console.log(decodedUser);
     req.user = decodedUser;
     next();
   } catch (err) {

@@ -10,13 +10,15 @@ import { handleCourseCreation } from '../../controllers/course/index.js';
 
 // Import validation middleware for course creation
 import validateCourseDetails from '../../validators/validationMiddleware/course/course-creation-validation-middleware.js';
-
+import authenticateJWT from '../../authentication/jwtAuthentication.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 
 // Define the POST route for course creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the course creation logic
 router.post(
   '/create',
+  authenticateJWT,
+  authorizeRole(['ADMIN']),
   validateCourseDetails, // Middleware to validate course details
   handleCourseCreation // Controller to handle the course creation logic
 );
