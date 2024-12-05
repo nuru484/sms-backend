@@ -5,7 +5,7 @@ import { Router } from 'express';
 const router = Router();
 
 // Import the routes for Momo payment functionality
-import momoPaymentRoutes from './momo-payment-routes.js';
+import momoPaymentRoutes from './momo-payment-route.js';
 
 // Mount the Momo payment routes under the '/momo' path
 router.use('/momo', momoPaymentRoutes);

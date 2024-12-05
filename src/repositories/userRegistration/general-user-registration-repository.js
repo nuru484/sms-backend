@@ -4,7 +4,7 @@
 import prisma from '../../../prismaClient.js'; // Prisma client for database operations
 import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
 import logger from '../../utils/logger.js'; // Logger for logging operations and errors
-import bcrypt from 'bcryptjs'; // Bcrypt for password hashing
+import bcrypt from 'bcrypt'; // Bcrypt for password hashing
 
 /**
  * Repository function to create basic user details in the database.

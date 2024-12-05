@@ -10,6 +10,7 @@ const routes = Router();
 import paymentRoutes from './payment/index.js';
 import userRegistrationRoutes from './userRegistration/index.js';
 import courseRoutes from './course/index.js';
+import authRoutes from './auth/index.js';
 
 // Mounting the payment routes under the `/api/v1` prefix
 // All routes defined in `paymentRoutes` will now be accessible under `/api/v1`
@@ -22,6 +23,10 @@ routes.use('/user-registration', userRegistrationRoutes);
 // Mounting the course related routes under the `/api/v1` prefix
 // All routes defined in `course` will now be accessible under `/api/v1`
 routes.use('/course', courseRoutes);
+
+// Mounting the auth related routes under the `/api/v1` prefix
+// All routes defined in `auth` will now be accessible under `/api/v1`
+routes.use('/auth', authRoutes);
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server
