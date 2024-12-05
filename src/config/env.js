@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const ENV = {
@@ -10,6 +9,10 @@ const ENV = {
   MTN_MOMO_ACCESS_TOKEN_URL: process.env.MTN_MOMO_ACCESS_TOKEN_URL,
   MTN_MOMO_REQUEST_TO_PAY_URL: process.env.MTN_MOMO_REQUEST_TO_PAY_URL,
   REQUEST_TO_PAY_STATUS_URL: process.env.REQUEST_TO_PAY_STATUS_URL,
+  CORS_ACCESS: process.env.CORS_ACCESS,
+  DATABASE_URL: process.env.DATABASE_URL,
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 };
 
 export default ENV;
