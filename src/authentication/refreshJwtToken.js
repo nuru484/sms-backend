@@ -3,7 +3,6 @@
 import prisma from '../../prismaClient';
 import jwt from 'jsonwebtoken';
 import ENV from '../config/env';
-import { CustomError } from '../utils/middleware/errorHandler';
 import logger from '../utils/logger';
 import { verifyToken } from './jwtAuthentication';
 

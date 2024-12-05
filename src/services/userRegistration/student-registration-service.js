@@ -8,7 +8,6 @@ import {
 
 import {
   createStudentPersonalDetails,
-  createStudentParentRelation,
   createParentPersonalDetails,
 } from '../../repositories/userRegistration/student-registration-repository.js';
 
@@ -51,6 +50,7 @@ const processStudentRegistration = async (payload) => {
     dateOfBirth,
     admissionStatus,
     studentUsername,
+    password,
 
     city,
     country,
@@ -69,6 +69,7 @@ const processStudentRegistration = async (payload) => {
       role: studentRole,
       gender: studentGender,
       profilePhoto: studentProfilePhoto,
+      password,
       dateOfBirth,
     });
 
@@ -106,12 +107,7 @@ const processStudentRegistration = async (payload) => {
     const studentFatherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentFatherRelationshipToStudent,
       userId: studentFather.id,
-    });
-
-    // Step 7: Connect Father to Student
-    const connectStudentToFather = await createStudentParentRelation({
-      studentId: studentPersonalDetails.id,
-      parentId: studentFatherPersonalDetails.id,
+      wardsIds: [studentPersonalDetails.id],
     });
 
     // Step 8: Create Mother User Record
@@ -131,18 +127,13 @@ const processStudentRegistration = async (payload) => {
     const studentMotherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentMotherRelationshipToStudent,
       userId: studentMother.id,
-    });
-
-    // Step 10: Connect Mother to Student
-    const connectStudentToMother = await createStudentParentRelation({
-      studentId: studentPersonalDetails.id,
-      parentId: studentMotherPersonalDetails.id,
+      wardsIds: [studentPersonalDetails.id],
     });
 
     // Return success message after all steps are successfully completed
     return {
       message: 'Student registration successful.',
-      admissionStatus: 'PENDING', // The admission status is set to pending initially
+      'admission status': admissionStatus, // The admission status is set to pending initially
     };
   } catch (error) {
     // Log the error details for debugging purposes

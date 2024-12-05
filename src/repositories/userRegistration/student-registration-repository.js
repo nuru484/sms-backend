@@ -71,60 +71,6 @@ export const createStudentPersonalDetails = async ({
 };
 
 /**
- * Repository function to create and associate a student-parent relationship in the database.
- *
- * @param {Object} relationData - Object containing student ID and parent ID to associate them.
- * @returns {Promise<Object>} - Returns the created student-parent relation object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
- */
-export const createStudentParentRelation = async ({ studentId, parentId }) => {
-  try {
-    // Log the attempt to create the student-parent relationship in the database
-    logger.info('Attempting to create student-parent relation in the database');
-
-    // Create the student-parent relationship using Prisma
-    const studentParentRelation = await prisma.studentParent.create({
-      data: {
-        student: {
-          connect: { id: studentId }, // Connect to the student by student ID
-        },
-        parent: {
-          connect: { id: parentId }, // Connect to the parent by parent ID
-        },
-      },
-    });
-
-    // Log the successful creation of the student-parent relation
-    logger.info(
-      'Student-parent relation successfully created in the database.'
-    );
-
-    return studentParentRelation; // Return the created student-parent relation object
-  } catch (error) {
-    // Log any errors encountered during the creation of the student-parent relation
-    logger.error({
-      'Database error during student-parent relation creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate student-parent relationship: ${
-          error.meta?.target || error.message
-        }`
-      );
-    }
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
-  }
-};
-
-/**
  * Repository function to create and associate a parent’s personal details in the database.
  *
  * @param {Object} parentData - Object containing parent’s personal details and relationship to the student.
@@ -134,6 +80,7 @@ export const createStudentParentRelation = async ({ studentId, parentId }) => {
 export const createParentPersonalDetails = async ({
   relationshipToStudent,
   userId,
+  wardsIds,
 }) => {
   try {
     // Log the attempt to create the parent and associate it with the user
@@ -151,6 +98,9 @@ export const createParentPersonalDetails = async ({
         relationshipToStudent,
         user: {
           connect: { id: userId }, // Connect the parent to the user by user ID
+        },
+        wards: {
+          connect: wardsIds.map((id) => ({ id })), // Connect the parent to his son or ward by the wardId user ID
         },
       },
     });

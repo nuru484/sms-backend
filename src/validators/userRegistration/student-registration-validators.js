@@ -1,5 +1,10 @@
 // src/controllers/validators/registration/student/studentRegistrationValidators.js
-import { validateInput, validateDateInput } from '../general-validators.js';
+import {
+  validateInput, // General input validation function for various fields
+  validatePassword, // Validation function for validating password
+  validateConfirmPassword, // Validation function for confirming password match
+  validateDateInput, // Validation function for validating date of birth
+} from '../general-validators.js';
 import { admissionStatus, role } from '@prisma/client';
 
 // Factory function to generate student-specific validators
@@ -18,6 +23,8 @@ const createStudentValidators = () => ({
     .isIn(Object.values(admissionStatus))
     .withMessage('Invalid admission status.'),
   validateUsername: validateInput('studentUsername'),
+  validatePassword,
+  validateConfirmPassword,
 });
 
 // Generate student validators

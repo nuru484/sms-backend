@@ -44,6 +44,7 @@ model User {
   password       String?
   phoneNumber    String?         @db.VarChar(15)
   dateOfBirth    DateTime?
+  refreshToken   String?         @unique
   role           role
   employmentType employmentType?
 
@@ -74,18 +75,15 @@ model Student {
   ethnicity       String          @db.VarChar(255)
   admissionStatus admissionStatus
 
-  // Relations
-  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  level          Level?                 @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  previousSchool studentPreviousSchool? @relation(fields: [studentPreviousSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  // One to many elations
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  level   Level? @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId  Int    @unique
+  levelId Int?
 
-  userId                  Int  @unique
-  levelId                 Int?
-  studentPreviousSchoolId Int?
-
-  // Many-to-many relation with Parent through the join table StudentParent
-  parents                  StudentParent[]
-  StudentCourse            StudentCourse[]
+  // Many-to-many relations
+  parents                  Parent[]                   @relation("StudentParents")
+  courses                  Course[]                   @relation("StudentCourses")
   Grade                    Grade[]
   StudentReport            StudentReport[]
   ReportDetail             ReportDetail[]
@@ -109,44 +107,6 @@ model StudentApplicationNumber {
   studentId Int
 }
 
-model studentPreviousSchool {
-  id                  Int       @id @default(autoincrement())
-  previousSchoolName  String
-  previousSchoolLevel String
-  Student             Student[]
-}
-
-model StudentCourse {
-  id Int @id @default(autoincrement())
-
-  // Foreign keys to link Student and Course
-  studentId Int
-  courseId  Int
-  termId    Int
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  term    Term    @relation(fields: [termId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  // Unique constraint 
-  @@unique([studentId, courseId])
-}
-
-model StudentParent {
-  id Int @id @default(autoincrement())
-
-  studentId Int
-  parentId  Int
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  // Unique constraint to prevent duplicate entries for the same student-parent pairing
-  @@unique([studentId, parentId])
-}
-
 model Parent {
   id                    Int    @id @default(autoincrement())
   relationshipToStudent String
@@ -155,8 +115,8 @@ model Parent {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId Int  @unique
 
-  // Many-to-many relation with Student through the join table StudentParent
-  students StudentParent[]
+  // Many-to-many relation with Student through the implicit join table
+  wards Student[] @relation("StudentParents")
 }
 
 model Teacher {
@@ -169,33 +129,10 @@ model Teacher {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId Int  @unique
 
-  TeacherCourse TeacherCourse[]
-  TeacherClass  TeacherClass[]
-  Grade         Grade[]
-}
+  courses Course[] @relation("TeacherCourses")
+  classes Class[]  @relation("TeacherClass")
 
-model TeacherCourse {
-  id        Int      @id @default(autoincrement())
-  startedAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  teacherId Int
-  courseId  Int
-}
-
-model TeacherClass {
-  id        Int      @id @default(autoincrement())
-  startedAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  teacher Teacher @relation(fields: [teacherId], references: [id])
-  class   Class   @relation(fields: [classId], references: [id])
-
-  teacherId Int
-  classId   Int
+  Grade Grade[]
 }
 
 model OtherStaff {
@@ -291,13 +228,14 @@ model Course {
   name String @db.VarChar(100)
   code String @db.VarChar(50)
 
-  TeacherCourse TeacherCourse[]
-  StudentCourse StudentCourse[]
-  Grade         Grade[]
-  ReportDetail  ReportDetail[]
-  Exam          Exam[]
-  Curriculum    Curriculum[]
-  ClassCourse   CourseForClass[]
+  students Student[] @relation("StudentCourses")
+  teacher  Teacher[] @relation("TeacherCourses")
+  class    Class[]   @relation("ClassCourses")
+
+  Grade        Grade[]
+  ReportDetail ReportDetail[]
+  Exam         Exam[]
+  Curriculum   Curriculum[]
 }
 
 model Level {
@@ -319,11 +257,11 @@ model Class {
   roomNumber  String? @db.VarChar(50)
 
   // Relations
-  level        Level?           @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  levelId      Int?
-  TeacherClass TeacherClass[]
-  ClassCourse  CourseForClass[]
-  ClassCourses ClassCourses[]
+  level   Level? @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  levelId Int?
+
+  teachers Teacher[] @relation("TeacherClass")
+  courses  Course[]  @relation("ClassCourses")
 }
 
 // Model representing exams taken by students in a course
@@ -386,24 +324,6 @@ model Term {
   StudentReport StudentReport[]
   ReportDetail  ReportDetail[]
   Exam          Exam[]
-  StudentCourse StudentCourse[]
-}
-
-model ClassCourses {
-  id               Int            @id @default(autoincrement())
-  class            Class          @relation(fields: [classId], references: [id])
-  classId          Int
-  courses          CourseForClass @relation(fields: [courseForClassId], references: [id])
-  courseForClassId Int
-}
-
-model CourseForClass {
-  id           Int            @id @default(autoincrement())
-  course       Course         @relation(fields: [courseId], references: [id])
-  class        Class          @relation(fields: [classId], references: [id])
-  classId      Int
-  courseId     Int
-  ClassCourses ClassCourses[]
 }
 
 model StudentReport {

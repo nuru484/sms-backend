@@ -32,6 +32,8 @@
     "dateOfBirth": "2005-06-15",
     "admissionStatus": "PENDING",
     "studentUsername": "alice_johnson",
+    "password": "SecurePass123!",
+    "confirmPassword": "SecurePass123!",
 
     "city": "New York",
     "country": "United States",
