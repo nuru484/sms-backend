@@ -5,7 +5,7 @@ import { Router } from 'express';
 const router = Router();
 
 // Import the routes within course directory here
-import courseCreationRoute from './course-creation-route.js';
+import courseCreationRoute from './course-route.js';
 
 // Mount the course creation routes under the '/course-creation' path
 router.use('/course-creation', courseCreationRoute);

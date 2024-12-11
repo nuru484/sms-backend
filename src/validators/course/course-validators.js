@@ -1,8 +1,9 @@
 // src/validators/course/course-creation-validators.js
+import { validateInput } from '../general-validators.js';
 
 import { body } from 'express-validator';
 
-// Factory function to generate validators specific to course creation
+// Factory function to generate validators  for course creation
 const createCourseValidators = () => ({
   // Validator for course/courses
   validateCourses: body('courses')
@@ -40,9 +41,22 @@ const createCourseValidators = () => ({
     }),
 });
 
+// Factory function to generate validators specific to course update
+const updateCourseValidators = () => ({
+  // Validator for course update
+  valdiateCourseName: validateInput('name'),
+  valdiateCourseCode: validateInput('code', { required: false }),
+});
+
 // Generate all the course-specific validators using the factory function
 const courseValidators = createCourseValidators();
+
+const updateCourseValidatorsFunction = updateCourseValidators();
 
 // Grouping all individual validators into one array for ease of use in middleware
 // This array is later used in the course creation route for validation
 export const courseCreationValidators = Object.values(courseValidators);
+
+export const courseUpdateValidators = Object.values(
+  updateCourseValidatorsFunction
+);

@@ -6,10 +6,16 @@ const router = Router();
 
 // Import the controller for course creation
 // import { handleCourseCreation } from '../../controllers/courseCreation/course-creation-controller.js';
-import { handleCourseCreation } from '../../controllers/course/index.js';
+import {
+  handleCourseCreation,
+  handleCourseUpdate,
+} from '../../controllers/course/index.js';
 
 // Import validation middleware for course creation
-import validateCourseDetails from '../../validators/validationMiddleware/course/course-creation-validation-middleware.js';
+import {
+  validateCourseDetails,
+  validateCourseUpdateDetails,
+} from '../../validators/validationMiddleware/course/course-validation-middleware.js';
 import authenticateJWT from '../../authentication/jwtAuthentication.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 
@@ -21,6 +27,14 @@ router.post(
   authorizeRole(['ADMIN']),
   validateCourseDetails, // Middleware to validate course details
   handleCourseCreation // Controller to handle the course creation logic
+);
+
+router.put(
+  '/update/:id',
+  authenticateJWT,
+  authorizeRole(['ADMIN']),
+  validateCourseUpdateDetails,
+  handleCourseUpdate // Controller to handle the course update logic
 );
 
 // Export the configured router to be used in the main application

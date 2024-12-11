@@ -4,7 +4,8 @@ import logger from '../../utils/logger.js'; // Logger for logging errors and inf
 import {
   createSingleCourse,
   createMultipleCourses,
-} from '../../services/course/course-creation-service.js';
+  updateCourse,
+} from '../../services/course/course-services.js';
 
 /**
  * Controller function to handle course creation.
@@ -47,6 +48,54 @@ export const handleCourseCreation = async (req, res, next) => {
     // Log the error for debugging purposes
     logger.error({
       'Error during course creation': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+
+    // Forward the error to centralized error handling middleware
+    next(error);
+  }
+};
+
+/**
+ * Controller function to handle course updates.
+ *
+ * @param {Object} req - Express request object containing course data in `req.body` and `req.params.id`.
+ * @param {Object} res - Express response object used to send the response back to the client.
+ * @param {Function} next - Express middleware function to pass control to the next middleware in case of an error.
+ *
+ * @returns {Promise<void>} - Sends a 200 OK response with the result of the course update,
+ * or forwards the error to centralized error handling middleware.
+ */
+export const handleCourseUpdate = async (req, res, next) => {
+  const { id } = req.params; // Extract course ID from request parameters
+  const updateData = req.body; // Extract course update data from request body
+
+  try {
+    // Validate the input
+    if (!id) {
+      throw new CustomError(400, 'Invalid input: "id" must be provided.');
+    }
+
+    // Log the update attempt
+    logger.info({
+      message: `Attempting to update course with ID: ${id}`,
+      updateData,
+    });
+
+    // Call the service to update the course
+    const updatedCourse = await updateCourse(Number(id), updateData);
+
+    // Respond with success
+    res.status(200).json({
+      message: 'Course updated successfully',
+      data: updatedCourse,
+    });
+  } catch (error) {
+    // Log the error
+    logger.error({
+      'Error during course update': {
         errorMessage: error.message,
         errorStack: error.stack,
       },

@@ -1,6 +1,9 @@
 // src/services/course/course-creation-service.js
 
-import { createCourse } from '../../repositories/course/course-creation-repository.js';
+import {
+  createCourse,
+  updateCourseById,
+} from '../../repositories/course/course-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import prisma from '../../../prismaClient.js';
@@ -49,11 +52,6 @@ export const createSingleCourse = async (courseData) => {
  */
 export const createMultipleCourses = async (courses) => {
   try {
-    // Validate input is an array
-    // if (!Array.isArray(courses)) {
-    //   throw new CustomError(400, 'Input must be an array of course objects');
-    // }
-
     // Log the batch course creation attempt
     logger.info(
       `Attempting to create multiple courses: ${courses.length} courses`
@@ -85,6 +83,54 @@ export const createMultipleCourses = async (courses) => {
     throw new CustomError(
       500,
       `Batch course creation failed: ${error.message}`
+    );
+  }
+};
+
+/**
+ * Service function to update a course by its ID.
+ *
+ * @param {number} id - The ID of the course to update.
+ * @param {Object} updateData - Object containing the fields to update (e.g., { name: 'New Name', code: 'NEW123' }).
+ * @returns {Promise<Object>} - Returns the updated course object.
+ * @throws {CustomError} - Throws an error if the update fails.
+ */
+export const updateCourse = async (id, updateData) => {
+  try {
+    // Log the course update attempt
+    logger.info({
+      'Attempting to update course': {
+        courseId: id,
+        updateData,
+      },
+    });
+
+    // Call the repository to update the course
+    const updatedCourse = await updateCourseById(id, updateData);
+
+    // Log the successful update
+    logger.info({
+      'Course updated successfully': {
+        courseId: updatedCourse.id,
+        updatedFields: updateData,
+      },
+    });
+
+    return updatedCourse;
+  } catch (error) {
+    // Log the error
+    logger.error({
+      'Error updating course': {
+        courseId: id,
+        error: error.message,
+        stack: error.stack,
+      },
+    });
+
+    // Rethrow the error as a CustomError
+    throw new CustomError(
+      error.statusCode || 500,
+      `Failed to update course: ${error.message}`
     );
   }
 };

@@ -2,7 +2,10 @@
 
 // Import necessary functions for validation and error handling
 import handleValidationErrors from '../../../utils/middleware/validation-error-handler.js';
-import { courseCreationValidators } from '../../course/course-creation-validators.js';
+import {
+  courseCreationValidators,
+  courseUpdateValidators,
+} from '../../course/course-validators.js';
 
 // Validation middleware for Course creation route
 // Combines the individual course creation validators and the error handler
@@ -11,4 +14,10 @@ const validateCourseDetails = [
   handleValidationErrors, // Handle any validation errors that arise during the process
 ];
 
-export default validateCourseDetails; // Export the validation middleware to be used in routes
+// Validation middleware for Course update route
+const validateCourseUpdateDetails = [
+  ...courseUpdateValidators, // Spread the individual validation rules for course update
+  handleValidationErrors, // Handle any validation errors that arise during the process
+];
+
+export { validateCourseDetails, validateCourseUpdateDetails }; // Export the validation middleware to be used in routes
