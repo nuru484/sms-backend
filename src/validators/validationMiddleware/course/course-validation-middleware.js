@@ -13,7 +13,6 @@ const validateCourseDetails = [
   ...courseCreationValidators, // Spread the individual validation rules for course creation
   handleValidationErrors, // Handle any validation errors that arise during the process
 ];
-
 // Validation middleware for Course update route
 const validateCourseUpdateDetails = [
   ...courseUpdateValidators, // Spread the individual validation rules for course update
