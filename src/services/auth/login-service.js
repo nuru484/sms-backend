@@ -56,6 +56,7 @@ export const loginUser = async ({ username, password }) => {
       },
     });
 
-    throw new CustomError(500, `Login failed: ${error.message}`);
+    // Rethrow the error to propagate it
+    throw error;
   }
 };

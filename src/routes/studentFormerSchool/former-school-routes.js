@@ -11,7 +11,7 @@ import authLimiter from '../../utils/middleware/rateLimit.js';
 import { createFormerSchool } from '../../controllers/studentFormerSchool/index.js';
 
 // Importing validation middleware for validating the request body for former school creation
-import validateFormerSchoolDetails from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
+import { validateFormerSchoolDetails } from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
 
 router.post(
   '/create/:userId', // The userId is passed in the route parameters

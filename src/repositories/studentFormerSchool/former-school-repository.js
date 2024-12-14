@@ -79,3 +79,51 @@ export const createFormerSchoolDetails = async ({
     throw error;
   }
 };
+
+// ################################################################################################
+
+export const updateFormerSchoolDetails = async (id, updateData) => {
+  try {
+    // Log the update attempt
+    logger.info({
+      'Attempting to update former school details in the database': {
+        id,
+        updateData,
+      },
+    });
+
+    // Perform the update operation in the database using Prisma
+    const updatedFormerSchoolDetails = await prisma.formerSchool.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // Log the successful update
+    logger.info({
+      'Former school details successfully updated in the database': {
+        formerSchoolId: updatedFormerSchoolDetails.id,
+      },
+    });
+
+    return updatedFormerSchoolDetails; // Return the updated former school details object
+  } catch (error) {
+    // Log any errors encountered during the update process
+    logger.error({
+      'Database error during former school details update': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+
+    // Handle specific Prisma error codes, such as record not found, and throw appropriate custom errors
+    if (error.code === 'P2025') {
+      throw new CustomError(
+        404,
+        `Former school record with ID ${id} not found.`
+      );
+    }
+
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
+  }
+};

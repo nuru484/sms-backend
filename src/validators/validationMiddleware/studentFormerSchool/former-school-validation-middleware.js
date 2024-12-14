@@ -2,11 +2,17 @@
 
 import handleValidationErrors from '../../../utils/middleware/validation-error-handler.js';
 
-import { formerSchoolValidationMiddleware } from '../../studentFormerSchool/former-school-validators.js';
+import {
+  formerSchoolValidationMiddleware,
+  updateFormerSchoolValidationMiddleware,
+} from '../../studentFormerSchool/former-school-validators.js';
 
-const validateFormerSchoolDetails = [
+export const validateFormerSchoolDetails = [
   ...formerSchoolValidationMiddleware,
   handleValidationErrors,
 ];
 
-export default validateFormerSchoolDetails;
+export const validateUpdateFormerSchoolDetails = [
+  ...updateFormerSchoolValidationMiddleware,
+  handleValidationErrors,
+];

@@ -737,7 +737,7 @@ model Trip {
 
 model FormerSchool {
   id               Int       @id @default(autoincrement())
-  name             String // Name of the former school
+  name             String    @unique // Name of the former school
   address          String? // Address of the former school
   contactNumber    String? // Contact number of the former school
   email            String? // Email of the former school

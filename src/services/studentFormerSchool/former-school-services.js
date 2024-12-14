@@ -1,10 +1,10 @@
 import { createFormerSchoolDetails } from '../../repositories/studentFormerSchool/former-school-repository.js';
-import { getStudentByUserId } from '../../repositories/student/student-repository.js';
+import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 
 export const createFormerSchoolForStudent = async (
-  userId,
+  studentId,
   formerSchoolData
 ) => {
   const {
@@ -21,11 +21,11 @@ export const createFormerSchoolForStudent = async (
   try {
     // Log the attempt to create former school for student
     logger.info(
-      `Attempting to create former school details for userId: ${userId}`
+      `Attempting to create former school details for studentId: ${studentId}`
     );
 
     // Step 1: Check the student's admission status before proceeding
-    const student = await getStudentByUserId(parseInt(userId));
+    const student = await getStudentByUserId(parseInt(studentId));
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');
@@ -38,8 +38,6 @@ export const createFormerSchoolForStudent = async (
       );
     }
 
-    const studentId = parseInt(student.id);
-
     // Step 2: Proceed to create the former school details
     const formerSchool = await createFormerSchoolDetails({
       name,
@@ -50,7 +48,7 @@ export const createFormerSchoolForStudent = async (
       startDate,
       endDate,
       reasonForLeaving,
-      studentId, // Connect the former school to the student
+      studentId: parseInt(student.id), // Connect the former school to the student
     });
 
     // Log success
