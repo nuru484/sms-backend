@@ -9,39 +9,24 @@ import logger from '../../utils/logger.js'; // Logger utility for structured log
 export const createFormerSchool = async (req, res, next) => {
   try {
     // Extract required data from the request body
-    const {
-      name,
-      address,
-      contactNumber,
-      email,
-      schoolType,
-      startDate,
-      endDate,
-      reasonForLeaving,
-    } = req.body;
+    const formerSchoolData = req.body;
 
     // Extract userId from the request parameters
-    const { userId } = req.params;
+    const { studentId } = req.params;
 
     // Log the incoming request details for debugging and traceability
     logger.info({
       'Attempting to create former school details at controller layer': {
-        userId,
+        studentId,
         formerSchoolData: req.body,
       },
     });
 
     // Call the service layer to handle the logic for creating former school details
-    const formerSchool = await createFormerSchoolForStudent(userId, {
-      name,
-      address,
-      contactNumber,
-      email,
-      schoolType,
-      startDate,
-      endDate,
-      reasonForLeaving,
-    });
+    const formerSchool = await createFormerSchoolForStudent(
+      studentId,
+      formerSchoolData
+    );
 
     // Log the successful transaction
     logger.info({
@@ -78,12 +63,12 @@ export const updateFormerSchool = async (req, res, next) => {
     const updateData = req.body;
 
     // Extract userId and formerSchoolId from the request parameters
-    const { userId, formerSchoolId } = req.params;
+    const { studentId, formerSchoolId } = req.params;
 
     // Log the incoming request details for debugging and traceability
     logger.info({
       'Attempting to update former school details at controller layer': {
-        userId,
+        studentId,
         formerSchoolId,
         updateData,
       },
@@ -91,7 +76,7 @@ export const updateFormerSchool = async (req, res, next) => {
 
     // Call the service layer to handle the logic for updating former school details
     const updatedFormerSchool = await updateFormerSchoolForStudent(
-      userId,
+      studentId,
       formerSchoolId,
       updateData
     );

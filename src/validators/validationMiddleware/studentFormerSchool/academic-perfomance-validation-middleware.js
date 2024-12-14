@@ -9,4 +9,4 @@ const validateAcademicPerformanceDetails = [
   handleValidationErrors,
 ];
 
-export default validateAcademicPerformanceDetails;
+export { validateAcademicPerformanceDetails };

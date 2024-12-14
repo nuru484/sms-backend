@@ -20,14 +20,14 @@ import {
 } from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
 
 router.post(
-  '/create/:userId', // The userId is passed in the route parameters
+  '/create/:studentId', // The userId is passed in the route parameters
   authLimiter, // Middleware to apply rate limits
   validateFormerSchoolDetails, // Validation middleware for payload
   createFormerSchool // Controller to handle former school creation
 );
 
 router.put(
-  '/update/:formerSchoolId/:userId',
+  '/update/:formerSchoolId/:studentId',
   authLimiter, // Middleware to apply rate limits
   validateUpdateFormerSchoolDetails, // Validation middleware for payload
   updateFormerSchool

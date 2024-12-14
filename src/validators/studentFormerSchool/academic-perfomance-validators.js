@@ -1,5 +1,3 @@
-// src/validators/studentFormerSchool/academic-perfomance-validators.js
-
 import { validateInput } from '../general-validators.js';
 import { body } from 'express-validator';
 
@@ -17,34 +15,28 @@ const createAcademicPerformanceValidators = () => ({
     maxLength: 50,
   }),
 
-  // Validator for courses (optional, must be a valid JSON array)
+  // Validator for courses (optional, must be a valid object)
   validateCourses: body('courses')
     .optional()
     .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (!Array.isArray(parsed)) {
-          throw new Error('Courses must be a valid JSON array.');
-        }
-        return true;
-      } catch (error) {
-        throw new Error('Courses must be a valid JSON array.');
+      if (
+        typeof value !== 'object' || // Check if value is not an object
+        value === null || // Exclude null values
+        Array.isArray(value) // Exclude arrays
+      ) {
+        throw new Error('Courses must be a valid JSON object.');
       }
+      return true; // Validation passed
     }),
 
-  // Validator for grades (optional, must be a valid JSON object)
+  // Validator for grades (optional, must be a valid object)
   validateGrades: body('grades')
     .optional()
     .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-          throw new Error('Grades must be a valid JSON object.');
-        }
-        return true;
-      } catch (error) {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         throw new Error('Grades must be a valid JSON object.');
       }
+      return true;
     }),
 
   // Validator for classRanking (optional, max length 50 characters)
@@ -53,19 +45,14 @@ const createAcademicPerformanceValidators = () => ({
     maxLength: 50,
   }),
 
-  // Validator for specialPrograms (optional, must be a valid JSON array)
+  // Validator for specialPrograms (optional, must be a valid array)
   validateSpecialPrograms: body('specialPrograms')
     .optional()
     .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (!Array.isArray(parsed)) {
-          throw new Error('Special programs must be a valid JSON array.');
-        }
-        return true;
-      } catch (error) {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         throw new Error('Special programs must be a valid JSON array.');
       }
+      return true;
     }),
 });
 
