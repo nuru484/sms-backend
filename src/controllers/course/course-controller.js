@@ -5,6 +5,10 @@ import {
   createSingleCourse,
   createMultipleCourses,
   updateCourse,
+  getCourseById,
+  getCourses,
+  removeCourseById,
+  removeAllCourses,
 } from '../../services/course/course-services.js';
 
 /**
@@ -102,6 +106,72 @@ export const handleCourseUpdate = async (req, res, next) => {
     });
 
     // Forward the error to centralized error handling middleware
+    next(error);
+  }
+};
+
+/**
+ * Controller to fetch a single course by ID.
+ */
+export const handleGetCourseById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const course = await getCourseById(Number(id));
+    res
+      .status(200)
+      .json({ message: 'Course fetched successfully', data: course });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to fetch all courses with pagination and search.
+ */
+export const handleGetCourses = async (req, res, next) => {
+  const { page, limit, search } = req.query;
+
+  try {
+    const result = await getCourses({
+      page: Number(page),
+      limit: Number(limit),
+      search,
+    });
+    res
+      .status(200)
+      .json({ message: 'Courses fetched successfully', data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to delete a single course by ID.
+ */
+export const handleDeleteCourseById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const deletedCourse = await removeCourseById(Number(id));
+    res
+      .status(200)
+      .json({ message: 'Course deleted successfully', data: deletedCourse });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to delete all courses.
+ */
+export const handleDeleteAllCourses = async (req, res, next) => {
+  try {
+    const deletedCount = await removeAllCourses();
+    res
+      .status(200)
+      .json({ message: `${deletedCount} courses deleted successfully.` });
+  } catch (error) {
     next(error);
   }
 };

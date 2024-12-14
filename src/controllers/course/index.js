@@ -4,6 +4,10 @@
 import {
   handleCourseCreation,
   handleCourseUpdate,
+  handleGetCourseById,
+  handleGetCourses,
+  handleDeleteCourseById,
+  handleDeleteAllCourses,
 } from './course-controller.js';
 
 /**
@@ -12,4 +16,11 @@ import {
  * These exports make the registration functionalities accessible to other parts
  * of the application, enabling modular and reusable code design.
  */
-export { handleCourseCreation, handleCourseUpdate };
+export {
+  handleCourseCreation,
+  handleCourseUpdate,
+  handleGetCourseById,
+  handleGetCourses,
+  handleDeleteCourseById,
+  handleDeleteAllCourses,
+};

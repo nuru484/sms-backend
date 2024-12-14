@@ -3,6 +3,10 @@
 import {
   createCourse,
   updateCourseById,
+  fetchCourseById,
+  fetchCourses,
+  deleteCourseById,
+  deleteAllCourses,
 } from '../../repositories/course/course-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
@@ -133,4 +137,43 @@ export const updateCourse = async (id, updateData) => {
       `Failed to update course: ${error.message}`
     );
   }
+};
+
+/**
+ * Service function to fetch a single course by its ID.
+ *
+ * @param {number} id - The ID of the course to fetch.
+ * @returns {Promise<Object>} - Returns the course object.
+ */
+export const getCourseById = async (id) => {
+  return await fetchCourseById(id);
+};
+
+/**
+ * Service function to fetch all courses with pagination and search.
+ *
+ * @param {Object} query - Query parameters (page, limit, search).
+ * @returns {Promise<Object>} - Returns the courses and pagination info.
+ */
+export const getCourses = async (query) => {
+  return await fetchCourses(query);
+};
+
+/**
+ * Service function to delete a single course by its ID.
+ *
+ * @param {number} id - The ID of the course to delete.
+ * @returns {Promise<Object>} - Returns the deleted course object.
+ */
+export const removeCourseById = async (id) => {
+  return await deleteCourseById(id);
+};
+
+/**
+ * Service function to delete all courses.
+ *
+ * @returns {Promise<number>} - Returns the count of deleted courses.
+ */
+export const removeAllCourses = async () => {
+  return await deleteAllCourses();
 };

@@ -109,3 +109,134 @@ export const updateCourseById = async (id, updateData) => {
     throw new CustomError(500, `Internal Server Error: ${error.message}`);
   }
 };
+
+/**
+ * Repository function to fetch a single course by its ID.
+ *
+ * @param {number} id - The ID of the course to fetch.
+ * @returns {Promise<Object>} - Returns the course object if found.
+ * @throws {CustomError} - Throws a custom error if the course is not found or there's a database error.
+ */
+export const fetchCourseById = async (id) => {
+  try {
+    // Fetch the course by ID
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new CustomError(404, `Course with ID ${id} not found.`);
+    }
+
+    return course;
+  } catch (error) {
+    logger.error({
+      'Error fetching course by ID': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+  }
+};
+
+/**
+ * Repository function to fetch courses with pagination and optional search by name.
+ *
+ * @param {Object} query - Query parameters (page, limit, search).
+ * @returns {Promise<Object>} - Returns an object containing the courses and pagination info.
+ */
+export const fetchCourses = async ({ page = 1, limit = 10, search = '' }) => {
+  try {
+    const skip = (page - 1) * limit;
+
+    // Fetch the total number of courses
+    const total = await prisma.course.count({
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive', // Case-insensitive search
+        },
+      },
+    });
+
+    // Fetch the courses with pagination and search
+    const courses = await prisma.course.findMany({
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      courses,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  } catch (error) {
+    logger.error({
+      'Error fetching courses with pagination': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+  }
+};
+
+/**
+ * Repository function to delete a single course by ID.
+ *
+ * @param {number} id - The ID of the course to delete.
+ * @returns {Promise<Object>} - Returns the deleted course object.
+ */
+export const deleteCourseById = async (id) => {
+  try {
+    const course = await prisma.course.delete({
+      where: { id },
+    });
+
+    return course;
+  } catch (error) {
+    if (error.code === 'P2025') {
+      throw new CustomError(404, `Course with ID ${id} not found.`);
+    }
+
+    logger.error({
+      'Error deleting course by ID': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+  }
+};
+
+/**
+ * Repository function to delete all courses.
+ *
+ * @returns {Promise<number>} - Returns the count of deleted courses.
+ */
+export const deleteAllCourses = async () => {
+  try {
+    const deletedCount = await prisma.course.deleteMany();
+
+    return deletedCount.count;
+  } catch (error) {
+    logger.error({
+      'Error deleting all courses': {
+        errorMessage: error.message,
+        errorStack: error.stack,
+      },
+    });
+    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+  }
+};

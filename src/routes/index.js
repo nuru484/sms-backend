@@ -22,7 +22,7 @@ routes.use('/user-registration', userRegistrationRoutes);
 
 // Mounting the course related routes under the `/api/v1` prefix
 // All routes defined in `course` will now be accessible under `/api/v1`
-routes.use('/course', courseRoutes);
+routes.use('/courses', courseRoutes);
 
 // Mounting the auth related routes under the `/api/v1` prefix
 // All routes defined in `auth` will now be accessible under `/api/v1`
