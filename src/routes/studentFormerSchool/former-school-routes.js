@@ -8,16 +8,29 @@ const router = Router();
 import authLimiter from '../../utils/middleware/rateLimit.js';
 
 // Importing controller functions for handling former school-related logic
-import { createFormerSchool } from '../../controllers/studentFormerSchool/index.js';
+import {
+  createFormerSchool,
+  updateFormerSchool,
+} from '../../controllers/studentFormerSchool/index.js';
 
 // Importing validation middleware for validating the request body for former school creation
-import { validateFormerSchoolDetails } from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
+import {
+  validateFormerSchoolDetails,
+  validateUpdateFormerSchoolDetails,
+} from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
 
 router.post(
   '/create/:userId', // The userId is passed in the route parameters
   authLimiter, // Middleware to apply rate limits
   validateFormerSchoolDetails, // Validation middleware for payload
   createFormerSchool // Controller to handle former school creation
+);
+
+router.put(
+  '/update/:formerSchoolId/:userId',
+  authLimiter, // Middleware to apply rate limits
+  validateUpdateFormerSchoolDetails, // Validation middleware for payload
+  updateFormerSchool
 );
 
 // Exporting the configured router to be used in the application
