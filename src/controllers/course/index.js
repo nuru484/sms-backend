@@ -11,7 +11,7 @@ import {
 } from './course-controller.js';
 
 /**
- * Export the course creation controller functions.
+ * Export the course  controller functions.
  *
  * These exports make the registration functionalities accessible to other parts
  * of the application, enabling modular and reusable code design.

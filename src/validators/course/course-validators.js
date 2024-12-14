@@ -1,4 +1,5 @@
-// src/validators/course/course-creation-validators.js
+// src/validators/course/course-validators.js
+
 import { validateInput } from '../general-validators.js';
 
 import { body } from 'express-validator';

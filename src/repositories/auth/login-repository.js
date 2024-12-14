@@ -46,6 +46,6 @@ export const findUserByUsernameAndUpdateToken = async (
       },
     });
 
-    throw new CustomError(500, `Error finding user: ${error.message}`);
+    throw error;
   }
 };

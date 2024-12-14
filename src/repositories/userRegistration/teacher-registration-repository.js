@@ -80,6 +80,6 @@ export const createTeacherPersonalDetails = async ({
     }
 
     // Throw a generic internal server error if an unexpected error occurs
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+    throw error;
   }
 };

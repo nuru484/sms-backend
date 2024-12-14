@@ -1,4 +1,4 @@
-// src/validators/validationMiddleware/course/course-creation-validation-middleware.js
+// src/validators/validationMiddleware/course/course-validation-middleware.js
 
 // Import necessary functions for validation and error handling
 import handleValidationErrors from '../../../utils/middleware/validation-error-handler.js';

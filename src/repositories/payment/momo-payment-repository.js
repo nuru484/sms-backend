@@ -68,7 +68,7 @@ export const createMomoTransaction = async (paymentDetails) => {
     }
 
     // General error handling
-    throw new CustomError(500, `Database error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -108,6 +108,6 @@ export const updateMomoTransactionStatus = async (externalId, updateData) => {
 
     // General error handling for database errors
     logger.error(`Database error: ${error.message}`);
-    throw new CustomError(500, `Database error: ${error.message}`);
+    throw error;
   }
 };

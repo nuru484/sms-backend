@@ -1,4 +1,4 @@
-// src/routes/course/course-creation-route.js
+// src/routes/course/course-route.js
 
 // Import the Router function from Express to define route handlers
 import { Router } from 'express';

@@ -52,7 +52,7 @@ export const createCourse = async ({ name, code }) => {
     }
 
     // Throw a generic internal server error if an unexpected error occurs
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -106,7 +106,7 @@ export const updateCourseById = async (id, updateData) => {
       },
     });
 
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -130,13 +130,16 @@ export const fetchCourseById = async (id) => {
 
     return course;
   } catch (error) {
+    // Log the error (for internal purposes, this can still be done in the catch block)
     logger.error({
       'Error fetching course by ID': {
         errorMessage: error.message,
         errorStack: error.stack,
       },
     });
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+
+    // Re-throw the error to be handled by the error handler middleware
+    throw error;
   }
 };
 
@@ -188,7 +191,8 @@ export const fetchCourses = async ({ page = 1, limit = 10, search = '' }) => {
         errorStack: error.stack,
       },
     });
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+
+    throw error;
   }
 };
 
@@ -216,7 +220,8 @@ export const deleteCourseById = async (id) => {
         errorStack: error.stack,
       },
     });
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+
+    throw error;
   }
 };
 
@@ -237,6 +242,7 @@ export const deleteAllCourses = async () => {
         errorStack: error.stack,
       },
     });
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+
+    throw error;
   }
 };
