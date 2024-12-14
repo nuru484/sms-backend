@@ -12,6 +12,7 @@ import userRegistrationRouter from './userRegistration/index.js';
 import courseRouter from './course/index.js';
 import authRouter from './auth/index.js';
 import levelRouter from './level/index.js';
+import studentFormerSchoolRouter from './studentFormerSchool/index.js';
 
 // Mounting the all the routes under the `/api/v1` prefix
 
@@ -24,6 +25,8 @@ routes.use('/courses', courseRouter); // courses
 routes.use('/auth', authRouter); // authentication
 
 routes.use('/levels', levelRouter); // Level
+
+routes.use('/student-former-school', studentFormerSchoolRouter); // Student former school
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server

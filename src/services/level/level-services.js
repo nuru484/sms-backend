@@ -42,8 +42,8 @@ export const createSingleLevel = async (levelData) => {
       },
     });
 
-    // Throw a custom error
-    throw new CustomError(500, `Level creation failed: ${error.message}`);
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 
@@ -83,8 +83,8 @@ export const createMultipleLevels = async (levels) => {
       },
     });
 
-    // Throw a custom error
-    throw new CustomError(500, `Batch level creation failed: ${error.message}`);
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 
@@ -128,11 +128,8 @@ export const updateLevel = async (id, updateData) => {
       },
     });
 
-    // Rethrow the error as a CustomError
-    throw new CustomError(
-      error.statusCode || 500,
-      `Failed to update level: ${error.message}`
-    );
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 

@@ -42,8 +42,8 @@ export const createSingleCourse = async (courseData) => {
       },
     });
 
-    // Throw a custom error
-    throw new CustomError(500, `Course creation failed: ${error.message}`);
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 
@@ -83,11 +83,8 @@ export const createMultipleCourses = async (courses) => {
       },
     });
 
-    // Throw a custom error
-    throw new CustomError(
-      500,
-      `Batch course creation failed: ${error.message}`
-    );
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 
@@ -131,11 +128,8 @@ export const updateCourse = async (id, updateData) => {
       },
     });
 
-    // Rethrow the error as a CustomError
-    throw new CustomError(
-      error.statusCode || 500,
-      `Failed to update course: ${error.message}`
-    );
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
   }
 };
 

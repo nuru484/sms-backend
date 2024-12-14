@@ -252,6 +252,7 @@ model Class {
   id          Int     @id @default(autoincrement())
   name        String  @db.VarChar(255)
   code        String  @db.VarChar(50)
+  hall        String  @db.VarChar(50)
   description String? @db.VarChar(255)
   schedule    String? @db.VarChar(255)
   roomNumber  String? @db.VarChar(50)
@@ -670,6 +671,32 @@ model DisciplinaryAction {
   StudentBehavior StudentBehavior[]
 }
 
+model StudentBehavior {
+  id           Int      @id @default(autoincrement())
+  behaviorDate DateTime // Date of the behavior record
+  behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
+  description  String // Detailed description of the behavior
+
+  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id]) // Disciplinary action taken (if any)
+  reporter             User               @relation(fields: [reporterId], references: [id])
+  student              Student            @relation(fields: [studentId], references: [id])
+  disciplinaryActionId Int
+  reporterId           Int
+  studentId            Int
+}
+
+model ExtracurricularActivity {
+  id           Int       @id @default(autoincrement())
+  activityName String // Name of the extracurricular activity (e.g., Soccer, Drama Club)
+  startDate    DateTime // Start date of the activity
+  endDate      DateTime? // End date of the activity (if applicable)
+  position     String? // Position or role in the activity (e.g., Team Captain)
+  description  String? // Additional description or details about the activity
+  achievements Json? // List of achievements (e.g., awards, recognitions)
+  student      Student   @relation(fields: [studentId], references: [id])
+  studentId    Int
+}
+
 // Model representing vehicles used for student transportation
 model Vehicle {
   id           Int    @id @default(autoincrement()) // Unique identifier for each vehicle
@@ -709,15 +736,16 @@ model Trip {
 }
 
 model FormerSchool {
-  id                         Int                          @id @default(autoincrement())
-  name                       String // Name of the former school
-  address                    String? // Address of the former school
-  contactNumber              String? // Contact number of the former school
-  email                      String? // Email of the former school
-  schoolType                 String? // Type of school (e.g., Public, Private, Boarding)
-  startDate                  DateTime? // Start date at the former school
-  endDate                    DateTime? // End date at the former school
-  reasonForLeaving           String? // Reason for transferring schools
+  id               Int       @id @default(autoincrement())
+  name             String // Name of the former school
+  address          String? // Address of the former school
+  contactNumber    String? // Contact number of the former school
+  email            String? // Email of the former school
+  schoolType       String? // Type of school (e.g., Public, Private, Boarding)
+  startDate        DateTime? // Start date at the former school
+  endDate          DateTime? // End date at the former school
+  reasonForLeaving String? // Reason for transferring schools
+
   student                    Student                      @relation(fields: [studentId], references: [id])
   studentId                  Int
   AcademicPerformance        AcademicPerformance[]
@@ -740,53 +768,27 @@ model AcademicPerformance {
 
 model BehaviorAndExtracurricular {
   id                  Int          @id @default(autoincrement())
-  formerSchoolId      Int
   behaviorRecord      String? // Notes on behavior or conduct
   disciplinaryActions String? // Any disciplinary actions
   extracurriculars    Json? // List of clubs, sports, or activities
   achievements        Json? // Awards or recognitions
   formerSchool        FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchoolId      Int
 }
 
 model AdministrativeDetails {
   id                   Int          @id @default(autoincrement())
-  formerSchoolId       Int
   transferCertificate  String? // Transfer certificate (optional)
   recommendationLetter String? // Recommendation letter
   feesCleared          Boolean      @default(false) // Indicates if fees were fully paid
   formerSchool         FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchoolId       Int
 }
 
 model HealthAndSupport {
   id             Int          @id @default(autoincrement())
-  formerSchoolId Int
   healthRecords  Json? // Vaccination or medical records
   specialNeeds   String? // Details of accommodations or support required
   formerSchool   FormerSchool @relation(fields: [formerSchoolId], references: [id])
-}
-
-model StudentBehavior {
-  id           Int      @id @default(autoincrement())
-  behaviorDate DateTime // Date of the behavior record
-  behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
-  description  String // Detailed description of the behavior
-
-  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id]) // Disciplinary action taken (if any)
-  reporter             User               @relation(fields: [userId], references: [id])
-  student              Student            @relation(fields: [studentId], references: [id])
-  studentId            Int
-  userId               Int
-  disciplinaryActionId Int
-}
-
-model ExtracurricularActivity {
-  id           Int       @id @default(autoincrement())
-  activityName String // Name of the extracurricular activity (e.g., Soccer, Drama Club)
-  startDate    DateTime // Start date of the activity
-  endDate      DateTime? // End date of the activity (if applicable)
-  position     String? // Position or role in the activity (e.g., Team Captain)
-  description  String? // Additional description or details about the activity
-  achievements Json? // List of achievements (e.g., awards, recognitions)
-  student      Student   @relation(fields: [studentId], references: [id])
-  studentId    Int
+  formerSchoolId Int
 }
