@@ -32,7 +32,7 @@ export const createTeacherPersonalDetails = async ({
     const teacherDataToCreate = {
       ...teacherData,
       user: {
-        connect: { id: userId }, // Connect the teacher to the user via the user ID
+        connect: { id: parseInt(userId) }, // Connect the teacher to the user via the user ID
       },
       courses: {
         connect: coursesIds.map((id) => ({ id })), // Connect the parent to his son or ward by the wardId user ID

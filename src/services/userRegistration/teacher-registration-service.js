@@ -55,7 +55,9 @@ const processTeacherRegistration = async (payload) => {
       dateOfBirth,
     });
 
-    logger.info('Teacher user record successfully created.');
+    logger.info({ 'Teacher user record successfully created': teacher });
+
+    console.log(teacher.id);
 
     // Step 2: Create Teacher Personal Details
     const teacherPersonalDetails = await createTeacherPersonalDetails({

@@ -84,9 +84,18 @@ const createTeacherValidators = () => ({
     .bail(),
 
   // Validator for social media handles (optional)
-  validateSocialMediaHandles: validateInput('socialMediaHandles', {
-    required: false,
-  }),
+  validateSocialMediaHandles: body('socialMediaHandles')
+    .optional()
+    .custom((value) => {
+      if (
+        typeof value !== 'object' || // Check if value is not an object
+        value === null || // Exclude null values
+        Array.isArray(value) // Exclude arrays
+      ) {
+        throw new Error('Social media handles must be a valid JSON object.');
+      }
+      return true; // Validation passed
+    }),
 
   // Validator for marital status input (optional)
   validateMaritalStatus: validateInput('maritalStatus', { required: false }),
