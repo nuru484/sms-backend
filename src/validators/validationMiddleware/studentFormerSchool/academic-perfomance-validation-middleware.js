@@ -2,11 +2,17 @@
 
 import handleValidationErrors from '../../../utils/middleware/validation-error-handler.js';
 
-import { academicPerformanceValidationMiddleware } from '../../studentFormerSchool/academic-perfomance-validators.js';
+import {
+  academicPerformanceValidationMiddleware,
+  academicPerformanceUpdateValidationMiddleware,
+} from '../../studentFormerSchool/academic-perfomance-validators.js';
 
-const validateAcademicPerformanceDetails = [
+export const validateAcademicPerformanceDetails = [
   ...academicPerformanceValidationMiddleware,
   handleValidationErrors,
 ];
 
-export { validateAcademicPerformanceDetails };
+export const validateAcademicPerformanceUpdateDetails = [
+  ...academicPerformanceUpdateValidationMiddleware,
+  handleValidationErrors,
+];

@@ -14,7 +14,10 @@ import {
 } from '../../controllers/studentFormerSchool/index.js';
 
 // Importing validation middleware for validating the request body for former school academic perfomance creation
-import { validateAcademicPerformanceDetails } from '../../validators/validationMiddleware/studentFormerSchool/academic-perfomance-validation-middleware.js';
+import {
+  validateAcademicPerformanceDetails,
+  validateAcademicPerformanceUpdateDetails,
+} from '../../validators/validationMiddleware/studentFormerSchool/academic-perfomance-validation-middleware.js';
 
 router.post(
   '/create/:formerSchoolId/:studentId', // The userId is passed in the route parameters
@@ -26,6 +29,7 @@ router.post(
 router.put(
   '/update/:formerSchoolId/:studentId',
   authLimiter, // Middleware to apply rate limits
+  validateAcademicPerformanceUpdateDetails,
   updateAcademicPerformance
 );
 
