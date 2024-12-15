@@ -82,8 +82,11 @@ model Student {
   levelId Int?
 
   // Many-to-many relations
-  parents                  Parent[]                   @relation("StudentParents")
-  courses                  Course[]                   @relation("StudentCourses")
+  parents Parent[] @relation("StudentParents")
+  courses Course[] @relation("StudentCourses")
+  Trip    Trip[]
+
+  // One to many relations
   Grade                    Grade[]
   StudentReport            StudentReport[]
   ReportDetail             ReportDetail[]
@@ -91,7 +94,6 @@ model Student {
   Sale                     Sale[]
   BookIssue                BookIssue[]
   DisciplinaryAction       DisciplinaryAction[]
-  Trip                     Trip[]
   StudentApplicationNumber StudentApplicationNumber[]
   FormerSchool             FormerSchool[]
   StudentBehavior          StudentBehavior[]
@@ -722,16 +724,17 @@ model Route {
 
 // Model representing individual transportation trips on specific routes
 model Trip {
-  id        Int      @id @default(autoincrement()) // Unique identifier for each trip
-  routeId   Int // Foreign key to the route of the trip
-  tripDate  DateTime // Date the trip took place
-  status    String   @db.VarChar(50) // Status of the trip (e.g., "Completed", "In Progress")
-  studentId Int // Foreign key to the student on the trip
-  userId    Int // Foreign key to the user tracking the trip
+  id       Int      @id @default(autoincrement()) // Unique identifier for each trip
+  tripDate DateTime // Date the trip took place
+  status   String   @db.VarChar(50) // Status of the trip (e.g., "Completed", "In Progress")
 
-  route   Route   @relation(fields: [routeId], references: [id]) // Relation to Route model
-  student Student @relation(fields: [studentId], references: [id]) // Relation to Student model
-  user    User    @relation(fields: [userId], references: [id]) // Relation to User model tracking the trip
+  // Many-to-Many Relationship with Student
+  students Student[] // Students participating in this trip
+
+  route   Route @relation(fields: [routeId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to Route model
+  user    User  @relation(fields: [userId], references: [id]) // Relation to User model tracking the trip
+  routeId Int // Foreign key to the route of the trip
+  userId  Int // Foreign key to the user tracking the trip
 }
 
 model FormerSchool {
@@ -745,7 +748,7 @@ model FormerSchool {
   endDate          DateTime? // End date at the former school
   reasonForLeaving String? // Reason for transferring schools
 
-  student                    Student                      @relation(fields: [studentId], references: [id])
+  student                    Student                      @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   studentId                  Int
   AcademicPerformance        AcademicPerformance[]
   BehaviorAndExtracurricular BehaviorAndExtracurricular[]
@@ -761,7 +764,7 @@ model AcademicPerformance {
   grades          Json? // Grades or marks for subjects
   classRanking    String? // Class ranking (optional)
   specialPrograms Json? // Participation in special programs (e.g., gifted, remedial)
-  formerSchool    FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchool    FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId  Int
 }
 
@@ -771,7 +774,7 @@ model BehaviorAndExtracurricular {
   disciplinaryActions String? // Any disciplinary actions
   extracurriculars    Json? // List of clubs, sports, or activities
   achievements        Json? // Awards or recognitions
-  formerSchool        FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchool        FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId      Int
 }
 
@@ -780,7 +783,7 @@ model AdministrativeDetails {
   transferCertificate  String? // Transfer certificate (optional)
   recommendationLetter String? // Recommendation letter
   feesCleared          Boolean      @default(false) // Indicates if fees were fully paid
-  formerSchool         FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchool         FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId       Int
 }
 
@@ -788,6 +791,6 @@ model HealthAndSupport {
   id             Int          @id @default(autoincrement())
   healthRecords  Json? // Vaccination or medical records
   specialNeeds   String? // Details of accommodations or support required
-  formerSchool   FormerSchool @relation(fields: [formerSchoolId], references: [id])
+  formerSchool   FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId Int
 }

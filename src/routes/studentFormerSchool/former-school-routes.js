@@ -14,10 +14,7 @@ import {
 } from '../../controllers/studentFormerSchool/index.js';
 
 // Importing validation middleware for validating the request body for former school creation
-import {
-  validateFormerSchoolDetails,
-  validateUpdateFormerSchoolDetails,
-} from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
+import { validateFormerSchoolDetails } from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
 
 router.post(
   '/create/:studentId', // The userId is passed in the route parameters
@@ -29,7 +26,7 @@ router.post(
 router.put(
   '/update/:formerSchoolId/:studentId',
   authLimiter, // Middleware to apply rate limits
-  validateUpdateFormerSchoolDetails, // Validation middleware for payload
+  validateFormerSchoolDetails, // Validation middleware for payload
   updateFormerSchool
 );
 

@@ -10,6 +10,11 @@ import {
   updateAcademicPerformance,
 } from './academic-perfomance-controller.js';
 
+import {
+  createBehaviorAndExtracurricular,
+  updateBehaviorAndExtracurricular,
+} from './behavior-extracurricular-controllers.js';
+
 // Export the imported functions to make them available for use in other parts of the application.
 // This enables modularity and reuse of the functionalities.
 export {
@@ -17,4 +22,6 @@ export {
   updateFormerSchool,
   createAcademicPerformance,
   updateAcademicPerformance,
+  createBehaviorAndExtracurricular,
+  updateBehaviorAndExtracurricular,
 };

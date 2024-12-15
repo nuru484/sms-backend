@@ -21,30 +21,20 @@ const createBehaviorAndExtracurricularValidators = () => ({
   validateExtracurriculars: body('extracurriculars')
     .optional()
     .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (!Array.isArray(parsed)) {
-          throw new Error('Extracurriculars must be a valid JSON array.');
-        }
-        return true;
-      } catch (error) {
-        throw new Error('Extracurriculars must be a valid JSON array.');
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        throw new Error('Extracurriculars must be a valid JSON object.');
       }
+      return true;
     }),
 
   // Validator for achievements (optional, must be a valid JSON array)
   validateAchievements: body('achievements')
     .optional()
     .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (!Array.isArray(parsed)) {
-          throw new Error('Achievements must be a valid JSON array.');
-        }
-        return true;
-      } catch (error) {
-        throw new Error('Achievements must be a valid JSON array.');
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        throw new Error('Achievements must be a valid JSON object.');
       }
+      return true;
     }),
 });
 
