@@ -4,9 +4,7 @@ import handleValidationErrors from '../../../utils/middleware/validation-error-h
 
 import { healthAndSupportValidationMiddleware } from '../../studentFormerSchool/health&support-validators.js';
 
-const validateHealthAndSupportDetails = [
+export const validateHealthAndSupportDetails = [
   ...healthAndSupportValidationMiddleware,
   handleValidationErrors,
 ];
-
-export default validateHealthAndSupportDetails;
