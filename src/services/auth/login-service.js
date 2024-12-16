@@ -19,6 +19,10 @@ export const loginUser = async ({ username, password }) => {
     // Step 1: Find the user by username
     const user = await findUserByUsernameAndUpdateToken(username);
 
+    if (!user) {
+      throw new CustomError(400, 'User not found');
+    }
+
     // Step 2: Compare passwords
     const isPasswordValid = await compare(password, user.password);
 

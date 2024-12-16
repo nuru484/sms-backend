@@ -29,7 +29,6 @@ const processAdminRegistration = async (payload) => {
     email,
     phoneNumber,
     password,
-    confirmPassword,
     city,
     country,
     region,
@@ -52,7 +51,6 @@ const processAdminRegistration = async (payload) => {
         email,
         phoneNumber,
         password, // Assuming password is hashed before being passed
-        confirmPassword,
         tx, // Pass transaction object to repository
       });
 
