@@ -23,6 +23,11 @@ export const loginUser = async ({ username, password }) => {
       throw new CustomError(400, 'User not found');
     }
 
+    // Ensure that both arguments are valid
+    if (!password || !user.password) {
+      throw new Error('Password or hash missing');
+    }
+
     // Step 2: Compare passwords
     const isPasswordValid = await compare(password, user.password);
 
