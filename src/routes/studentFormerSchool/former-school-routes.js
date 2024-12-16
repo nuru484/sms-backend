@@ -7,6 +7,9 @@ const router = Router();
 // Importing middleware for rate limiting to prevent abuse and limit API request rates
 import authLimiter from '../../utils/middleware/rateLimit.js';
 
+import authenticateJWT from '../../authentication/jwtAuthentication.js';
+import authorizeRole from '../../utils/middleware/authorizeRole.js';
+
 // Importing controller functions for handling former school-related logic
 import {
   createFormerSchool,
@@ -19,6 +22,8 @@ import { validateFormerSchoolDetails } from '../../validators/validationMiddlewa
 router.post(
   '/create/:studentId', // The userId is passed in the route parameters
   authLimiter, // Middleware to apply rate limits
+  authenticateJWT, // Middleware to authenticate the user
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   validateFormerSchoolDetails, // Validation middleware for payload
   createFormerSchool // Controller to handle former school creation
 );
@@ -26,6 +31,8 @@ router.post(
 router.put(
   '/update/:formerSchoolId/:studentId',
   authLimiter, // Middleware to apply rate limits
+  authenticateJWT, // Middleware to authenticate the user
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   validateFormerSchoolDetails, // Validation middleware for payload
   updateFormerSchool
 );

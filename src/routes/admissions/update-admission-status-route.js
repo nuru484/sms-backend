@@ -7,7 +7,6 @@ const router = Router();
 // Import the controller for updating admission status
 import { updateAdmissionStatus } from '../../controllers/admissions/index.js';
 
-// Import validation middleware (if applicable) for admission status
 import authenticateJWT from '../../authentication/jwtAuthentication.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 

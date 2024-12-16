@@ -5,6 +5,9 @@ const router = Router();
 // Importing middleware for rate limiting to prevent abuse and limit API request rates
 import authLimiter from '../../utils/middleware/rateLimit.js';
 
+import authenticateJWT from '../../authentication/jwtAuthentication.js';
+import authorizeRole from '../../utils/middleware/authorizeRole.js';
+
 // Importing controller functions for handling health and support related logic
 import {
   createHealthAndSupport,
@@ -18,6 +21,8 @@ import { validateHealthAndSupportDetails } from '../../validators/validationMidd
 router.post(
   '/create/:formerSchoolId/:studentId', // The studentId and formerSchoolId are passed in the route parameters
   authLimiter, // Middleware to apply rate limits
+  authenticateJWT, // Middleware to authenticate the user
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   validateHealthAndSupportDetails, // Validation middleware for payload
   createHealthAndSupport // Controller to handle creation
 );
@@ -26,6 +31,8 @@ router.post(
 router.put(
   '/update/:healthAndSupportId/:studentId',
   authLimiter, // Middleware to apply rate limits
+  authenticateJWT, // Middleware to authenticate the user
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   validateHealthAndSupportDetails, // Validation middleware for payload
   updateHealthAndSupport // Controller to handle update
 );
