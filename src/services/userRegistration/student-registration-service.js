@@ -13,15 +13,15 @@ import {
 
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
+import { uploadFileToCloudinary } from '../../config/claudinary.js';
 
 // Main function to process student registration
-const processStudentRegistration = async (payload) => {
+const processStudentRegistration = async (payload, profilePhotos) => {
   // Destructure all required fields from the payload
   const {
     studentFatherFirstName,
     studentFatherMiddleName,
     studentFatherLastName,
-    studentFatherProfilePhoto,
     studentFatherPhoneNumber,
     studentFatherGender,
     studentFatherUsername,
@@ -32,7 +32,6 @@ const processStudentRegistration = async (payload) => {
     studentMotherFirstName,
     studentMotherMiddleName,
     studentMotherLastName,
-    studentMotherProfilePhoto,
     studentMotherPhoneNumber,
     studentMotherGender,
     studentMotherUsername,
@@ -43,7 +42,6 @@ const processStudentRegistration = async (payload) => {
     studentFirstName,
     studentMiddleName,
     studentLastName,
-    studentProfilePhoto,
     studentGender,
     ethnicity,
     studentRole,
@@ -59,8 +57,15 @@ const processStudentRegistration = async (payload) => {
     digitalAddress,
   } = payload;
 
+  const { studentProfilePhoto, fatherProfilePhoto, motherProfilePhoto } =
+    profilePhotos;
+
   try {
     // Step 1: Create Student User Record
+    const studentProfilePhotoUrl = await uploadFileToCloudinary(
+      studentProfilePhoto[0]
+    );
+
     const student = await createUserBasicDetails({
       firstName: studentFirstName,
       middleName: studentMiddleName,
@@ -68,7 +73,7 @@ const processStudentRegistration = async (payload) => {
       username: studentUsername,
       role: studentRole,
       gender: studentGender,
-      profilePhoto: studentProfilePhoto,
+      profilePhoto: studentProfilePhotoUrl,
       password,
       dateOfBirth,
     });
@@ -91,6 +96,10 @@ const processStudentRegistration = async (payload) => {
     });
 
     // Step 5: Create Father User Record
+    const fatherProfilePhotoUrl = await uploadFileToCloudinary(
+      fatherProfilePhoto[0]
+    );
+
     const studentFather = await createUserBasicDetails({
       firstName: studentFatherFirstName,
       middleName: studentFatherMiddleName,
@@ -98,7 +107,7 @@ const processStudentRegistration = async (payload) => {
       username: studentFatherUsername,
       role: studentFatherRole,
       gender: studentFatherGender,
-      profilePhoto: studentFatherProfilePhoto,
+      profilePhoto: fatherProfilePhotoUrl,
       phoneNumber: studentFatherPhoneNumber,
       email: studentFatherEmail,
     });
@@ -111,6 +120,10 @@ const processStudentRegistration = async (payload) => {
     });
 
     // Step 8: Create Mother User Record
+    const motherProfilePhotoUrl = await uploadFileToCloudinary(
+      motherProfilePhoto[0]
+    );
+
     const studentMother = await createUserBasicDetails({
       firstName: studentMotherFirstName,
       middleName: studentMotherMiddleName,
@@ -118,7 +131,7 @@ const processStudentRegistration = async (payload) => {
       username: studentMotherUsername,
       role: studentMotherRole,
       gender: studentMotherGender,
-      profilePhoto: studentMotherProfilePhoto,
+      profilePhoto: motherProfilePhotoUrl,
       phoneNumber: studentMotherPhoneNumber,
       email: studentMotherEmail,
     });

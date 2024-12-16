@@ -29,17 +29,26 @@ export const createTeacherPersonalDetails = async ({
       teacherData.socialMediaHandles = socialMediaHandles; // Include socialMediaHandles only if provided
     }
 
+    // Ensure coursesIds and classesIds are valid arrays (default to empty arrays if undefined)
+    const validCoursesIds = Array.isArray(coursesIds) ? coursesIds : [];
+    const validClassesIds = Array.isArray(classesIds) ? classesIds : [];
+
     const teacherDataToCreate = {
       ...teacherData,
       user: {
         connect: { id: parseInt(userId) }, // Connect the teacher to the user via the user ID
       },
-      courses: {
-        connect: coursesIds.map((id) => ({ id })), // Connect the parent to his son or ward by the wardId user ID
-      },
-      classes: {
-        connect: classesIds.map((id) => ({ id })),
-      },
+      // Only include connections if arrays are non-empty
+      ...(validCoursesIds.length > 0 && {
+        courses: {
+          connect: validCoursesIds.map((id) => ({ id })),
+        },
+      }),
+      ...(validClassesIds.length > 0 && {
+        classes: {
+          connect: validClassesIds.map((id) => ({ id })),
+        },
+      }),
     };
 
     // Log the attempt to create teacher personal details in the database

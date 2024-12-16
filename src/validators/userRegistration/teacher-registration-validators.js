@@ -12,7 +12,7 @@ import {
 import { body } from 'express-validator';
 
 // Importing the `role` and `employmentType` enums from Prisma client
-import { role, employmentType } from '@prisma/client';
+import { employmentType, role } from '@prisma/client';
 
 // Factory function to generate a set of validators specific to teacher registration
 const createTeacherValidators = () => ({
@@ -69,18 +69,16 @@ const createTeacherValidators = () => ({
 
   // Validator for course ID
   validateCoursesIds: body('coursesIds')
+    .optional()
     .isArray()
     .withMessage('Course IDs must be an array')
-    .notEmpty()
-    .withMessage('Course IDs array cannot be empty')
     .bail(),
 
   // Validator for class ID
   validateClassesIds: body('classesIds')
+    .optional()
     .isArray()
     .withMessage('Class IDs must be an array')
-    .notEmpty()
-    .withMessage('Class IDs array cannot be empty')
     .bail(),
 
   // Validator for social media handles (optional)
