@@ -1,7 +1,7 @@
 // src/validators/general-validators.js
 import { body } from 'express-validator';
-import prisma from '../../prismaClient.js';
 import logger from '../utils/logger.js';
+import prisma from '../config/prismaClient.js';
 
 export const validateInput = (
   inputName,

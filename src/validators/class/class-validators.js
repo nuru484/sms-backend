@@ -2,7 +2,7 @@
 
 import { validateInput } from '../general-validators.js';
 import { body } from 'express-validator';
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js';
 
 // Factory function to generate validators for class creation
 const createClassValidators = () => ({

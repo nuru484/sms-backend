@@ -1,6 +1,6 @@
 // src/repositories/auth/login-repository.js
 
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 

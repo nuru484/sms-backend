@@ -1,7 +1,7 @@
 // src/repositories/transactionRepository.js
 
 // Import the Prisma client for database interactions
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 // Import Prisma-specific error handling class
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';

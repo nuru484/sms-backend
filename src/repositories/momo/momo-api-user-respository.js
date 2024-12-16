@@ -1,7 +1,7 @@
 // src/repositories/momoApiUserRespository.js
 
 // Import Prisma client for database interaction
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 // Import custom error handler for consistent error management
 import { CustomError } from '../../utils/middleware/errorHandler.js';

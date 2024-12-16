@@ -1,6 +1,6 @@
 // src/repositories/studentFormerSchool/administrative-details-repository.js
 
-import prisma from '../../../prismaClient.js'; // Prisma client for database operations
+import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 import logger from '../../utils/logger.js'; // Logger utility for structured logging
 
 // Function to create administrative details

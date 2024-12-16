@@ -4,7 +4,7 @@
 import { createAdmin } from '../../repositories/userRegistration/admin-registration-repository.js';
 import logger from '../../utils/logger.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js';
 
 // Service function to handle admin registration logic
 const processAdminRegistration = async (payload) => {

@@ -8,9 +8,8 @@ import {
   deleteCourseById,
   deleteAllCourses,
 } from '../../repositories/course/course-repository.js';
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
-import prisma from '../../../prismaClient.js';
+import prisma from '../../config/prismaClient.js';
 
 /**
  * Service function to create a single course.
