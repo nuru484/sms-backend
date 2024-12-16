@@ -782,7 +782,7 @@ model AdministrativeDetails {
   id                   Int          @id @default(autoincrement())
   transferCertificate  String? // Transfer certificate (optional)
   recommendationLetter String? // Recommendation letter
-  feesCleared          Boolean      @default(false) // Indicates if fees were fully paid
+  feesCleared          Boolean      @default(false) // Indicates if fees were fully paid, optional for now but to be changed back to required later
   formerSchool         FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId       Int
 }

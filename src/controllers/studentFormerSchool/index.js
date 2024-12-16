@@ -15,6 +15,11 @@ import {
   updateBehaviorAndExtracurricular,
 } from './behavior-extracurricular-controllers.js';
 
+import {
+  createAdministrativeDetails,
+  updateAdministrativeDetails,
+} from './administrative-details-controller.js';
+
 // Export the imported functions to make them available for use in other parts of the application.
 // This enables modularity and reuse of the functionalities.
 export {
@@ -24,4 +29,6 @@ export {
   updateAcademicPerformance,
   createBehaviorAndExtracurricular,
   updateBehaviorAndExtracurricular,
+  createAdministrativeDetails,
+  updateAdministrativeDetails,
 };
