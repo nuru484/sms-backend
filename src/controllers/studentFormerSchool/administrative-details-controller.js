@@ -1,19 +1,11 @@
 // src/controllers/studentFormerSchool/administrative-details-controller.js
 
-import multer from 'multer';
-
 import {
   createAdministrativeDetailsForStudent,
   updateAdministrativeDetailsForStudent,
 } from '../../services/studentFormerSchool/administrative-details-services.js';
 import logger from '../../utils/logger.js'; // Logger utility for structured logging
-
-// Multer setup for file handling
-const storage = multer.memoryStorage(); // Use memory storage instead of disk storage
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
+import { upload } from '../../config/multer.js';
 
 // Controller to handle the creation of administrative details for a student
 export const createAdministrativeDetails = [
