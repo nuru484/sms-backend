@@ -3,6 +3,7 @@
 // Importing general validation functions from the general-validators.js module
 import {
   validateInput, // General input validation function for various fields
+  validateUsernameInput,
   validateEmailInput, // Validation function for validating email format
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
@@ -34,7 +35,7 @@ const createAdminValidators = () => ({
     .withMessage('Invalid role.'), // Custom error message for invalid role
 
   // Validator for username field (basic validation without further constraints)
-  validateUsername: validateInput('username'),
+  validateUsername: validateUsernameInput('username'),
 
   // Validator for email input, ensuring a valid email format
   validateEmail: validateEmailInput('email'),

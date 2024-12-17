@@ -5,7 +5,7 @@ import {
   updateAdministrativeDetailsForStudent,
 } from '../../services/studentFormerSchool/administrative-details-services.js';
 import logger from '../../utils/logger.js'; // Logger utility for structured logging
-import { upload } from '../../config/multer.js';
+import upload from '../../config/multer.js';
 
 // Controller to handle the creation of administrative details for a student
 export const createAdministrativeDetails = [

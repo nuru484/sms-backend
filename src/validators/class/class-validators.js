@@ -1,12 +1,11 @@
 // src/validators/class/class-validators.js
 
 import { validateInput } from '../general-validators.js';
+import { checkFieldUnique } from '../../utils/helpers/validation-helpers.js';
 import { body } from 'express-validator';
-import prisma from '../../config/prismaClient.js';
 
 // Factory function to generate validators for class creation
 const createClassValidators = () => ({
-  // Validator for classes array
   validateClasses: body('classes')
     .isArray()
     .withMessage('Classes must be an array')
@@ -16,6 +15,7 @@ const createClassValidators = () => ({
     .custom(async (classes) => {
       // Check each class object inside the array
       for (const [index, clazz] of classes.entries()) {
+        // Validate `name`
         if (!clazz.name || typeof clazz.name !== 'string') {
           throw new Error(
             `Class at index ${index} must have a valid 'name' as a string`
@@ -27,6 +27,7 @@ const createClassValidators = () => ({
           );
         }
 
+        // Validate `code`
         if (!clazz.code || typeof clazz.code !== 'string') {
           throw new Error(
             `Class at index ${index} must have a valid 'code' as a string`
@@ -38,22 +39,7 @@ const createClassValidators = () => ({
           );
         }
 
-        // Check if the code already exists in the database
-        try {
-          const existingClass = await prisma.class.findUnique({
-            where: { code: clazz.code },
-          });
-          if (existingClass) {
-            throw new Error(
-              `Class code "${clazz.code}" already exists at index ${index}`
-            );
-          }
-        } catch (error) {
-          throw new Error(
-            `Unexpected error during code validation: ${error.message}`
-          );
-        }
-
+        // Validate `hall`
         if (clazz.hall && typeof clazz.hall !== 'string') {
           throw new Error(
             `Class at index ${index} must have a valid 'hall' as a string`
@@ -65,6 +51,7 @@ const createClassValidators = () => ({
           );
         }
 
+        // Validate `description`
         if (clazz.description && typeof clazz.description !== 'string') {
           throw new Error(
             `Class at index ${index} must have a valid 'description' as a string`
@@ -76,21 +63,31 @@ const createClassValidators = () => ({
           );
         }
 
+        // Validate `roomNumber`
         if (clazz.roomNumber) {
-          // Check if the roomNumber is an integer
           if (!Number.isInteger(clazz.roomNumber)) {
             throw new Error(
               `Class at index ${index} must have a valid 'roomNumber' as an integer`
             );
           }
-
-          // Check if roomNumber exceeds 50 characters (or digits, in this case)
           if (clazz.roomNumber.toString().length > 50) {
             throw new Error(
               `Class at index ${index} roomNumber should not exceed 50 characters`
             );
           }
         }
+
+        // Concurrent unique checks
+        await Promise.all([
+          checkFieldUnique('name', clazz.name, 'class'),
+          checkFieldUnique('code', clazz.code, 'class'),
+          clazz.hall
+            ? checkFieldUnique('hall', clazz.hall, 'class')
+            : Promise.resolve(),
+          clazz.roomNumber
+            ? checkFieldUnique('roomNumber', clazz.roomNumber, 'class')
+            : Promise.resolve(),
+        ]);
       }
       return true;
     }),
@@ -99,25 +96,8 @@ const createClassValidators = () => ({
 // Factory function to generate validators specific to class update
 const updateClassValidators = () => ({
   // Validator for class update fields
-  validateClassName: validateInput('name'),
-  validateClassCode: validateInput('code', { required: false }).custom(
-    async (value, { req }) => {
-      try {
-        if (value) {
-          const existingClass = await prisma.class.findUnique({
-            where: { code: value },
-          });
-          if (existingClass && existingClass.code !== value) {
-            throw new Error(`A class with code "${value}" already exists.`);
-          }
-        }
-      } catch (error) {
-        throw new Error(
-          `Unexpected error during code validation: ${error.message}`
-        );
-      }
-    }
-  ),
+  validateClassName: validateInput('name', { required: false }),
+  validateClassCode: validateInput('code', { required: false }),
   validateClassHall: validateInput('hall', { required: false }),
   validateClassDescription: validateInput('description', { required: false }),
   validateClassRoomNumber: body('roomNumber')

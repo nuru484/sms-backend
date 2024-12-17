@@ -80,14 +80,6 @@ export const createTeacherPersonalDetails = async ({
       },
     });
 
-    // Handle specific Prisma error codes, such as duplicate entries, and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate user details: ${error.meta?.target || error.message}`
-      );
-    }
-
     // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }

@@ -10,6 +10,7 @@ import { createTeacherPersonalDetails } from '../../repositories/userRegistratio
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
+import { uploadFileToCloudinary } from '../../config/claudinary.js';
 
 /**
  * Main function to process teacher registration.
@@ -18,7 +19,7 @@ import prisma from '../../config/prismaClient.js'; // Assuming you're using Pris
  * @returns {Promise<Object>} - Returns a success message if registration is successful.
  * @throws {CustomError} - Throws an error if any step in the process fails.
  */
-const processTeacherRegistration = async (payload) => {
+const processTeacherRegistration = async (payload, payloadFiles) => {
   const {
     firstName,
     middleName,
@@ -27,12 +28,10 @@ const processTeacherRegistration = async (payload) => {
     password,
     role,
     gender,
-    profilePhoto,
     email,
     phoneNumber,
     employmentType,
     dateOfBirth,
-    digitalSignature,
     spokenLanguages,
     socialMediaHandles,
     maritalStatus,
@@ -88,6 +87,16 @@ const processTeacherRegistration = async (payload) => {
       }
     }
 
+    const { profilePhoto, digitalSignature } = payloadFiles;
+
+    const teacherProfilePhotoUrl = await uploadFileToCloudinary(
+      profilePhoto[0]
+    );
+
+    const teacherDigitalSignatureUrl = await uploadFileToCloudinary(
+      digitalSignature[0]
+    );
+
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
       // Step 2: Create Teacher User Record
@@ -99,7 +108,7 @@ const processTeacherRegistration = async (payload) => {
         password,
         role,
         gender,
-        profilePhoto,
+        profilePhoto: teacherProfilePhotoUrl,
         email,
         phoneNumber,
         employmentType,
@@ -111,7 +120,7 @@ const processTeacherRegistration = async (payload) => {
 
       // Step 3: Create Teacher Personal Details
       const teacherPersonalDetails = await createTeacherPersonalDetails({
-        digitalSignature,
+        digitalSignature: teacherDigitalSignatureUrl,
         spokenLanguages,
         socialMediaHandles,
         maritalStatus,

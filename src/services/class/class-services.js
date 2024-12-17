@@ -9,6 +9,9 @@ import {
   deleteAllClasses,
 } from '../../repositories/class/class-repository.js'; // Import the class repository functions
 import logger from '../../utils/logger.js'; // Logger for logging operations
+import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
+import { CustomError } from '../../utils/middleware/errorHandler.js';
+import { validateUniqueFieldsForUpdate } from '../../utils/helpers/validation-helpers.js';
 
 /**
  * Service function to create a single class.
@@ -23,6 +26,20 @@ export const createSingleClass = async (classData) => {
   try {
     // Log the class creation attempt
     logger.info(`Attempting to create a single class: ${name}`);
+
+    // Check if levelId is provided
+    if (levelId) {
+      // Validate the level ID
+      const level = await prisma.level.findUnique({
+        where: { id: parseInt(levelId) },
+      });
+
+      if (!level) {
+        throw new CustomError(404, `Level with ID ${levelId} not found.`);
+      }
+    } else {
+      logger.warn(`No levelId provided for class: ${name}`);
+    }
 
     // Call the repository to create the class
     const newClass = await createClass({
@@ -61,16 +78,33 @@ export const createSingleClass = async (classData) => {
  */
 export const createMultipleClasses = async (classes) => {
   try {
+    // Check and validate levelIds for each class
+    const levelValidationPromises = classes.map(async (classData) => {
+      if (classData.levelId) {
+        const level = await prisma.level.findUnique({
+          where: { id: parseInt(classData.levelId) },
+        });
+
+        if (!level) {
+          throw new CustomError(
+            404,
+            `Level with ID ${classData.levelId} not found.`
+          );
+        }
+      } else {
+        logger.warn(`No levelId provided for class: ${classData.name}`);
+      }
+    });
+
+    // Wait for all level validations to complete
+    await Promise.all(levelValidationPromises);
+
     // Log the batch class creation attempt
     logger.info(
       `Attempting to create multiple classes: ${classes.length} classes`
     );
 
-    const classPromises = classes.map((classData) => {
-      return createClass(classData); // Call repository for each class creation
-    });
-
-    // Wait for all class creations to complete
+    const classPromises = classes.map((classData) => createClass(classData));
     const createdClasses = await Promise.all(classPromises);
 
     // Log the success
@@ -86,7 +120,7 @@ export const createMultipleClasses = async (classes) => {
       },
     });
 
-    // Throw a generic internal server error if an unexpected error occurs
+    // Throw the error
     throw error;
   }
 };
@@ -109,7 +143,27 @@ export const updateClass = async (id, updateData) => {
       },
     });
 
-    // Call the repository to update the class
+    // Validate fields for uniqueness
+    const uniqueFields = ['name', 'code', 'hall', 'roomNumber'];
+    await validateUniqueFieldsForUpdate(updateData, uniqueFields, id, 'class');
+
+    // Validate the levelId if provided
+    if (updateData.levelId) {
+      const level = await prisma.level.findUnique({
+        where: { id: parseInt(updateData.levelId) },
+      });
+
+      if (!level) {
+        throw new CustomError(
+          404,
+          `Level with ID ${updateData.levelId} not found.`
+        );
+      }
+    } else {
+      logger.warn(`No levelId provided for class: ${updateData.name || id}`);
+    }
+
+    // Perform the update
     const updatedClass = await updateClassById(id, updateData);
 
     // Log the successful update
@@ -122,16 +176,17 @@ export const updateClass = async (id, updateData) => {
 
     return updatedClass;
   } catch (error) {
-    // Log the error
+    // Log the full error for debugging
     logger.error({
       'Error updating class': {
         classId: id,
-        error: error.message,
-        stack: error.stack,
+        error: error.message || 'No error message available',
+        stack: error.stack || 'No stack trace available',
+        errorDetails: error, // Log the full error object
       },
     });
 
-    // Throw a generic internal server error if an unexpected error occurs
+    // Rethrow the error
     throw error;
   }
 };

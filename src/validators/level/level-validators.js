@@ -1,8 +1,8 @@
 // src/validators/level/level-validators.js
 
 import { validateInput } from '../general-validators.js';
+import { checkFieldUnique } from '../../utils/helpers/validation-helpers.js';
 import { body } from 'express-validator';
-import prisma from '../../config/prismaClient.js';
 
 // Factory function to generate validators for level creation
 const createLevelValidators = () => ({
@@ -27,6 +27,8 @@ const createLevelValidators = () => ({
           );
         }
 
+        await checkFieldUnique('name', level.name, 'level');
+
         if (!level.code || typeof level.code !== 'string') {
           throw new Error(
             `Level at index ${index} must have a valid 'code' as a string`
@@ -37,22 +39,8 @@ const createLevelValidators = () => ({
             `Level at index ${index} code should not exceed 50 characters`
           );
         }
-
         // Check if the code already exists in the database
-        try {
-          const existingLevel = await prisma.level.findUnique({
-            where: { code: level.code },
-          });
-          if (existingLevel) {
-            throw new Error(
-              `Level code "${level.code}" already exists at index ${index}`
-            );
-          }
-        } catch (error) {
-          throw new Error(
-            `Unexpected error during code validation: ${error.message}`
-          );
-        }
+        await checkFieldUnique('code', level.code, 'level');
 
         if (!level.description || typeof level.description !== 'string') {
           throw new Error(
@@ -78,25 +66,8 @@ const createLevelValidators = () => ({
 // Factory function to generate validators specific to level update
 const updateLevelValidators = () => ({
   // Validator for level update (using the generic validation function for name and code)
-  validateLevelName: validateInput('name'),
-  validateLevelCode: validateInput('code', { required: false }).custom(
-    async (value, { req }) => {
-      try {
-        if (value) {
-          const existingLevel = await prisma.level.findUnique({
-            where: { code: value },
-          });
-          if (existingLevel && existingLevel.code !== value) {
-            throw new Error(`A level with code "${value}" already exists.`);
-          }
-        }
-      } catch (error) {
-        throw new Error(
-          `Unexpected error during code validation: ${error.message}`
-        );
-      }
-    }
-  ),
+  validateLevelName: validateInput('name', { required: false }),
+  validateLevelCode: validateInput('code', { required: false }),
   validateLevelDescription: validateInput('description', { required: false }),
   validateLevelOrder: body('order')
     .optional()

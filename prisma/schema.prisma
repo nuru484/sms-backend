@@ -228,7 +228,7 @@ model PerformanceAndEvaluation {
 model Course {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar(100)
-  code String @db.VarChar(50)
+  code String @unique @db.VarChar(50)
 
   students Student[] @relation("StudentCourses")
   teacher  Teacher[] @relation("TeacherCourses")
@@ -242,7 +242,7 @@ model Course {
 
 model Level {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(50) // Name of the level, e.g., "Class 3", "JHS 3"
+  name        String    @unique @db.VarChar(50) // Name of the level, e.g., "Class 3", "JHS 3"
   code        String    @unique @db.VarChar(20) // Unique code for the level, e.g., "CLS3", "JHS3"
   description String?   @db.VarChar(255) // Optional description, e.g., "Primary School Level 3"
   order       Int // Ordering number to sort levels, e.g., 3 for Class 3, 9 for JHS 3

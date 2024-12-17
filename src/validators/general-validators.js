@@ -1,7 +1,6 @@
 // src/validators/general-validators.js
 import { body } from 'express-validator';
-import logger from '../utils/logger.js';
-import prisma from '../config/prismaClient.js';
+import { checkFieldUnique } from '../utils/helpers/validation-helpers.js';
 
 export const validateInput = (
   inputName,
@@ -22,6 +21,16 @@ export const validateInput = (
       `${inputName} must not exceed ${options.maxLength} characters.`
     );
 
+  return validation;
+};
+
+export const validateUsernameInput = (
+  username,
+  options = { maxLength: 255, required: true }
+) => {
+  const validation = validateInput(username, options).custom((value) =>
+    checkFieldUnique('username', value, 'user')
+  );
   return validation;
 };
 
@@ -47,43 +56,10 @@ export const validateEmailInput = (
   emailInputName,
   options = { maxLength: 255, required: true }
 ) => {
-  const validation = body(
-    emailInputName,
-    `${emailInputName} must be a non-empty string!`
-  );
-
-  if (options.required) {
-    validation.notEmpty().withMessage(`${emailInputName} is required!`);
-  }
-
-  validation
-    .isLength({ max: options.maxLength })
-    .withMessage(
-      `${emailInputName} must not exceed ${options.maxLength} characters.`
-    )
+  const validation = validateInput(emailInputName, options)
     .isEmail()
     .withMessage('Invalid email address.')
-    .custom(async (value) => {
-      try {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: value },
-        });
-        if (existingUser) {
-          throw new Error(
-            `A user with the email "${value}" already exists in our database`
-          );
-        }
-      } catch (error) {
-        logger.error({
-          'Unexpected error during email validation': error.message,
-        });
-
-        throw new Error(
-          `Unexpected error during email validation: ${error.message}`
-        );
-      }
-    });
-
+    .custom((value) => checkFieldUnique('email', value, 'user'));
   return validation;
 };
 

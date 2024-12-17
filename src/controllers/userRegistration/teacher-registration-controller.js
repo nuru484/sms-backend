@@ -1,10 +1,15 @@
 // src/controllers/userRegistration/teacher-registration-controller.js
 
-// Import the logger utility for logging errors and other relevant information.
 import logger from '../../utils/logger.js';
+import upload from '../../config/multer.js';
 
 // Import the service responsible for processing the teacher registration logic.
 import processTeacherRegistration from '../../services/userRegistration/teacher-registration-service.js';
+
+// Import validation middleware for teacher registration and address details
+import validateTeacherDetails from '../../validators/validationMiddleware/userRegistration/teacher-registration-validation-middleware.js';
+import validateAddressDetails from '../../validators/validationMiddleware/address-validation-middleware.js';
+import validateProfilePhotos from '../../validators/validationMiddleware/files-validation-middleware.js';
 
 /**
  * Controller function to handle the registration of a teacher user.
@@ -16,23 +21,34 @@ import processTeacherRegistration from '../../services/userRegistration/teacher-
  * @returns {Promise<void>} - Sends a 201 Created response with the registration result
  * or forwards the error to centralized error handling middleware.
  */
-export const registerTeacher = async (req, res, next) => {
-  // Extract the teacher registration data from the request body.
-  const teacherRegistrationPayload = req.body;
+export const registerTeacher = [
+  upload.fields([{ name: 'profilePhoto' }, { name: 'digitalSignature' }]),
 
-  try {
-    // Call the service function to handle the business logic of teacher registration.
-    const response = await processTeacherRegistration(
-      teacherRegistrationPayload
-    );
+  validateProfilePhotos(['profilePhoto', 'digitalSignature']),
+  validateTeacherDetails, // Middleware to validate teacher details
+  validateAddressDetails, // Middleware to validate address details
 
-    // Respond with a success status and the result of the registration process.
-    return res.status(201).json(response);
-  } catch (error) {
-    // Log detailed error information for debugging and operational insights.
-    logger.error({ 'Error during teacher registration!': { error } });
+  async (req, res, next) => {
+    // Extract the teacher registration data from the request body.
 
-    // Delegate the error to the next middleware for centralized handling.
-    next(error);
-  }
-};
+    const teacherRegistrationPayload = Object.assign({}, req.body);
+    const payloadFiles = req.files;
+
+    try {
+      // Call the service function to handle the business logic of teacher registration.
+      const response = await processTeacherRegistration(
+        teacherRegistrationPayload,
+        payloadFiles
+      );
+
+      // Respond with a success status and the result of the registration process.
+      return res.status(201).json(response);
+    } catch (error) {
+      // Log detailed error information for debugging and operational insights.
+      logger.error({ 'Error during teacher registration!': { error } });
+
+      // Delegate the error to the next middleware for centralized handling.
+      next(error);
+    }
+  },
+];

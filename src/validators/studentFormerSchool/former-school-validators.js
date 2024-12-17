@@ -9,7 +9,10 @@ import {
 // Factory function to generate validators for FormerSchool model
 const createFormerSchoolValidators = () => ({
   // Validator for name (required, max length 255 characters)
-  validateName: validateInput('name', { maxLength: 255, required: false }),
+  validateName: validateInput('name', {
+    maxLength: 255,
+    required: false,
+  }).custom((value) => checkFieldUnique('name', value, 'formerSchool')),
 
   // Validator for address (optional, max length 500 characters)
   validateAddress: validateInput('address', {

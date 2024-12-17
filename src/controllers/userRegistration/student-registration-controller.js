@@ -1,6 +1,6 @@
 // src/controllers/userRegistration/student-registration-controller.js
 import logger from '../../utils/logger.js';
-import { upload } from '../../config/multer.js';
+import upload from '../../config/multer.js';
 
 // Import the service responsible for processing the student registration logic.
 import processStudentRegistration from '../../services/userRegistration/student-registration-service.js';

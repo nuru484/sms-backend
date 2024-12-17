@@ -62,14 +62,6 @@ export const createClass = async ({
       },
     });
 
-    // Handle specific Prisma error codes, such as duplicate entries, and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate class details: ${error.meta?.target || error.message}`
-      );
-    }
-
     // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }
@@ -84,6 +76,8 @@ export const createClass = async ({
  * @throws {CustomError} - Throws a custom error if the class is not found or if there is a database error.
  */
 export const updateClassById = async (id, updateData) => {
+  const { name, code, hall, description, roomNumber, levelId } = updateData;
+
   try {
     // Log the attempt to update the class
     logger.info({
@@ -96,7 +90,14 @@ export const updateClassById = async (id, updateData) => {
     // Attempt to update the class in the database
     const updatedClass = await prisma.class.update({
       where: { id },
-      data: updateData,
+      data: {
+        name,
+        code,
+        hall,
+        description,
+        roomNumber,
+        level: levelId ? { connect: { id: levelId } } : undefined,
+      },
     });
 
     // Log the successful update
@@ -109,14 +110,6 @@ export const updateClassById = async (id, updateData) => {
 
     return updatedClass; // Return the updated class object
   } catch (error) {
-    // Handle the case where the class is not found
-    if (error.code === 'P2025') {
-      logger.warn({
-        'Class not found during update': { classId: id },
-      });
-      throw new CustomError(404, `Class with ID ${id} not found.`);
-    }
-
     // Log unexpected errors and rethrow them as internal server errors
     logger.error({
       'Database error during class update': {

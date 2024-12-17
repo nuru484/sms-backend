@@ -10,6 +10,8 @@ import {
 } from '../../repositories/level/level-repository.js';
 import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js';
+import { validateUniqueFieldsForUpdate } from '../../utils/helpers/validation-helpers.js';
+
 /**
  * Service function to create a single level.
  *
@@ -103,6 +105,10 @@ export const updateLevel = async (id, updateData) => {
         updateData,
       },
     });
+
+    // Validate fields for uniqueness
+    const uniqueFields = ['name', 'code'];
+    await validateUniqueFieldsForUpdate(updateData, uniqueFields, id, 'level');
 
     // Call the repository to update the level
     const updatedLevel = await updateLevelById(id, updateData);

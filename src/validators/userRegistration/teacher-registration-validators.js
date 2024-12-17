@@ -3,6 +3,7 @@
 // Importing general validation functions from the general-validators.js module
 import {
   validateInput, // General input validation function for various fields
+  validateUsernameInput,
   validateEmailInput, // Validation function for validating email format
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
@@ -29,16 +30,10 @@ const createTeacherValidators = () => ({
   validateLastName: validateInput('lastName', { maxLength: 255 }),
 
   // Validator for username field with a unique constraint, max length 255 characters
-  validateUsername: validateInput('username', { maxLength: 255 }),
+  validateUsername: validateUsernameInput('username'),
 
   // Validator for gender with a max length of 50 characters
   validateGender: validateInput('gender', { maxLength: 50 }),
-
-  // Validator for profile photo input, can be optional
-  validateProfilePhoto: validateInput('profilePhoto', {
-    required: false,
-    maxLength: 255,
-  }),
 
   // Validator for email input, ensuring a valid email format
   validateEmail: validateEmailInput('email'),
@@ -58,11 +53,6 @@ const createTeacherValidators = () => ({
   validateEmploymentType: validateInput('employmentType')
     .isIn(Object.values(employmentType)) // Employment type must be one of the predefined valid types
     .withMessage('Invalid employment type.'),
-
-  // Validator for digital signature
-  validateDigitalSignature: validateInput('digitalSignature', {
-    required: true,
-  }),
 
   // Validator for spoken languages input
   validateSpokenLanguages: validateInput('spokenLanguages'),
