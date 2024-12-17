@@ -7,8 +7,8 @@ import {
 } from '../../repositories/userRegistration/general-user-registration-repository.js';
 
 import logger from '../../utils/logger.js';
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 import prisma from '../../config/prismaClient.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Service function to handle admin registration logic.
@@ -77,33 +77,7 @@ const processAdminRegistration = async (payload) => {
 
     return result; // Return the result of the transaction
   } catch (error) {
-    // Log error details if registration fails
-    logger.error({
-      'Error processing admin registration': {
-        context: 'processAdminRegistration', // Context to help identify where the error occurred
-        payload: {
-          firstName,
-          middleName,
-          lastName,
-          username,
-          email,
-          city,
-          country,
-          region,
-          digitalAddress,
-          phoneNumber,
-        },
-        errorDetails: {
-          errorMessage: error.message,
-          errorCode: error.code,
-          errorStack: error.stack,
-          errorMeta: error.meta,
-        },
-      },
-    });
-
-    // Throw a custom error with a user-friendly message
-    throw new CustomError(500, `Admin registration failed: ${error.message}`);
+    handlePrismaError(error, 'Admin Registration');
   }
 };
 

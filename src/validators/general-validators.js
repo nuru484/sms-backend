@@ -1,6 +1,5 @@
 // src/validators/general-validators.js
 import { body } from 'express-validator';
-import { checkFieldUnique } from '../utils/helpers/validation-helpers.js';
 
 export const validateInput = (
   inputName,
@@ -21,16 +20,6 @@ export const validateInput = (
       `${inputName} must not exceed ${options.maxLength} characters.`
     );
 
-  return validation;
-};
-
-export const validateUsernameInput = (
-  username,
-  options = { maxLength: 255, required: true }
-) => {
-  const validation = validateInput(username, options).custom((value) =>
-    checkFieldUnique('username', value, 'user')
-  );
   return validation;
 };
 
@@ -58,8 +47,7 @@ export const validateEmailInput = (
 ) => {
   const validation = validateInput(emailInputName, options)
     .isEmail()
-    .withMessage('Invalid email address.')
-    .custom((value) => checkFieldUnique('email', value, 'user'));
+    .withMessage('Invalid email address.');
   return validation;
 };
 

@@ -7,7 +7,7 @@ import {
 
 import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 // ################################################################################################
 
@@ -20,11 +20,6 @@ export const createHealthAndSupportForStudent = async (
   const { healthRecords, specialNeeds } = healthAndSupportData;
 
   try {
-    // Log the attempt to create health and support for student
-    logger.info(
-      `Attempting to create health and support details for studentId: ${studentId}`
-    );
-
     // Step 1: Check the student's admission status before proceeding
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -46,23 +41,9 @@ export const createHealthAndSupportForStudent = async (
       formerSchoolId: parseInt(formerSchoolId), // Link health and support to the former school
     });
 
-    // Log success
-    logger.info(
-      `Health and support details successfully created for student ID: ${student.id}`
-    );
-
     return healthAndSupport;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error creating health and support details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error to be handled at the controller level
-    throw error;
+    handlePrismaError(error, 'Former school');
   }
 };
 
@@ -75,11 +56,6 @@ export const updateHealthAndSupportForStudent = async (
   updateData
 ) => {
   try {
-    // Log the attempt to update health and support for the student
-    logger.info(
-      `Attempting to update health and support details for studentId: ${studentId}, healthAndSupportId: ${healthAndSupportId}`
-    );
-
     // Step 1: Check if the student exists and their admission status
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -100,22 +76,8 @@ export const updateHealthAndSupportForStudent = async (
       updateData
     );
 
-    // Log success
-    logger.info(
-      `Health and support details successfully updated for healthAndSupportId: ${healthAndSupportId}`
-    );
-
     return updatedHealthAndSupport;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error updating health and support details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Rethrow the error for the controller to handle
-    throw error;
+    handlePrismaError(error, 'Health and Support');
   }
 };

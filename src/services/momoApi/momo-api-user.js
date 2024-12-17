@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'; // For generating unique reference IDs
 import ENV from '../../config/env.js'; // Environment variables for configuration
 import logger from '../../utils/logger.js'; // Logger utility for logging events and errors
 import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error class for standardized error handling
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Creates or retrieves the MTN MoMo API user.
@@ -43,11 +44,7 @@ const createMoMoApiUser = async () => {
       throw new CustomError(response.status, errorData.message);
     }
   } catch (error) {
-    logger.error('Request failed:', error);
-    throw new CustomError(
-      500,
-      `Failed to create MoMo API user. ${error.message}`
-    );
+    handlePrismaError(error, 'MoMo API user');
   }
 };
 
@@ -84,8 +81,7 @@ const createMoMoApiKey = async (referenceId) => {
       throw new CustomError(response.status, errorData.message);
     }
   } catch (error) {
-    logger.error('Request failed:', error);
-    throw new CustomError(500, 'Failed to create MoMo API key');
+    handlePrismaError(error, 'MoMo API key');
   }
 };
 
@@ -120,8 +116,7 @@ const createAccessToken = async (referenceId, apiKey) => {
       throw new CustomError(response.status, 'Unauthorized');
     }
   } catch (error) {
-    logger.error('Request failed:', error);
-    throw new CustomError(500, 'Failed to create access token');
+    handlePrismaError(error, 'MoMo API access token');
   }
 };
 

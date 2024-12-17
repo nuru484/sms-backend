@@ -3,7 +3,6 @@
 // Importing general validation functions from the general-validators.js module
 import {
   validateInput, // General input validation function for various fields
-  validateUsernameInput,
   validateEmailInput, // Validation function for validating email format
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
@@ -30,7 +29,7 @@ const createTeacherValidators = () => ({
   validateLastName: validateInput('lastName', { maxLength: 255 }),
 
   // Validator for username field with a unique constraint, max length 255 characters
-  validateUsername: validateUsernameInput('username'),
+  validateUsername: validateInput('username'),
 
   // Validator for gender with a max length of 50 characters
   validateGender: validateInput('gender', { maxLength: 50 }),
@@ -72,18 +71,23 @@ const createTeacherValidators = () => ({
     .bail(),
 
   // Validator for social media handles (optional)
+  // validateSocialMediaHandles: body('socialMediaHandles')
+  //   .optional()
+  //   .custom((value) => {
+  //     if (
+  //       typeof value !== 'object' || // Check if value is not an object
+  //       value === null || // Exclude null values
+  //       Array.isArray(value) // Exclude arrays
+  //     ) {
+  //       throw new Error('Social media handles must be a valid JSON object.');
+  //     }
+  //     return true; // Validation passed
+  //   }),
+
   validateSocialMediaHandles: body('socialMediaHandles')
     .optional()
-    .custom((value) => {
-      if (
-        typeof value !== 'object' || // Check if value is not an object
-        value === null || // Exclude null values
-        Array.isArray(value) // Exclude arrays
-      ) {
-        throw new Error('Social media handles must be a valid JSON object.');
-      }
-      return true; // Validation passed
-    }),
+    .isObject()
+    .withMessage('Social media handles must be a valid JSON object.'),
 
   // Validator for marital status input (optional)
   validateMaritalStatus: validateInput('maritalStatus', { required: false }),

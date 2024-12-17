@@ -1,5 +1,4 @@
 // src/controllers/userRegistration/student-registration-controller.js
-import logger from '../../utils/logger.js';
 import upload from '../../config/multer.js';
 
 // Import the service responsible for processing the student registration logic.
@@ -54,9 +53,6 @@ export const registerStudent = [
       // Respond with a success status and the result of the registration process.
       return res.status(201).json(response);
     } catch (error) {
-      // Log detailed error information for debugging and operational insights.
-      logger.error({ 'Error during student registration!': { error } });
-
       // Delegate the error to the next middleware for centralized handling.
       next(error);
     }

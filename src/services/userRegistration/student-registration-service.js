@@ -11,9 +11,9 @@ import {
   createParentPersonalDetails,
 } from '../../repositories/userRegistration/student-registration-repository.js';
 
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import { uploadFileToCloudinary } from '../../config/claudinary.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 // Main function to process student registration
 const processStudentRegistration = async (payload, profilePhotos) => {
@@ -78,12 +78,16 @@ const processStudentRegistration = async (payload, profilePhotos) => {
       dateOfBirth,
     });
 
+    logger.info(`Student basic details created successfully.`);
+
     // Step 3: Create Student Personal Details
     const studentPersonalDetails = await createStudentPersonalDetails({
       ethnicity,
       admissionStatus,
       userId: student.id, // Use the student's ID for reference
     });
+
+    logger.info(`Student personal details created successfully.`);
 
     // Step 4: Create Student Address
     const studentAddress = await createUserAddress({
@@ -94,6 +98,8 @@ const processStudentRegistration = async (payload, profilePhotos) => {
       digitalAddress,
       userId: student.id,
     });
+
+    logger.info(`Student address created successfully.`);
 
     // Step 5: Create Father User Record
     const fatherProfilePhotoUrl = await uploadFileToCloudinary(
@@ -113,12 +119,16 @@ const processStudentRegistration = async (payload, profilePhotos) => {
       email: studentFatherEmail,
     });
 
+    logger.info(`Student father basic details created successfully.`);
+
     // Step 6: Create Father Personal Details
     const studentFatherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentFatherRelationshipToStudent,
       userId: studentFather.id,
       wardsIds: [studentPersonalDetails.id],
     });
+
+    logger.info(`Student father personal details created successfully.`);
 
     // Step 8: Create Mother User Record
     const motherProfilePhotoUrl = await uploadFileToCloudinary(
@@ -138,6 +148,8 @@ const processStudentRegistration = async (payload, profilePhotos) => {
       email: studentMotherEmail,
     });
 
+    logger.info(`Student mother basic details created successfully.`);
+
     // Step 9: Create Mother Personal Details
     const studentMotherPersonalDetails = await createParentPersonalDetails({
       relationshipToStudent: studentMotherRelationshipToStudent,
@@ -145,22 +157,15 @@ const processStudentRegistration = async (payload, profilePhotos) => {
       wardsIds: [studentPersonalDetails.id],
     });
 
+    logger.info(`Student mother personal details created successfully.`);
+
     // Return success message after all steps are successfully completed
     return {
       message: 'Student registration successful.',
       'admission status': admissionStatus, // The admission status is set to pending initially
     };
   } catch (error) {
-    // Log the error details for debugging purposes
-    logger.error({
-      'Error processing student registration': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a custom error with an appropriate error message
-    throw new CustomError(500, `Student registration failed: ${error.message}`);
+    handlePrismaError(error, 'Student Registration');
   }
 };
 

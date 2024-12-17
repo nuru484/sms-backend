@@ -2,8 +2,6 @@
 
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 
 /**
  * Repository function to create a single level in the database.
@@ -14,43 +12,13 @@ import logger from '../../utils/logger.js'; // Logger for logging operations and
  */
 export const createLevel = async ({ name, code, description, order }) => {
   try {
-    // Log the attempt to create a level in the database
-    logger.info({
-      'Attempting to create level in the database': {
-        levelData: { name, code, description, order },
-      },
-    });
-
     // Create the level record in the database using Prisma
     const level = await prisma.level.create({
       data: { name, code, description, order },
     });
 
-    // Log the successful creation of the level
-    logger.info({
-      'Level successfully created in the database.': {
-        levelId: level.id,
-      },
-    });
-
     return level; // Return the created level object
   } catch (error) {
-    // Log any errors encountered during the level creation process
-    logger.error({
-      'Database error during level creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes, such as duplicate entries, and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate level details: ${error.meta?.target || error.message}`
-      );
-    }
-
     // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }
@@ -66,46 +34,14 @@ export const createLevel = async ({ name, code, description, order }) => {
  */
 export const updateLevelById = async (id, updateData) => {
   try {
-    // Log the attempt to update the level
-    logger.info({
-      'Attempting to update level': {
-        levelId: id,
-        updateData,
-      },
-    });
-
     // Attempt to update the level in the database
     const updatedLevel = await prisma.level.update({
       where: { id },
       data: updateData,
     });
 
-    // Log the successful update
-    logger.info({
-      'Level successfully updated': {
-        levelId: updatedLevel.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedLevel; // Return the updated level object
   } catch (error) {
-    // Handle the case where the level is not found
-    if (error.code === 'P2025') {
-      logger.warn({
-        'Level not found during update': { levelId: id },
-      });
-      throw new CustomError(404, `Level with ID ${id} not found.`);
-    }
-
-    // Log unexpected errors and rethrow them as internal server errors
-    logger.error({
-      'Database error during level update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -124,19 +60,8 @@ export const fetchLevelById = async (id) => {
       where: { id },
     });
 
-    if (!level) {
-      throw new CustomError(404, `Level with ID ${id} not found.`);
-    }
-
     return level;
   } catch (error) {
-    logger.error({
-      'Error fetching level by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -183,13 +108,6 @@ export const fetchLevels = async ({ page = 1, limit = 10, search = '' }) => {
       },
     };
   } catch (error) {
-    logger.error({
-      'Error fetching levels with pagination': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -208,17 +126,6 @@ export const deleteLevelById = async (id) => {
 
     return level;
   } catch (error) {
-    if (error.code === 'P2025') {
-      throw new CustomError(404, `Level with ID ${id} not found.`);
-    }
-
-    logger.error({
-      'Error deleting level by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -234,13 +141,6 @@ export const deleteAllLevels = async () => {
 
     return deletedCount.count;
   } catch (error) {
-    logger.error({
-      'Error deleting all levels': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };

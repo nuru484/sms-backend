@@ -7,7 +7,7 @@ import {
 
 import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 // ################################################################################################
 
@@ -27,11 +27,6 @@ export const createAcademicPerformanceForStudent = async (
   } = academicPerformanceData;
 
   try {
-    // Log the attempt to create academic performance for student
-    logger.info(
-      `Attempting to create academic performance details for studentId: ${studentId}`
-    );
-
     // Step 1: Check the student's admission status before proceeding
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -57,23 +52,9 @@ export const createAcademicPerformanceForStudent = async (
       formerSchoolId: parseInt(formerSchoolId), // Link academic performance to the former school
     });
 
-    // Log success
-    logger.info(
-      `Academic performance details successfully created for student ID: ${student.id}`
-    );
-
     return academicPerformance;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error creating academic performance details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Former School');
   }
 };
 
@@ -86,11 +67,6 @@ export const updateAcademicPerformanceForStudent = async (
   updateData
 ) => {
   try {
-    // Log the attempt to update academic performance for the student
-    logger.info(
-      `Attempting to update academic performance details for studentId: ${studentId}, academicPerformanceId: ${academicPerformanceId}`
-    );
-
     // Step 1: Check if the student exists and their admission status
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -111,22 +87,8 @@ export const updateAcademicPerformanceForStudent = async (
       updateData
     );
 
-    // Log success
-    logger.info(
-      `Academic performance details successfully updated for academicPerformanceId: ${academicPerformanceId}`
-    );
-
     return updatedAcademicPerformance;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error updating academic performance details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Rethrow the error for the controller to handle
-    throw error;
+    handlePrismaError(error, 'Academic perfomance');
   }
 };

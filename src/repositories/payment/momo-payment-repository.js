@@ -3,15 +3,6 @@
 // Import the Prisma client for database interactions
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
-// Import Prisma-specific error handling class
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-
-// Import logger for structured and consistent logging
-import logger from '../../utils/logger.js';
-
-// Import custom error handler for application-specific error management
-import { CustomError } from '../../utils/middleware/errorHandler.js';
-
 /**
  * Creates a new MoMo (Mobile Money) transaction record in the database.
  *
@@ -29,19 +20,6 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
  */
 export const createMomoTransaction = async (paymentDetails) => {
   try {
-    // Log transaction details for traceability
-    logger.info('Creating MoMo transaction in the database', {
-      amount: paymentDetails.amount,
-      currency: paymentDetails.currency,
-      partyId: paymentDetails.partyId,
-      referenceId: paymentDetails.referenceId,
-      status: paymentDetails.status,
-      externalId: paymentDetails.externalId,
-      partyIdType: paymentDetails.partyIdType,
-      payerMessage: paymentDetails.payerMessage,
-      payeeNote: paymentDetails.payeeNote,
-    });
-
     // Create a new transaction record in the database
     await prisma.mobileMoneyTransaction.create({
       data: {
@@ -59,14 +37,6 @@ export const createMomoTransaction = async (paymentDetails) => {
       },
     });
   } catch (error) {
-    // Log the error details for debugging
-    logger.error(`Database error: ${error.message}`, { stack: error.stack });
-
-    // Handle unique constraint errors in Prisma (e.g., duplicate transactions)
-    if (error.code === 'P2002') {
-      throw new CustomError(400, `Duplicate transaction: ${error.message}`);
-    }
-
     // General error handling
     throw error;
   }
@@ -94,20 +64,6 @@ export const updateMomoTransactionStatus = async (externalId, updateData) => {
     // Return the updated transaction record
     return transaction;
   } catch (error) {
-    // Handle specific Prisma errors
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        // Record not found in the database
-        logger.error(`Transaction not found for externalId: ${externalId}`);
-        throw new CustomError(
-          404,
-          `Transaction not found for externalId: ${externalId}`
-        );
-      }
-    }
-
-    // General error handling for database errors
-    logger.error(`Database error: ${error.message}`);
     throw error;
   }
 };

@@ -55,15 +55,6 @@ export const initializeMomoTransaction = async (req, res, next) => {
     // Respond to the client with the payment initialization response
     return res.status(200).json({ ...response });
   } catch (error) {
-    // Log the error details for debugging and monitoring
-    logger.error({
-      'Error in initializeMomoTransaction': {
-        error: error.message,
-        stack: error.stack,
-        requestBody: req.body,
-      },
-    });
-
     // Pass the error to the next middleware for centralized error handling
     next(error);
   }
@@ -88,15 +79,6 @@ export const paymentCallback = async (req, res, next) => {
     // Respond to the client with the processed payment status
     return res.status(200).json(response);
   } catch (error) {
-    // Log the error details for debugging and monitoring
-    logger.error({
-      'Error in payment callback': {
-        error: error.message,
-        stack: error.stack,
-        requestBody: req.body,
-      },
-    });
-
     // Pass the error to the next middleware for centralized error handling
     next(error);
   }

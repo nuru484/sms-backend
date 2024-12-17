@@ -1,7 +1,6 @@
 // src/validators/course/course-validators.js
 
 import { validateInput } from '../general-validators.js';
-import { checkFieldUnique } from '../../utils/helpers/validation-helpers.js';
 import { body } from 'express-validator';
 
 // Factory function to generate validators  for course creation
@@ -37,7 +36,6 @@ const createCourseValidators = () => ({
             `Course at index ${index} code should not exceed 50 characters`
           );
         }
-        checkFieldUnique('code', clazz.name, 'course');
       });
       return true;
     }),
@@ -47,9 +45,7 @@ const createCourseValidators = () => ({
 const updateCourseValidators = () => ({
   // Validator for course update
   valdiateCourseName: validateInput('name', { required: false }),
-  valdiateCourseCode: validateInput('code', { required: false }).custom(
-    (value) => checkFieldUnique('code', value, 'course')
-  ),
+  valdiateCourseCode: validateInput('code', { required: false }),
 });
 
 // Generate all the course-specific validators using the factory function

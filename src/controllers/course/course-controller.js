@@ -33,12 +33,14 @@ export const handleCourseCreation = async (req, res, next) => {
     // Check if the input is an array and decide whether to handle a single or multiple courses
     if (Array.isArray(courses) && courses.length > 1) {
       // Call the service for creating multiple courses
-      logger.info(`Creating multiple courses: ${courses.length} courses.`);
       result = await createMultipleCourses(courses);
+
+      logger.info(`${courses.length} courses created successfully.`);
     } else if (Array.isArray(courses) && courses.length === 1) {
       // Call the service for creating a single course
-      logger.info('Creating a single course.');
       result = await createSingleCourse(courses[0]);
+
+      logger.info('Course successfully created');
     } else {
       // If the input is invalid, throw an error
       throw new CustomError(400, 'Invalid input: "courses" must be an array.');
@@ -50,14 +52,6 @@ export const handleCourseCreation = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    // Log the error for debugging purposes
-    logger.error({
-      'Error during course creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -78,17 +72,6 @@ export const handleCourseUpdate = async (req, res, next) => {
   const updateData = req.body; // Extract course update data from request body
 
   try {
-    // Validate the input
-    if (!id) {
-      throw new CustomError(400, 'Invalid input: "id" must be provided.');
-    }
-
-    // Log the update attempt
-    logger.info({
-      message: `Attempting to update course with ID: ${id}`,
-      updateData,
-    });
-
     // Call the service to update the course
     const updatedCourse = await updateCourse(Number(id), updateData);
 
@@ -98,14 +81,6 @@ export const handleCourseUpdate = async (req, res, next) => {
       data: updatedCourse,
     });
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error during course update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -119,6 +94,7 @@ export const handleGetCourseById = async (req, res, next) => {
 
   try {
     const course = await getCourseById(Number(id));
+
     res
       .status(200)
       .json({ message: 'Course fetched successfully', data: course });
@@ -169,6 +145,7 @@ export const handleDeleteCourseById = async (req, res, next) => {
 export const handleDeleteAllCourses = async (req, res, next) => {
   try {
     const deletedCount = await removeAllCourses();
+
     res
       .status(200)
       .json({ message: `${deletedCount} courses deleted successfully.` });

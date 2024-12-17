@@ -1,9 +1,5 @@
 // src/validators/userRegistration/parents-registration-validators.js
-import {
-  validateInput,
-  validateUsernameInput,
-  validateEmailInput,
-} from '../general-validators.js';
+import { validateInput, validateEmailInput } from '../general-validators.js';
 
 // Factory function to create parent-specific validators
 const createParentValidators = (prefix) => ({
@@ -15,7 +11,7 @@ const createParentValidators = (prefix) => ({
     .isIn(['PARENT'])
     .withMessage(`Invalid ${prefix} role.`),
   validateGender: validateInput(`${prefix}Gender`, { maxLength: 50 }),
-  validateUsername: validateUsernameInput(`${prefix}Username`, {
+  validateUsername: validateInput(`${prefix}Username`, {
     maxLength: 50,
   }),
   validateRelationshipToStudent: validateInput(

@@ -1,14 +1,8 @@
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 
 /**
  * Repository function to create a single class in the database.
- *
- * @param {Object} classData - Object containing class details like name, code, hall, etc.
- * @returns {Promise<Object>} - Returns the created class object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
  */
 export const createClass = async ({
   name,
@@ -19,20 +13,6 @@ export const createClass = async ({
   levelId,
 }) => {
   try {
-    // Log the attempt to create a class in the database
-    logger.info({
-      'Attempting to create class in the database': {
-        classData: {
-          name,
-          code,
-          hall,
-          description,
-          roomNumber,
-          levelId,
-        },
-      },
-    });
-
     // Create the class record in the database using Prisma
     const newClass = await prisma.class.create({
       data: {
@@ -45,48 +25,18 @@ export const createClass = async ({
       },
     });
 
-    // Log the successful creation of the class
-    logger.info({
-      'Class successfully created in the database.': {
-        classId: newClass.id,
-      },
-    });
-
     return newClass; // Return the created class object
   } catch (error) {
-    // Log any errors encountered during the class creation process
-    logger.error({
-      'Database error during class creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }
 };
 
-/**
- * Repository function to update a class by its ID in the database.
- *
- * @param {number} id - The ID of the class to be updated.
- * @param {Object} updateData - The data to update (e.g., { name: 'New Name', code: 'NEW123' }).
- * @returns {Promise<Object>} - Returns the updated class object if successful.
- * @throws {CustomError} - Throws a custom error if the class is not found or if there is a database error.
- */
+// Repository function to update a class by its ID in the database.
 export const updateClassById = async (id, updateData) => {
   const { name, code, hall, description, roomNumber, levelId } = updateData;
 
   try {
-    // Log the attempt to update the class
-    logger.info({
-      'Attempting to update class': {
-        classId: id,
-        updateData,
-      },
-    });
-
     // Attempt to update the class in the database
     const updatedClass = await prisma.class.update({
       where: { id },
@@ -100,24 +50,8 @@ export const updateClassById = async (id, updateData) => {
       },
     });
 
-    // Log the successful update
-    logger.info({
-      'Class successfully updated': {
-        classId: updatedClass.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedClass; // Return the updated class object
   } catch (error) {
-    // Log unexpected errors and rethrow them as internal server errors
-    logger.error({
-      'Database error during class update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -136,19 +70,8 @@ export const fetchClassById = async (id) => {
       where: { id },
     });
 
-    if (!classData) {
-      throw new CustomError(404, `Class with ID ${id} not found.`);
-    }
-
     return classData;
   } catch (error) {
-    logger.error({
-      'Error fetching class by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -195,13 +118,6 @@ export const fetchClasses = async ({ page = 1, limit = 10, search = '' }) => {
       },
     };
   } catch (error) {
-    logger.error({
-      'Error fetching classes with pagination': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -220,17 +136,6 @@ export const deleteClassById = async (id) => {
 
     return deletedClass;
   } catch (error) {
-    if (error.code === 'P2025') {
-      throw new CustomError(404, `Class with ID ${id} not found.`);
-    }
-
-    logger.error({
-      'Error deleting class by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -246,13 +151,6 @@ export const deleteAllClasses = async () => {
 
     return deletedCount.count;
   } catch (error) {
-    logger.error({
-      'Error deleting all classes': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };

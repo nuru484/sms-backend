@@ -1,0 +1,96 @@
+2024-12-17T11:46:33.901Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)
+2024-12-17T11:46:37.387Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)
+2024-12-17T11:46:55.819Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)
+2024-12-17T11:48:03.758Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)
+2024-12-17T11:48:46.775Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)
+2024-12-17T11:49:27.424Z error: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found. PrismaClientKnownRequestError: 
+Invalid `prisma.formerSchool.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. Record to update not found.
+    at Mn.handleRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7753)
+    at Mn.handleAndLogRequestError (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:7061)
+    at Mn.request (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:121:6745)
+    at async l (/home/nurudeen/github-repos/sms-backend/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async updateFormerSchoolDetails (file:///home/nurudeen/github-repos/sms-backend/src/repositories/studentFormerSchool/former-school-repository.js:85:40)
+    at async updateFormerSchoolForStudent (file:///home/nurudeen/github-repos/sms-backend/src/services/studentFormerSchool/former-school-services.js:105:33)
+    at async updateFormerSchool (file:///home/nurudeen/github-repos/sms-backend/src/controllers/studentFormerSchool/former-school-controller.js:78:33)

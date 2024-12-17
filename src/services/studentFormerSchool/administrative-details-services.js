@@ -7,9 +7,9 @@ import {
   getAdministrativeDetailsById, // New repository function
 } from '../../repositories/studentFormerSchool/administrative-details-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
 import { uploadFileToCloudinary } from '../../config/claudinary.js';
 import { deleteFileFromCloudinary } from '../../config/claudinary.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 // Function to create administrative details for a student
 export const createAdministrativeDetailsForStudent = async (
@@ -48,19 +48,9 @@ export const createAdministrativeDetailsForStudent = async (
       formerSchoolId,
     });
 
-    logger.info(
-      `Administrative details successfully created for studentId: ${studentId}`
-    );
-
     return administrativeDetails;
   } catch (error) {
-    logger.error({
-      'Error creating administrative details for student': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-    throw error;
+    handlePrismaError(error, 'Former school');
   }
 };
 
@@ -125,18 +115,8 @@ export const updateAdministrativeDetailsForStudent = async (
       updateData
     );
 
-    logger.info(
-      `Administrative details successfully updated for studentId: ${studentId}`
-    );
-
     return updatedAdministrativeDetails;
   } catch (error) {
-    logger.error({
-      'Error updating administrative details for student': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-    throw error;
+    handlePrismaError(error, 'Administrative Details');
   }
 };

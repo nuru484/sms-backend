@@ -3,7 +3,6 @@
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 
 // Helper function to get student details by userId
 export const getStudentByUserId = async (id) => {
@@ -24,14 +23,6 @@ export const getStudentByUserId = async (id) => {
 
     return student;
   } catch (error) {
-    // Log error if any issue occurs
-    logger.error({
-      'Error fetching student by id': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
     throw error;
   }
 };

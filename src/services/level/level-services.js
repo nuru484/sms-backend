@@ -8,9 +8,9 @@ import {
   deleteLevelById,
   deleteAllLevels,
 } from '../../repositories/level/level-repository.js';
-import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js';
-import { validateUniqueFieldsForUpdate } from '../../utils/helpers/validation-helpers.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 /**
  * Service function to create a single level.
@@ -23,27 +23,13 @@ export const createSingleLevel = async (levelData) => {
   const { name, code, description, order } = levelData;
 
   try {
-    // Log the level creation attempt
-    logger.info(`Attempting to create a single level: ${name}`);
-
     // Call the repository to create the level
     const level = await createLevel({ name, code, description, order });
 
-    // Log the success
-    logger.info(`Level created successfully: ${level.id}`);
-
     return level;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating single level': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
     // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Level');
   }
 };
 
@@ -56,11 +42,6 @@ export const createSingleLevel = async (levelData) => {
  */
 export const createMultipleLevels = async (levels) => {
   try {
-    // Log the batch level creation attempt
-    logger.info(
-      `Attempting to create multiple levels: ${levels.length} levels`
-    );
-
     const levelPromises = levels.map((level) => {
       return prisma.level.create({
         data: level,
@@ -70,21 +51,10 @@ export const createMultipleLevels = async (levels) => {
     // Use $transaction to run all Prisma Client promises in a transaction
     const createdLevels = await prisma.$transaction(levelPromises);
 
-    // Log the success
-    logger.info(`Successfully created ${createdLevels.length} levels.`);
-
     return createdLevels;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating multiple levels': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
     // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Level');
   }
 };
 
@@ -98,42 +68,13 @@ export const createMultipleLevels = async (levels) => {
  */
 export const updateLevel = async (id, updateData) => {
   try {
-    // Log the level update attempt
-    logger.info({
-      'Attempting to update level': {
-        levelId: id,
-        updateData,
-      },
-    });
-
-    // Validate fields for uniqueness
-    const uniqueFields = ['name', 'code'];
-    await validateUniqueFieldsForUpdate(updateData, uniqueFields, id, 'level');
-
     // Call the repository to update the level
     const updatedLevel = await updateLevelById(id, updateData);
 
-    // Log the successful update
-    logger.info({
-      'Level updated successfully': {
-        levelId: updatedLevel.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedLevel;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error updating level': {
-        levelId: id,
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
     // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Level');
   }
 };
 
@@ -144,7 +85,17 @@ export const updateLevel = async (id, updateData) => {
  * @returns {Promise<Object>} - Returns the level object.
  */
 export const getLevelById = async (id) => {
-  return await fetchLevelById(id);
+  try {
+    const level = await fetchLevelById(id);
+
+    if (!level) {
+      throw new CustomError(404, `Level with ID ${id} not found.`);
+    }
+
+    return level;
+  } catch (error) {
+    handlePrismaError(error, 'Level');
+  }
 };
 
 /**
@@ -154,7 +105,16 @@ export const getLevelById = async (id) => {
  * @returns {Promise<Object>} - Returns the levels and pagination info.
  */
 export const getLevels = async (query) => {
-  return await fetchLevels(query);
+  try {
+    const response = await fetchLevels(query);
+
+    if (!response || response.levels.length === 0) {
+      throw new CustomError(404, `There are no levels currently.`);
+    }
+    return response;
+  } catch (error) {
+    handlePrismaError(error, 'Level');
+  }
 };
 
 /**
@@ -164,7 +124,11 @@ export const getLevels = async (query) => {
  * @returns {Promise<Object>} - Returns the deleted level object.
  */
 export const removeLevelById = async (id) => {
-  return await deleteLevelById(id);
+  try {
+    return await deleteLevelById(id);
+  } catch (error) {
+    handlePrismaError(error, 'Level');
+  }
 };
 
 /**
@@ -173,5 +137,17 @@ export const removeLevelById = async (id) => {
  * @returns {Promise<number>} - Returns the count of deleted levels.
  */
 export const removeAllLevels = async () => {
-  return await deleteAllLevels();
+  try {
+    const response = await deleteAllLevels();
+
+    if (!response || response === 0) {
+      throw new CustomError(
+        404,
+        `There are currently no levels available to delete.`
+      );
+    }
+    return response;
+  } catch (error) {
+    handlePrismaError(error, 'Level');
+  }
 };

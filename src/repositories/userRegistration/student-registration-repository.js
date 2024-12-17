@@ -2,8 +2,6 @@
 
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 
 /**
  * Repository function to create and associate personal details for a student in the database.
@@ -28,45 +26,15 @@ export const createStudentPersonalDetails = async ({
       },
     };
 
-    // Log the attempt to create student personal details in the database.
-    logger.info({
-      'Attempting to create student personal details in the database': {
-        data: studentDataToCreate,
-      },
-    });
-
     // Create the student record in the database using Prisma
     const personalDetails = await prisma.student.create({
       data: studentDataToCreate,
     });
 
-    // Log the successful creation of student personal details
-    logger.info({
-      'Student personal details successfully created in the database.': {
-        studentId: personalDetails.id,
-      },
-    });
-
     return personalDetails; // Return the created student details object
   } catch (error) {
-    // Log any errors encountered during the student creation process.
-    logger.error({
-      'Database error during student personal details creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes, such as duplicate entries, and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate user details: ${error.meta?.target || error.message}`
-      );
-    }
-
     // Throw a generic internal server error if an unexpected error occurs.
-    throw new CustomError(500, `Internal Server Error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -83,15 +51,6 @@ export const createParentPersonalDetails = async ({
   wardsIds,
 }) => {
   try {
-    // Log the attempt to create the parent and associate it with the user
-    logger.info({
-      'Attempting to create parent with relationship to student and connect to user in the database':
-        {
-          relationshipToStudent,
-          userId,
-        },
-    });
-
     // Create the parent record in the database and link it to the user
     const newParent = await prisma.parent.create({
       data: {
@@ -105,32 +64,52 @@ export const createParentPersonalDetails = async ({
       },
     });
 
-    // Log the successful creation of the parent and its association with the user
-    logger.info({
-      'Parent successfully created and connected to the user.': {
-        parentId: newParent.id,
-        userId: newParent.userId,
-      },
-    });
-
     return newParent; // Return the created parent object
   } catch (error) {
-    // Log any errors encountered during the creation of the parent
-    logger.error({
-      'Database error during parent creation and connection to user': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
+  }
+};
+
+/**
+ * Repository function to update a student's personal details in the database.
+ *
+ * @param {Object} studentData - Object containing updated student details like ethnicity, admission status, etc.
+ * @param {string} studentId - ID of the student to update.
+ * @returns {Promise<Object>} - Returns the updated student details object if successful.
+ * @throws {CustomError} - Throws a custom error if there is an issue during the update process or database interaction.
+ */
+export const updateStudentPersonalDetails = async (studentData, studentId) => {
+  try {
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: studentData,
     });
 
-    // Handle specific Prisma error codes and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate user details: ${error.meta?.target || error.message}`
-      );
-    }
+    return updatedStudent;
+  } catch (error) {
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
+  }
+};
 
+/**
+ * Repository function to update a parent’s personal details in the database.
+ *
+ * @param {Object} parentData - Object containing updated parent details and relationship to the student.
+ * @param {string} parentId - ID of the parent to update.
+ * @returns {Promise<Object>} - Returns the updated parent object if successful.
+ * @throws {CustomError} - Throws a custom error if there is an issue during the update process or database interaction.
+ */
+export const updateParentPersonalDetails = async (parentData, parentId) => {
+  try {
+    const updatedParent = await prisma.parent.update({
+      where: { id: parentId },
+      data: parentData,
+    });
+
+    return updatedParent;
+  } catch (error) {
     // Throw a generic internal server error if an unexpected error occurs.
     throw error;
   }

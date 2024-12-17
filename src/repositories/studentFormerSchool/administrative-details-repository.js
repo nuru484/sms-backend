@@ -24,33 +24,13 @@ export const createAdministrativeDetails = async ({
       },
     };
 
-    // Log the attempt to create administrative details in the database
-    logger.info({
-      'Attempting to create administrative details in the database': {
-        data: administrativeDetailsDataToCreate,
-      },
-    });
-
     // Create the administrative details record
     const administrativeDetails = await prisma.administrativeDetails.create({
       data: administrativeDetailsDataToCreate,
     });
 
-    // Log success
-    logger.info({
-      'Administrative details successfully created in the database': {
-        administrativeDetailsId: administrativeDetails.id,
-      },
-    });
-
     return administrativeDetails;
   } catch (error) {
-    logger.error({
-      'Database error during administrative details creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
     throw error;
   }
 };
@@ -58,14 +38,6 @@ export const createAdministrativeDetails = async ({
 // Function to update administrative details
 export const updateAdministrativeDetails = async (id, updateData) => {
   try {
-    // Log the update attempt
-    logger.info({
-      'Attempting to update administrative details in the database': {
-        id,
-        updateData,
-      },
-    });
-
     // Perform the update operation
     const updatedAdministrativeDetails =
       await prisma.administrativeDetails.update({
@@ -73,28 +45,19 @@ export const updateAdministrativeDetails = async (id, updateData) => {
         data: updateData,
       });
 
-    // Log success
-    logger.info({
-      'Administrative details successfully updated in the database': {
-        administrativeDetailsId: updatedAdministrativeDetails.id,
-      },
-    });
-
     return updatedAdministrativeDetails;
   } catch (error) {
-    logger.error({
-      'Database error during administrative details update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
     throw error;
   }
 };
 
 // Get administrative details by ID
 export const getAdministrativeDetailsById = async (id) => {
-  return prisma.administrativeDetails.findUnique({
-    where: { id: parseInt(id) },
-  });
+  try {
+    return prisma.administrativeDetails.findUnique({
+      where: { id: parseInt(id) },
+    });
+  } catch (error) {
+    throw error;
+  }
 };

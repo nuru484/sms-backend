@@ -11,6 +11,7 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
 import { uploadFileToCloudinary } from '../../config/claudinary.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Main function to process teacher registration.
@@ -116,7 +117,7 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
         tx, // Pass transaction object to repository
       });
 
-      logger.info({ 'Teacher user record successfully created': teacher });
+      logger.info({ 'Teacher basic details successfully created': teacher });
 
       // Step 3: Create Teacher Personal Details
       const teacherPersonalDetails = await createTeacherPersonalDetails({
@@ -152,15 +153,7 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
 
     return result; // Return the result of the transaction
   } catch (error) {
-    logger.error({
-      'Error processing teacher registration': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Rethrow the error with custom message
-    throw new CustomError(500, `Teacher registration failed: ${error.message}`);
+    handlePrismaError(error, 'Teacher Registration');
   }
 };
 

@@ -1,7 +1,6 @@
 // src/controllers/userRegistration/admin-registration-controller.js
 
 // Import the logger utility to log important information and errors.
-import logger from '../../utils/logger.js';
 
 // Import the service responsible for handling the admin registration logic.
 import processAdminRegistration from '../../services/userRegistration/admin-registration-service.js';
@@ -26,11 +25,6 @@ export const registerAdmin = async (req, res, next) => {
     // Send a success response with a 201 status code indicating resource creation.
     return res.status(201).json(response);
   } catch (error) {
-    // Log detailed error information for monitoring and debugging purposes.
-    logger.error({
-      'Error during admin registration!': { error: error.message },
-    });
-
     // Pass the error to the next middleware for centralized error handling.
     next(error);
   }

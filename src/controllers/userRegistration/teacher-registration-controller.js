@@ -1,6 +1,5 @@
 // src/controllers/userRegistration/teacher-registration-controller.js
 
-import logger from '../../utils/logger.js';
 import upload from '../../config/multer.js';
 
 // Import the service responsible for processing the teacher registration logic.
@@ -44,9 +43,6 @@ export const registerTeacher = [
       // Respond with a success status and the result of the registration process.
       return res.status(201).json(response);
     } catch (error) {
-      // Log detailed error information for debugging and operational insights.
-      logger.error({ 'Error during teacher registration!': { error } });
-
       // Delegate the error to the next middleware for centralized handling.
       next(error);
     }

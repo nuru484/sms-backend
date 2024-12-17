@@ -1,8 +1,5 @@
 // src/repositories/auth/login-repository.js
-
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
 
 /**
  * Finds a user by their username and optionally updates their refresh token.
@@ -22,13 +19,6 @@ export const findUserByUsernameAndUpdateToken = async (
       where: { username },
     });
 
-    if (!user) {
-      throw new CustomError(
-        404,
-        `User with this username: ${username} not found`
-      );
-    }
-
     // If a refresh token is provided, update the user record
     if (refreshToken) {
       await prisma.user.update({
@@ -39,13 +29,6 @@ export const findUserByUsernameAndUpdateToken = async (
 
     return user;
   } catch (error) {
-    logger.error({
-      'Database error': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };

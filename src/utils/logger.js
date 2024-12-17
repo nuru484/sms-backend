@@ -10,7 +10,7 @@ import pretty from 'pino-pretty'; // Import pino-pretty for prettifying log outp
  *
  * @see https://getpino.io/ for pino documentation
  */
-const logger = pino({
+export default pino({
   level: 'debug', // Set the log level to 'debug', which includes 'info', 'warn', and 'error' logs as well.
   transport: {
     target: 'pino-pretty', // Use the pino-pretty transport to format logs in a readable manner
@@ -22,6 +22,3 @@ const logger = pino({
     },
   },
 });
-
-// Export the logger instance to be used in other parts of the application
-export default logger;

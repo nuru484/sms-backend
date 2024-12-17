@@ -4,8 +4,8 @@ import { compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { findUserByUsernameAndUpdateToken } from '../../repositories/auth/login-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
 import ENV from '../../config/env.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Handles user login logic.
@@ -20,11 +20,12 @@ export const loginUser = async ({ username, password }) => {
     const user = await findUserByUsernameAndUpdateToken(username);
 
     if (!user) {
-      throw new CustomError(400, 'User not found');
+      console.log('hello world');
+      throw new CustomError(404, 'User not found');
     }
 
     // Ensure that both arguments are valid
-    if (!password || !user.password) {
+    if (!password || (user && !user.password)) {
       throw new Error('Password or hash missing');
     }
 
@@ -58,14 +59,6 @@ export const loginUser = async ({ username, password }) => {
     // Step 5: Return the tokens
     return { accessToken, refreshToken };
   } catch (error) {
-    logger.error({
-      'Service error': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Rethrow the error to propagate it
-    throw error;
+    handlePrismaError(error, 'user');
   }
 };

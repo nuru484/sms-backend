@@ -1,7 +1,6 @@
 // src/validators/level/level-validators.js
 
 import { validateInput } from '../general-validators.js';
-import { checkFieldUnique } from '../../utils/helpers/validation-helpers.js';
 import { body } from 'express-validator';
 
 // Factory function to generate validators for level creation
@@ -27,8 +26,6 @@ const createLevelValidators = () => ({
           );
         }
 
-        await checkFieldUnique('name', level.name, 'level');
-
         if (!level.code || typeof level.code !== 'string') {
           throw new Error(
             `Level at index ${index} must have a valid 'code' as a string`
@@ -39,8 +36,6 @@ const createLevelValidators = () => ({
             `Level at index ${index} code should not exceed 50 characters`
           );
         }
-        // Check if the code already exists in the database
-        await checkFieldUnique('code', level.code, 'level');
 
         if (!level.description || typeof level.description !== 'string') {
           throw new Error(

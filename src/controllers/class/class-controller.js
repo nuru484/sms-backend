@@ -33,12 +33,12 @@ export const handleClassCreation = async (req, res, next) => {
     // Check if the input is an array and decide whether to handle a single or multiple classes
     if (Array.isArray(classes) && classes.length > 1) {
       // Call the service for creating multiple classes
-      logger.info(`Creating multiple classes: ${classes.length} classes.`);
       result = await createMultipleClasses(classes);
+      logger.info(`${classes.length} classes successfully: .`);
     } else if (Array.isArray(classes) && classes.length === 1) {
       // Call the service for creating a single class
-      logger.info('Creating a single class.');
       result = await createSingleClass(classes[0]);
+      logger.info(`class successfully.`);
     } else {
       // If the input is invalid, throw an error
       throw new CustomError(400, 'Invalid input: "classes" must be an array.');
@@ -50,14 +50,6 @@ export const handleClassCreation = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    // Log the error for debugging purposes
-    logger.error({
-      'Error during class creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -78,17 +70,6 @@ export const handleClassUpdate = async (req, res, next) => {
   const updateData = req.body; // Extract class update data from request body
 
   try {
-    // Validate the input
-    if (!id) {
-      throw new CustomError(400, 'Invalid input: "id" must be provided.');
-    }
-
-    // Log the update attempt
-    logger.info({
-      message: `Attempting to update class with ID: ${id}`,
-      updateData,
-    });
-
     // Call the service to update the class
     const updatedClass = await updateClass(Number(id), updateData);
 
@@ -98,14 +79,6 @@ export const handleClassUpdate = async (req, res, next) => {
       data: updatedClass,
     });
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error during class update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -119,6 +92,7 @@ export const handleGetClassById = async (req, res, next) => {
 
   try {
     const classData = await getClassById(Number(id));
+
     res.status(200).json({
       message: 'Class fetched successfully',
       data: classData,
@@ -140,6 +114,7 @@ export const handleGetClasses = async (req, res, next) => {
       limit: Number(limit),
       search,
     });
+
     res.status(200).json({
       message: 'Classes fetched successfully',
       data: result,
@@ -157,6 +132,7 @@ export const handleDeleteClassById = async (req, res, next) => {
 
   try {
     const deletedClass = await removeClassById(Number(id));
+
     res.status(200).json({
       message: 'Class deleted successfully',
       data: deletedClass,
@@ -172,6 +148,7 @@ export const handleDeleteClassById = async (req, res, next) => {
 export const handleDeleteAllClasses = async (req, res, next) => {
   try {
     const deletedCount = await removeAllClasses();
+
     res.status(200).json({
       message: `${deletedCount} classes deleted successfully.`,
     });

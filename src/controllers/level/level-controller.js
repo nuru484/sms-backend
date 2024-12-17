@@ -33,11 +33,9 @@ export const handleLevelCreation = async (req, res, next) => {
     // Check if the input is an array and decide whether to handle a single or multiple levels
     if (Array.isArray(levels) && levels.length > 1) {
       // Call the service for creating multiple levels
-      logger.info(`Creating multiple levels: ${levels.length} levels.`);
       result = await createMultipleLevels(levels);
     } else if (Array.isArray(levels) && levels.length === 1) {
       // Call the service for creating a single level
-      logger.info('Creating a single level.');
       result = await createSingleLevel(levels[0]);
     } else {
       // If the input is invalid, throw an error
@@ -50,14 +48,6 @@ export const handleLevelCreation = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    // Log the error for debugging purposes
-    logger.error({
-      'Error during level creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -78,17 +68,6 @@ export const handleLevelUpdate = async (req, res, next) => {
   const updateData = req.body; // Extract level update data from request body
 
   try {
-    // Validate the input
-    if (!id) {
-      throw new CustomError(400, 'Invalid input: "id" must be provided.');
-    }
-
-    // Log the update attempt
-    logger.info({
-      message: `Attempting to update level with ID: ${id}`,
-      updateData,
-    });
-
     // Call the service to update the level
     const updatedLevel = await updateLevel(Number(id), updateData);
 
@@ -98,14 +77,6 @@ export const handleLevelUpdate = async (req, res, next) => {
       data: updatedLevel,
     });
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error during level update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Forward the error to centralized error handling middleware
     next(error);
   }
@@ -119,6 +90,7 @@ export const handleGetLevelById = async (req, res, next) => {
 
   try {
     const level = await getLevelById(Number(id));
+
     res.status(200).json({
       message: 'Level fetched successfully',
       data: level,
@@ -172,6 +144,7 @@ export const handleDeleteLevelById = async (req, res, next) => {
 export const handleDeleteAllLevels = async (req, res, next) => {
   try {
     const deletedCount = await removeAllLevels();
+
     res.status(200).json({
       message: `${deletedCount} levels deleted successfully.`,
     });

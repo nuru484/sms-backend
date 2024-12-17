@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'; // For generating unique identifiers
 import ENV from '../../config/env.js'; // Environment configuration
 import logger from '../../utils/logger.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js'; // Standardized error handling
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Initiates a payment request to the MoMo API.
@@ -70,12 +71,7 @@ const requestToPay = async (
       throw new CustomError(response.status, errorData.message);
     }
   } catch (error) {
-    // Log and rethrow any unexpected errors
-    logger.error('Request failed:', error);
-    throw new CustomError(
-      error.status,
-      `Failed to initialise payment ${error.message}`
-    );
+    handlePrismaError(error, 'Request to pay');
   }
 };
 
@@ -111,9 +107,7 @@ const checkRequestToPayStatus = async (accessToken, referenceId) => {
       throw new CustomError(response.status, errorData.message);
     }
   } catch (error) {
-    // Log and rethrow any unexpected errors
-    logger.error('Request failed:', error);
-    throw new CustomError(error.status, 'Failed to check payment status');
+    handlePrismaError(error, 'Check request to pay status');
   }
 };
 

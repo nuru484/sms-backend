@@ -1,8 +1,4 @@
 // Importing logger utility for logging application events and errors
-import logger from '../../utils/logger.js';
-
-// Importing CustomError for standardized error handling
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 // Importing the service to send a request to pay via MoMo API
 import { requestToPay } from '../momoApi/request-to-pay.js';
@@ -12,6 +8,7 @@ import {
   createMomoTransaction, // Creates a record for a new MoMo transaction
   updateMomoTransactionStatus, // Updates the status of an existing MoMo transaction
 } from '../../repositories/payment/momo-payment-repository.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Processes a MoMo payment by initiating a request to pay.
@@ -36,19 +33,6 @@ const processMomoPayment = async (
   payerMessage,
   payeeNote
 ) => {
-  // Log the details of the payment being processed
-  logger.info({
-    'Processing MoMo payment': {
-      partyId,
-      partyIdType,
-      amount,
-      externalId,
-      currency,
-      payerMessage,
-      payeeNote,
-    },
-  });
-
   try {
     // Initiate the request to pay using MoMo API
     const requestToPayResponse = await requestToPay(
@@ -79,32 +63,10 @@ const processMomoPayment = async (
     // Save the transaction details in the database
     await createMomoTransaction(paymentDetails);
 
-    // Log a successful payment processing event
-    logger.info({
-      'MoMo payment processed successfully': {
-        partyId,
-        externalId,
-        response: requestToPayResponse,
-      },
-    });
-
     // Return the API response for further processing
     return requestToPayResponse;
   } catch (error) {
-    // Log the error details for debugging
-    logger.error({
-      'Error processing MoMo payment': {
-        error: error.message,
-        stack: error.stack,
-        details: { partyId, amount, externalId, currency },
-      },
-    });
-
-    // Throw a standardized error
-    throw new CustomError(
-      500,
-      `Failed to process MoMo payment: ${error.message}`
-    );
+    handlePrismaError(error, 'process momo payment');
   }
 };
 
@@ -123,9 +85,6 @@ const processMomoPayment = async (
 const processMomoPaymentStatus = async (paymentDetails) => {
   const { payer, status, financialTransactionId, reason, externalId } =
     paymentDetails;
-
-  // Log the details of the status update being processed
-  logger.info({ 'Processing payment status': { payer, status } });
 
   try {
     if (status === 'SUCCESSFUL') {
@@ -156,19 +115,7 @@ const processMomoPaymentStatus = async (paymentDetails) => {
       };
     }
   } catch (error) {
-    // Log the error details for debugging
-    logger.error({
-      'Error processing Transaction status': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a standardized error
-    throw new CustomError(
-      500,
-      `Failed to process Transaction: ${error.message}`
-    );
+    handlePrismaError(error, 'process momo payment status');
   }
 };
 

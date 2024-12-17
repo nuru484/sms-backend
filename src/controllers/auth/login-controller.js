@@ -22,7 +22,6 @@ export const login = async (req, res, next) => {
       .status(200)
       .json({ message: 'You have successfully login.', tokens });
   } catch (error) {
-    logger.error({ 'Error during login': { error } });
     next(error);
   }
 };

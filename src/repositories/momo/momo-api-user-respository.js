@@ -4,7 +4,6 @@
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 // Import custom error handler for consistent error management
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 /**
  * Retrieves or creates MoMo API user details in the database.
  *
@@ -32,6 +31,6 @@ export const momoApiUserDetails = async (referenceId, apiKey) => {
     return transaction;
   } catch (error) {
     // Throw a custom error for consistent error handling and logging
-    throw new CustomError(500, `Database error: ${error.message}`);
+    throw error;
   }
 };

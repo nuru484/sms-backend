@@ -1,9 +1,6 @@
 // src/repositories/course/course-repository.js
-
-// Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
+import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 /**
  * Repository function to create a single course in the database.
@@ -14,43 +11,13 @@ import logger from '../../utils/logger.js'; // Logger for logging operations and
  */
 export const createCourse = async ({ name, code }) => {
   try {
-    // Log the attempt to create a course in the database
-    logger.info({
-      'Attempting to create course in the database': {
-        courseData: { name, code },
-      },
-    });
-
     // Create the course record in the database using Prisma
     const course = await prisma.course.create({
       data: { name, code },
     });
 
-    // Log the successful creation of the course
-    logger.info({
-      'Course successfully created in the database.': {
-        courseId: course.id,
-      },
-    });
-
     return course; // Return the created course object
   } catch (error) {
-    // Log any errors encountered during the course creation process
-    logger.error({
-      'Database error during course creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific Prisma error codes, such as duplicate entries, and throw appropriate custom errors
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate course details: ${error.meta?.target || error.message}`
-      );
-    }
-
     // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }
@@ -66,46 +33,14 @@ export const createCourse = async ({ name, code }) => {
  */
 export const updateCourseById = async (id, updateData) => {
   try {
-    // Log the attempt to update the course
-    logger.info({
-      'Attempting to update course': {
-        courseId: id,
-        updateData,
-      },
-    });
-
     // Attempt to update the course in the database
     const updatedCourse = await prisma.course.update({
       where: { id },
       data: updateData,
     });
 
-    // Log the successful update
-    logger.info({
-      'Course successfully updated': {
-        courseId: updatedCourse.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedCourse; // Return the updated course object
   } catch (error) {
-    // Handle the case where the course is not found
-    if (error.code === 'P2025') {
-      logger.warn({
-        'Course not found during update': { courseId: id },
-      });
-      throw new CustomError(404, `Course with ID ${id} not found.`);
-    }
-
-    // Log unexpected errors and rethrow them as internal server errors
-    logger.error({
-      'Database error during course update': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -124,20 +59,8 @@ export const fetchCourseById = async (id) => {
       where: { id },
     });
 
-    if (!course) {
-      throw new CustomError(404, `Course with ID ${id} not found.`);
-    }
-
     return course;
   } catch (error) {
-    // Log the error (for internal purposes, this can still be done in the catch block)
-    logger.error({
-      'Error fetching course by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     // Re-throw the error to be handled by the error handler middleware
     throw error;
   }
@@ -185,13 +108,6 @@ export const fetchCourses = async ({ page = 1, limit = 10, search = '' }) => {
       },
     };
   } catch (error) {
-    logger.error({
-      'Error fetching courses with pagination': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -210,17 +126,6 @@ export const deleteCourseById = async (id) => {
 
     return course;
   } catch (error) {
-    if (error.code === 'P2025') {
-      throw new CustomError(404, `Course with ID ${id} not found.`);
-    }
-
-    logger.error({
-      'Error deleting course by ID': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };
@@ -236,13 +141,6 @@ export const deleteAllCourses = async () => {
 
     return deletedCount.count;
   } catch (error) {
-    logger.error({
-      'Error deleting all courses': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
     throw error;
   }
 };

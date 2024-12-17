@@ -7,7 +7,7 @@ import {
 
 import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 // ################################################################################################
 
@@ -25,11 +25,6 @@ export const createBehaviorAndExtracurricularForStudent = async (
   } = behaviorAndExtracurricularData;
 
   try {
-    // Log the attempt to create behavior and extracurricular details for student
-    logger.info(
-      `Attempting to create behavior and extracurricular details for studentId: ${studentId}`
-    );
-
     // Step 1: Check the student's admission status before proceeding
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -54,23 +49,9 @@ export const createBehaviorAndExtracurricularForStudent = async (
         formerSchoolId: parseInt(formerSchoolId), // Link behavior and extracurricular details to the former school
       });
 
-    // Log success
-    logger.info(
-      `Behavior and extracurricular details successfully created for student ID: ${student.id}`
-    );
-
     return behaviorAndExtracurricular;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error creating behavior and extracurricular details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs
-    throw error;
+    handlePrismaError(error, 'Former school');
   }
 };
 
@@ -83,11 +64,6 @@ export const updateBehaviorAndExtracurricularForStudent = async (
   updateData
 ) => {
   try {
-    // Log the attempt to update behavior and extracurricular details for the student
-    logger.info(
-      `Attempting to update behavior and extracurricular details for studentId: ${studentId}, behaviorAndExtracurricularId: ${behaviorAndExtracurricularId}`
-    );
-
     // Step 1: Check if the student exists and their admission status
     const student = await getStudentByUserId(parseInt(studentId));
 
@@ -109,22 +85,8 @@ export const updateBehaviorAndExtracurricularForStudent = async (
         updateData
       );
 
-    // Log success
-    logger.info(
-      `Behavior and extracurricular details successfully updated for behaviorAndExtracurricularId: ${behaviorAndExtracurricularId}`
-    );
-
     return updatedBehaviorAndExtracurricular;
   } catch (error) {
-    // Log any errors that occur
-    logger.error({
-      'Error updating behavior and extracurricular details': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Rethrow the error for the controller to handle
-    throw error;
+    handlePrismaError(error, 'Behavior and Extracurricular');
   }
 };

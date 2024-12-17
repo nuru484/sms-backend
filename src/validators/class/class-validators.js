@@ -1,7 +1,6 @@
 // src/validators/class/class-validators.js
 
 import { validateInput } from '../general-validators.js';
-import { checkFieldUnique } from '../../utils/helpers/validation-helpers.js';
 import { body } from 'express-validator';
 
 // Factory function to generate validators for class creation
@@ -76,18 +75,6 @@ const createClassValidators = () => ({
             );
           }
         }
-
-        // Concurrent unique checks
-        await Promise.all([
-          checkFieldUnique('name', clazz.name, 'class'),
-          checkFieldUnique('code', clazz.code, 'class'),
-          clazz.hall
-            ? checkFieldUnique('hall', clazz.hall, 'class')
-            : Promise.resolve(),
-          clazz.roomNumber
-            ? checkFieldUnique('roomNumber', clazz.roomNumber, 'class')
-            : Promise.resolve(),
-        ]);
       }
       return true;
     }),

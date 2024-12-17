@@ -11,9 +11,8 @@ const createFormerSchoolValidators = () => ({
   // Validator for name (required, max length 255 characters)
   validateName: validateInput('name', {
     maxLength: 255,
-    required: false,
-  }).custom((value) => checkFieldUnique('name', value, 'formerSchool')),
-
+    required: true,
+  }),
   // Validator for address (optional, max length 500 characters)
   validateAddress: validateInput('address', {
     required: false,

@@ -2,7 +2,6 @@
 
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
 import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 
 /**

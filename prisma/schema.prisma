@@ -105,7 +105,7 @@ model StudentApplicationNumber {
   number String   @unique
   taken  Boolean?
 
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   studentId Int
 }
 
@@ -171,7 +171,7 @@ model WorkExperience {
   endtDate   DateTime
   department String?
   company    String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId     Int
 }
 
@@ -182,7 +182,7 @@ model EducationalBackground {
   institution    String
   specialization String?
   certifications String?
-  user           User    @relation(fields: [userId], references: [id])
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId         Int
 }
 
@@ -195,7 +195,7 @@ model HealthAndSafety {
   healthInsuranceProvider     String?
   healthInsurancePolicyNumber String?
   comments                    String
-  user                        User    @relation(fields: [userId], references: [id])
+  user                        User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId                      Int
 }
 
@@ -219,8 +219,8 @@ model PerformanceAndEvaluation {
   criteria         String[] //  Array of evaluated criteria, if you want to store it inline
 
   // Relationships
-  staff       User @relation(fields: [userId], references: [id]) // Evaluated staff member
-  evaluator   User @relation("Evaluators", fields: [evaluatorId], references: [id])
+  staff       User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Evaluated staff member
+  evaluator   User @relation("Evaluators", fields: [evaluatorId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   userId      Int
   evaluatorId Int // ID of the evaluator (could be supervisor, HR, etc.)
 }
@@ -259,7 +259,7 @@ model Class {
   roomNumber  Int?    @unique
 
   // Relations
-  level   Level? @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  level   Level? @relation(fields: [levelId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   levelId Int?
 
   teachers Teacher[] @relation("TeacherClass")
@@ -273,9 +273,9 @@ model Exam {
   description String?  @db.VarChar(255) // Optional description of the exam
   date        DateTime // Date the exam will take place
 
-  course   Course    @relation(fields: [courseId], references: [id]) // Relation to Course model
-  ExamType ExamType? @relation(fields: [examTypeId], references: [id])
-  term     Term      @relation(fields: [termId], references: [id])
+  course   Course    @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Course model
+  ExamType ExamType? @relation(fields: [examTypeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  term     Term      @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   termId     Int
   examTypeId Int?
@@ -300,9 +300,9 @@ model Grade {
 
   // Relations
   student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Exam    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  Exam    Exam     @relation(fields: [examId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   // Foreign keys for relations
   studentId Int
@@ -335,8 +335,8 @@ model StudentReport {
   comments        String? @db.VarChar(255) // General remarks about the student's performance
 
   // Relations
-  term    Term    @relation(fields: [termId], references: [id])
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term    Term    @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   termId    Int
   studentId Int
@@ -352,11 +352,11 @@ model ReportDetail {
   courseComments   String? @db.VarChar(255) // Comments on performance for the specific course
 
   // Relations
-  term          Term          @relation(fields: [termId], references: [id])
-  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course        Course        @relation(fields: [courseId], references: [id])
-  grade         Grade         @relation(fields: [gradeId], references: [id])
-  studentReport StudentReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  term          Term          @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  grade         Grade         @relation(fields: [gradeId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  studentReport StudentReport @relation(fields: [reportId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   termId    Int
   courseId  Int
@@ -380,8 +380,8 @@ model Attendance {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  user     User @relation(fields: [userId], references: [id])
-  recorder User @relation("AttendanceRecorder", fields: [recorderId], references: [id])
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  recorder User @relation("AttendanceRecorder", fields: [recorderId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   userId     Int
   recorderId Int
@@ -399,9 +399,9 @@ model Payment {
   status        String // e.g., "Completed", "Pending", "Partially Paid"
 
   // Relations
-  student  Student?  @relation(fields: [studentId], references: [id])
-  fee      Fee?      @relation(fields: [feeId], references: [id])
-  saleItem SaleItem? @relation(fields: [saleItemId], references: [id])
+  student  Student?  @relation(fields: [studentId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  fee      Fee?      @relation(fields: [feeId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  saleItem SaleItem? @relation(fields: [saleItemId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   studentId  Int?
   feeId      Int?
@@ -422,7 +422,7 @@ model PaymentInstallment {
   remarks         String?  @db.VarChar(255) // Optional remarks about this installment
 
   // Relations
-  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   paymentId Int
 
   @@index([paymentId, installmentDate])
@@ -446,7 +446,7 @@ model Salary {
   deductions  Float?
   notes       String?  @db.VarChar(255)
 
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   userId      Int
   Transaction Transaction[]
 }
@@ -457,7 +457,7 @@ model StaffAccountDetails {
   accountNumber DateTime
   nameOnAccount String
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   userId Int
 }
 
@@ -486,9 +486,9 @@ model Transaction {
   paymentMethod      paymentMethod // e.g., "Bank", "Mobile Money"
 
   // Relations
-  payment Payment? @relation(fields: [paymentId], references: [id])
-  salary  Salary?  @relation(fields: [salaryId], references: [id])
-  account Account? @relation(fields: [accountId], references: [id])
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  salary  Salary?  @relation(fields: [salaryId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  account Account? @relation(fields: [accountId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   paymentId              Int?
   salaryId               Int?
@@ -521,7 +521,7 @@ model MobileMoneyTransaction {
   accessToken            String   @unique
   referenceId            String?  @unique
 
-  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   transactionId Int?
 }
 
@@ -543,7 +543,7 @@ model Item {
   image       String?      @db.VarChar(255)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  category    ItemCategory @relation(fields: [categoryId], references: [id])
+  category    ItemCategory @relation(fields: [categoryId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   categoryId  Int
   salesItems  SaleItem[]
   restocks    Restock[]
@@ -555,7 +555,7 @@ model Sale {
   totalAmount Float
   status      SaleStatus
   balanceDue  Float      @default(0)
-  student     Student?   @relation(fields: [studentId], references: [id])
+  student     Student?   @relation(fields: [studentId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   studentId   Int?
   SaleItem    SaleItem[]
 }
@@ -564,9 +564,9 @@ model SaleItem {
   id       Int   @id @default(autoincrement())
   quantity Int
   price    Float
-  sale     Sale  @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  sale     Sale  @relation(fields: [saleId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   saleId   Int
-  item     Item  @relation(fields: [itemId], references: [id])
+  item     Item  @relation(fields: [itemId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   itemId   Int
 
   Payment Payment[]
@@ -574,7 +574,7 @@ model SaleItem {
 
 model Restock {
   id          Int      @id @default(autoincrement())
-  item        Item     @relation(fields: [itemId], references: [id])
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   itemId      Int
   quantity    Int
   costPrice   Float
@@ -596,7 +596,7 @@ model Curriculum {
   syllabus   String? @db.Text // Detailed syllabus for the course
   resources  String? @db.Text // Optional list of resources (e.g., textbooks, videos)
 
-  course Course @relation(fields: [courseId], references: [id]) // Relation to Course model
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to Course model
 }
 
 // Model representing books available in the school library
@@ -610,7 +610,7 @@ model Book {
   quantity      Int       @default(1) // Quantity of this book available in the library
   categoryId    Int? // Foreign key to the category of the book
 
-  category BookCategory? @relation(fields: [categoryId], references: [id]) // Relation to BookCategory model
+  category BookCategory? @relation(fields: [categoryId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to BookCategory model
   issues   BookIssue[] // Relation to BookIssue model for tracking issued books
 }
 
@@ -624,8 +624,8 @@ model BookIssue {
   returnDate DateTime? // Date when the book was actually returned (if applicable)
   status     String    @default("Issued") // Status of the book issue (e.g., "Issued", "Returned", "Overdue")
 
-  student Student @relation(fields: [studentId], references: [id]) // Relation to Student model
-  book    Book    @relation(fields: [bookId], references: [id]) // Relation to Book model
+  student Student @relation(fields: [studentId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Student model
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Book model
 }
 
 // Model categorizing books in the library (e.g., "Fiction", "Science")
@@ -654,8 +654,8 @@ model EventParticipant {
   eventId Int // Foreign key to the event
   role    String @db.VarChar(50) // Role of the participant (e.g., "Speaker", "Guest")
 
-  user  User  @relation(fields: [userId], references: [id]) // Relation to User model
-  event Event @relation(fields: [eventId], references: [id]) // Relation to Event model
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to User model
+  event Event @relation(fields: [eventId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Event model
 }
 
 // Model tracking disciplinary actions taken against students
@@ -667,7 +667,7 @@ model DisciplinaryAction {
   status  String   @default("Pending") // Status of the action (e.g., "Resolved", "Pending")
   remarks String?  @db.VarChar(255) // Optional remarks about the action
 
-  student         Student           @relation(fields: [studentId], references: [id]) // Relation to Student model
+  student         Student           @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to Student model
   studentId       Int // Foreign key to the student involved in the action
   StudentBehavior StudentBehavior[]
 }
@@ -678,9 +678,9 @@ model StudentBehavior {
   behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
   description  String // Detailed description of the behavior
 
-  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id]) // Disciplinary action taken (if any)
-  reporter             User               @relation(fields: [reporterId], references: [id])
-  student              Student            @relation(fields: [studentId], references: [id])
+  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Disciplinary action taken (if any)
+  reporter             User               @relation(fields: [reporterId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  student              Student            @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   disciplinaryActionId Int
   reporterId           Int
   studentId            Int
@@ -694,7 +694,7 @@ model ExtracurricularActivity {
   position     String? // Position or role in the activity (e.g., Team Captain)
   description  String? // Additional description or details about the activity
   achievements Json? // List of achievements (e.g., awards, recognitions)
-  student      Student   @relation(fields: [studentId], references: [id])
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   studentId    Int
 }
 
@@ -705,7 +705,7 @@ model Vehicle {
   type         String @db.VarChar(50) // Type of vehicle (e.g., "Bus", "Van")
   capacity     Int // Capacity of the vehicle (number of passengers)
 
-  driver   OtherStaff? @relation(fields: [driverId], references: [id]) // Relation to Staff model
+  driver   OtherStaff? @relation(fields: [driverId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Staff model
   driverId Int? // Foreign key to the staff member driving the vehicle
 
   routes Route[] // Relation to Route model for vehicle routes
@@ -718,7 +718,7 @@ model Route {
   description String? // Optional description of the route
   vehicleId   Int // Foreign key to the assigned vehicle
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id]) // Relation to Vehicle model
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Vehicle model
   trips   Trip[] // Relation to Trip model for tracking individual trips
 }
 
@@ -731,8 +731,8 @@ model Trip {
   // Many-to-Many Relationship with Student
   students Student[] // Students participating in this trip
 
-  route   Route @relation(fields: [routeId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to Route model
-  user    User  @relation(fields: [userId], references: [id]) // Relation to User model tracking the trip
+  route   Route @relation(fields: [routeId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Route model
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to User model tracking the trip
   routeId Int // Foreign key to the route of the trip
   userId  Int // Foreign key to the user tracking the trip
 }

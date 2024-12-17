@@ -33,7 +33,6 @@ router.put(
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
-  validateFormerSchoolDetails, // Validation middleware for payload
   updateFormerSchool
 );
 

@@ -11,7 +11,7 @@ import {
 import logger from '../../utils/logger.js'; // Logger for logging operations
 import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import { validateUniqueFieldsForUpdate } from '../../utils/helpers/validation-helpers.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
 /**
  * Service function to create a single class.
@@ -24,9 +24,6 @@ export const createSingleClass = async (classData) => {
   const { name, code, hall, description, roomNumber, levelId } = classData;
 
   try {
-    // Log the class creation attempt
-    logger.info(`Attempting to create a single class: ${name}`);
-
     // Check if levelId is provided
     if (levelId) {
       // Validate the level ID
@@ -51,21 +48,9 @@ export const createSingleClass = async (classData) => {
       levelId,
     });
 
-    // Log the success
-    logger.info(`Class created successfully: ${newClass.id}`);
-
     return newClass;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating single class': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -99,29 +84,12 @@ export const createMultipleClasses = async (classes) => {
     // Wait for all level validations to complete
     await Promise.all(levelValidationPromises);
 
-    // Log the batch class creation attempt
-    logger.info(
-      `Attempting to create multiple classes: ${classes.length} classes`
-    );
-
     const classPromises = classes.map((classData) => createClass(classData));
     const createdClasses = await Promise.all(classPromises);
 
-    // Log the success
-    logger.info(`Successfully created ${createdClasses.length} classes.`);
-
     return createdClasses;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating multiple classes': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -135,18 +103,6 @@ export const createMultipleClasses = async (classes) => {
  */
 export const updateClass = async (id, updateData) => {
   try {
-    // Log the class update attempt
-    logger.info({
-      'Attempting to update class': {
-        classId: id,
-        updateData,
-      },
-    });
-
-    // Validate fields for uniqueness
-    const uniqueFields = ['name', 'code', 'hall', 'roomNumber'];
-    await validateUniqueFieldsForUpdate(updateData, uniqueFields, id, 'class');
-
     // Validate the levelId if provided
     if (updateData.levelId) {
       const level = await prisma.level.findUnique({
@@ -166,28 +122,9 @@ export const updateClass = async (id, updateData) => {
     // Perform the update
     const updatedClass = await updateClassById(id, updateData);
 
-    // Log the successful update
-    logger.info({
-      'Class updated successfully': {
-        classId: updatedClass.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedClass;
   } catch (error) {
-    // Log the full error for debugging
-    logger.error({
-      'Error updating class': {
-        classId: id,
-        error: error.message || 'No error message available',
-        stack: error.stack || 'No stack trace available',
-        errorDetails: error, // Log the full error object
-      },
-    });
-
-    // Rethrow the error
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -203,19 +140,13 @@ export const getClassById = async (id) => {
     // Call the repository to fetch the class by ID
     const classData = await fetchClassById(id);
 
+    if (!classData) {
+      throw new CustomError(404, `Class with the ID of ${id} not found.`);
+    }
+
     return classData;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error fetching class by ID': {
-        classId: id,
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error if class fetching fails
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -228,20 +159,14 @@ export const getClassById = async (id) => {
 export const getClasses = async (query) => {
   try {
     // Call the repository to fetch classes with pagination
-    const result = await fetchClasses(query);
+    const response = await fetchClasses(query);
 
+    if (!response || response.classes === 0) {
+      throw new CustomError(404, 'There are no classes available currently');
+    }
     return result;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error fetching classes with pagination': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error if fetching fails
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -259,17 +184,7 @@ export const removeClassById = async (id) => {
 
     return deletedClass;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error deleting class by ID': {
-        classId: id,
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error if deletion fails
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };
 
@@ -283,17 +198,12 @@ export const removeAllClasses = async () => {
     // Call the repository to delete all classes
     const deletedCount = await deleteAllClasses();
 
+    if (deletedCount === 0) {
+      throw new CustomError(404, 'There are no classes to delete.');
+    }
+
     return deletedCount;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error deleting all classes': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw the error if deletion fails
-    throw error;
+    handlePrismaError(error, 'class');
   }
 };

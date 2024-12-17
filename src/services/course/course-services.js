@@ -8,8 +8,9 @@ import {
   deleteCourseById,
   deleteAllCourses,
 } from '../../repositories/course/course-repository.js';
-import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js';
+import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 /**
  * Service function to create a single course.
@@ -22,27 +23,12 @@ export const createSingleCourse = async (courseData) => {
   const { name, code } = courseData;
 
   try {
-    // Log the course creation attempt
-    logger.info(`Attempting to create a single course: ${name}`);
-
     // Call the repository to create the course
     const course = await createCourse({ name, code });
 
-    // Log the success
-    logger.info(`Course created successfully: ${course.id}`);
-
     return course;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating single course': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Course');
   }
 };
 
@@ -55,11 +41,6 @@ export const createSingleCourse = async (courseData) => {
  */
 export const createMultipleCourses = async (courses) => {
   try {
-    // Log the batch course creation attempt
-    logger.info(
-      `Attempting to create multiple courses: ${courses.length} courses`
-    );
-
     const coursePromises = courses.map((course) => {
       return prisma.course.create({
         data: course,
@@ -69,21 +50,9 @@ export const createMultipleCourses = async (courses) => {
     // Use $transaction to run all Prisma Client promises in a transaction
     const createdCourses = await prisma.$transaction(coursePromises);
 
-    // Log the success
-    logger.info(`Successfully created ${createdCourses.length} courses.`);
-
     return createdCourses;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error creating multiple courses': {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Course');
   }
 };
 
@@ -97,38 +66,12 @@ export const createMultipleCourses = async (courses) => {
  */
 export const updateCourse = async (id, updateData) => {
   try {
-    // Log the course update attempt
-    logger.info({
-      'Attempting to update course': {
-        courseId: id,
-        updateData,
-      },
-    });
-
     // Call the repository to update the course
     const updatedCourse = await updateCourseById(id, updateData);
 
-    // Log the successful update
-    logger.info({
-      'Course updated successfully': {
-        courseId: updatedCourse.id,
-        updatedFields: updateData,
-      },
-    });
-
     return updatedCourse;
   } catch (error) {
-    // Log the error
-    logger.error({
-      'Error updating course': {
-        courseId: id,
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Throw a generic internal server error if an unexpected error occurs.
-    throw error;
+    handlePrismaError(error, 'Course');
   }
 };
 
@@ -139,7 +82,17 @@ export const updateCourse = async (id, updateData) => {
  * @returns {Promise<Object>} - Returns the course object.
  */
 export const getCourseById = async (id) => {
-  return await fetchCourseById(id);
+  try {
+    const course = await fetchCourseById(id);
+
+    if (!course) {
+      throw new CustomError(404, `Course with ID of ${id} not found.`);
+    }
+
+    return course;
+  } catch (error) {
+    handlePrismaError(error, 'Course');
+  }
 };
 
 /**
@@ -149,7 +102,17 @@ export const getCourseById = async (id) => {
  * @returns {Promise<Object>} - Returns the courses and pagination info.
  */
 export const getCourses = async (query) => {
-  return await fetchCourses(query);
+  try {
+    const response = await fetchCourses(query);
+
+    if (!response || response.courses.length === 0) {
+      throw new CustomError(404, `There are currently no courses available.`);
+    }
+
+    return response;
+  } catch (error) {
+    handlePrismaError(error, 'Course');
+  }
 };
 
 /**
@@ -159,7 +122,11 @@ export const getCourses = async (query) => {
  * @returns {Promise<Object>} - Returns the deleted course object.
  */
 export const removeCourseById = async (id) => {
-  return await deleteCourseById(id);
+  try {
+    return await deleteCourseById(id);
+  } catch (error) {
+    handlePrismaError(error, 'Course');
+  }
 };
 
 /**
@@ -168,5 +135,17 @@ export const removeCourseById = async (id) => {
  * @returns {Promise<number>} - Returns the count of deleted courses.
  */
 export const removeAllCourses = async () => {
-  return await deleteAllCourses();
+  try {
+    const response = await deleteAllCourses();
+
+    if (!response || response === 0) {
+      throw new CustomError(
+        404,
+        `There are currently no courses available to delete.`
+      );
+    }
+    return response;
+  } catch (error) {
+    handlePrismaError(error, 'Course');
+  }
 };

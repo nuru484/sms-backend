@@ -1,7 +1,6 @@
 // src/controllers/validators/registration/student/studentRegistrationValidators.js
 import {
   validateInput, // General input validation function for various fields
-  validateUsernameInput,
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
   validateDateInput, // Validation function for validating date of birth
@@ -23,7 +22,7 @@ const createStudentValidators = () => ({
     .withMessage(
       'Invalid admission status, student admission status must be PENDING for now!'
     ),
-  validateUsername: validateUsernameInput('studentUsername'),
+  validateUsername: validateInput('studentUsername'),
   validatePassword,
   validateConfirmPassword,
 });

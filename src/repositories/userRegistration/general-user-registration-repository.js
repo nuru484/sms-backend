@@ -2,8 +2,6 @@
 
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js'; // Custom error handling utility
-import logger from '../../utils/logger.js'; // Logger for logging operations and errors
 import bcrypt from 'bcrypt'; // Bcrypt for password hashing
 
 /**
@@ -13,7 +11,7 @@ import bcrypt from 'bcrypt'; // Bcrypt for password hashing
  * @returns {Promise<Object>} - Returns the created user object if successful.
  * @throws {CustomError} - Throws a custom error if there is a problem with user creation or database interaction.
  */
-const createUserBasicDetails = async ({
+export const createUserBasicDetails = async ({
   firstName,
   middleName,
   lastName,
@@ -45,43 +43,36 @@ const createUserBasicDetails = async ({
   };
 
   try {
-    // Log the attempt to create a user in the database.
-    logger.info({
-      'Attempting to create a user in the database': {
-        userData,
-      },
-    });
-
     // Use Prisma to insert the user data into the database.
     const user = await prisma.user.create({
       data: userData,
     });
 
-    // Log the successful creation of the user.
-    logger.info('User successfully created in the database.', {
-      userId: user.id,
-    });
-
     // Return the created user object.
     return user;
   } catch (error) {
-    // Log any errors encountered during the user creation process.
-    logger.error({
-      'Database error during user creation': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
+    // Throw a generic internal server error if an unexpected error occurs.
+    throw error;
+  }
+};
+
+/**
+ * Repository function to update a user's basic details in the database.
+ *
+ * @param {Object} userData - Object containing updated user details.
+ * @param {string} userId - ID of the user to update.
+ * @returns {Promise<Object>} - Returns the updated user object if successful.
+ * @throws {CustomError} - Throws a custom error if there is a problem with user update or database interaction.
+ */
+export const updateUserBasicDetails = async (userData, userId) => {
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: userData,
     });
 
-    // Handle specific error codes, such as duplicate entries, and throw appropriate custom errors.
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate entry: ${error.meta?.target || error.message}`
-      );
-    }
-
-    // Throw a generic internal server error if an unexpected error occurs.
+    return updatedUser;
+  } catch (error) {
     throw error;
   }
 };
@@ -93,7 +84,7 @@ const createUserBasicDetails = async ({
  * @returns {Promise<Object>} - Returns the created address object if successful.
  * @throws {CustomError} - Throws a custom error if there is a problem with address creation or database interaction.
  */
-const createUserAddress = async ({
+export const createUserAddress = async ({
   city,
   region,
   country,
@@ -102,11 +93,6 @@ const createUserAddress = async ({
   userId,
 }) => {
   try {
-    // Log the attempt to create an address and associate it with the user.
-    logger.info(
-      'Attempting to create user address and connect to user in the database'
-    );
-
     // Use Prisma to create the address and link it to the user by userId.
     const newAddress = await prisma.address.create({
       data: {
@@ -121,40 +107,66 @@ const createUserAddress = async ({
       },
     });
 
-    // Log the successful creation of the address and its connection to the user.
-    logger.info({
-      'Address successfully created and connected to the user': {
-        addressId: newAddress.id,
-        userId: newAddress.userId,
-      },
-    });
-
     // Return the created address object.
     return newAddress;
   } catch (error) {
-    // Log any errors encountered during the address creation process.
-    logger.error({
-      'Database error during address creation and connection to user': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-
-    // Handle specific error codes, such as duplicate entries and user not found, and throw appropriate custom errors.
-    if (error.code === 'P2002') {
-      throw new CustomError(
-        400,
-        `Duplicate user details: ${error.meta?.target || error.message}`
-      );
-    }
-    if (error.code === 'P2025') {
-      throw new CustomError(400, `User not found: ${error.message}`);
-    }
-
     // Throw a generic internal server error if an unexpected error occurs.
     throw error;
   }
 };
 
-// Export the functions to be used in other parts of the application.
-export { createUserAddress, createUserBasicDetails };
+/**
+ * Repository function to update a user's address in the database.
+ *
+ * @param {Object} addressData - Object containing updated address details.
+ * @param {string} addressId - ID of the address to update.
+ * @returns {Promise<Object>} - Returns the updated address object if successful.
+ * @throws {CustomError} - Throws a custom error if there is a problem with address update or database interaction.
+ */
+export const updateUserAddress = async (addressData, addressId) => {
+  try {
+    const updatedAddress = await prisma.address.update({
+      where: { id: addressId },
+      data: addressData,
+    });
+
+    return updatedAddress;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Repository function to delete all users from the database.
+ *
+ * @returns {Promise<number>} - Returns the count of deleted users if successful.
+ * @throws {CustomError} - Throws a custom error if there is a problem with user deletion.
+ */
+export const deleteAllUsers = async () => {
+  try {
+    const result = await prisma.user.deleteMany({});
+
+    return result.count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Repository function to delete a single user by ID from the database.
+ *
+ * @param {string} userId - ID of the user to delete.
+ * @returns {Promise<Object>} - Returns the deleted user object if successful.
+ * @throws {CustomError} - Throws a custom error if there is a problem with user deletion or user is not found.
+ */
+export const deleteSingleUser = async (userId) => {
+  try {
+    const deletedUser = await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return deletedUser;
+  } catch (error) {
+    throw error;
+  }
+};
