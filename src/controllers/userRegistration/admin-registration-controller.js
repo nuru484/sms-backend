@@ -1,9 +1,12 @@
 // src/controllers/userRegistration/admin-registration-controller.js
 
-// Import the logger utility to log important information and errors.
+import upload from '../../config/multer.js';
 
 // Import the service responsible for handling the admin registration logic.
 import processAdminRegistration from '../../services/userRegistration/admin-registration-service.js';
+
+// Import validation middleware for admin registration and address details
+import validateAdminDetails from '../../validators/validationMiddleware/userRegistration/admin-registration-validation-middleware.js';
 
 /**
  * Controller function to handle the registration of an admin user.
@@ -15,17 +18,27 @@ import processAdminRegistration from '../../services/userRegistration/admin-regi
  * @returns {Promise<void>} - Sends a 201 Created response with the result of the registration
  * or delegates error handling to the next middleware.
  */
-export const registerAdmin = async (req, res, next) => {
-  const adminRegistrationPayload = req.body; // Extract the registration payload from the request body.
+export const registerAdmin = [
+  upload.fields([{ name: 'profilePhoto' }]),
 
-  try {
-    // Call the service function to process the admin registration.
-    const response = await processAdminRegistration(adminRegistrationPayload);
+  validateAdminDetails,
 
-    // Send a success response with a 201 status code indicating resource creation.
-    return res.status(201).json(response);
-  } catch (error) {
-    // Pass the error to the next middleware for centralized error handling.
-    next(error);
-  }
-};
+  async (req, res, next) => {
+    const adminRegistrationPayload = Object.assign({}, req.body); // Extract the registration payload from the request body.
+    const profilePhoto = req.files;
+
+    try {
+      // Call the service function to process the admin registration.
+      const response = await processAdminRegistration(
+        adminRegistrationPayload,
+        profilePhoto
+      );
+
+      // Send a success response with a 201 status code indicating resource creation.
+      return res.status(201).json(response);
+    } catch (error) {
+      // Pass the error to the next middleware for centralized error handling.
+      next(error);
+    }
+  },
+];

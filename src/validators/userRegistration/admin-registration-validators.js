@@ -23,9 +23,6 @@ const createAdminValidators = () => ({
   // Validator for last name with a max length of 100 characters
   validateLastName: validateInput('lastName', { maxLength: 100 }),
 
-  // Validator for profile photo input, ensuring it is present (or can be optional)
-  validateProfilePhoto: validateInput('profilePhoto'),
-
   // Validator for gender with a max length of 50 characters
   validateGender: validateInput('gender', { maxLength: 50 }),
 

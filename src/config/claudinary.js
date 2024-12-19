@@ -26,19 +26,16 @@ export const uploadFileToCloudinary = async (file) => {
         }
       );
 
-      if (file && file.length > 0) {
+      if (!file || !file.buffer) {
+        throw new Error(
+          'Invalid file object. Ensure the file is provided and has a buffer property.'
+        );
       }
 
       uploadStream.end(file.buffer); // Start the upload process
     });
   } catch (error) {
-    logger.error({
-      'Error uploading file to Cloudinary': {
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-    throw new CustomError(500, 'File upload to Cloudinary failed');
+    throw error;
   }
 };
 
@@ -52,13 +49,6 @@ export const deleteFileFromCloudinary = async (publicId) => {
     logger.log(`Cloudinary deletion result for ${publicId}:`, result);
     return result;
   } catch (error) {
-    logger.error({
-      'Error deleting file from Cloudinary': {
-        publicId,
-        errorMessage: error.message,
-        errorStack: error.stack,
-      },
-    });
-    throw new CustomError(500, `File deletion failed for ${publicId}`);
+    throw error;
   }
 };
