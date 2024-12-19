@@ -95,13 +95,11 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
 
     const { profilePhoto, digitalSignature } = payloadFiles;
 
-    const teacherProfilePhotoUrl = await uploadFileToCloudinary(
-      profilePhoto[0]
-    );
+    const teacherProfilePhotoUrl =
+      profilePhoto && (await uploadFileToCloudinary(profilePhoto[0]));
 
-    const teacherDigitalSignatureUrl = await uploadFileToCloudinary(
-      digitalSignature[0]
-    );
+    const teacherDigitalSignatureUrl =
+      digitalSignature && (await uploadFileToCloudinary(digitalSignature[0]));
 
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
@@ -125,6 +123,7 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
       logger.info('Teacher basic details successfully created');
 
       // Step 3: Create Teacher Personal Details
+
       const teacherPersonalDetails = await createTeacherPersonalDetails({
         digitalSignature: teacherDigitalSignatureUrl,
         spokenLanguages,

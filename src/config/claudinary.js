@@ -26,6 +26,9 @@ export const uploadFileToCloudinary = async (file) => {
         }
       );
 
+      if (file && file.length > 0) {
+      }
+
       uploadStream.end(file.buffer); // Start the upload process
     });
   } catch (error) {

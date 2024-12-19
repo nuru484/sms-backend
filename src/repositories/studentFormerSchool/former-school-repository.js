@@ -62,3 +62,14 @@ export const updateFormerSchoolDetails = async (id, updateData) => {
     throw error;
   }
 };
+
+// Get former school by ID
+export const getFormerSchoolById = async (id) => {
+  try {
+    return prisma.formerSchool.findUnique({
+      where: { id: parseInt(id) },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
