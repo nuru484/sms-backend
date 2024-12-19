@@ -4,6 +4,7 @@ import {
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
   validateDateInput, // Validation function for validating date of birth
+  validateUsernameInput,
 } from '../general-validators.js';
 
 // Factory function to generate student-specific validators
@@ -22,7 +23,7 @@ const createStudentValidators = () => ({
     .withMessage(
       'Invalid admission status, student admission status must be PENDING for now!'
     ),
-  validateUsername: validateInput('studentUsername'),
+  validateUsername: validateUsernameInput('studentUsername'),
   validatePassword,
   validateConfirmPassword,
 });

@@ -1,5 +1,6 @@
 // src/validators/general-validators.js
 import { body } from 'express-validator';
+import { checkUniqueness } from '../utils/helpers/validation-helpers.js';
 
 export const validateInput = (
   inputName,
@@ -19,6 +20,23 @@ export const validateInput = (
     .withMessage(
       `${inputName} must not exceed ${options.maxLength} characters.`
     );
+
+  return validation;
+};
+
+export const validateUsernameInput = (
+  usernameInputName,
+  options = { maxLength: 100, required: true }
+) => {
+  const validation = validateInput(usernameInputName, options)
+    .isLength({ min: 3 })
+    .withMessage('Username must be at least 3 characters long.');
+
+  validation.custom(async (username) => {
+    if (!username) return;
+
+    await checkUniqueness('user', 'username', username);
+  });
 
   return validation;
 };
@@ -48,6 +66,13 @@ export const validateEmailInput = (
   const validation = validateInput(emailInputName, options)
     .isEmail()
     .withMessage('Invalid email address.');
+
+  validation.custom(async (email) => {
+    if (!email) return; // Skip validation if email is not provided and not required.
+
+    await checkUniqueness('user', 'email', email);
+  });
+
   return validation;
 };
 

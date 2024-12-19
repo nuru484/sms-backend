@@ -46,8 +46,12 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
   } = payload;
 
   // Step 1: Validate if courses and classes exist (early validation)
-  const validCoursesIds = Array.isArray(coursesIds) ? coursesIds : [];
-  const validClassesIds = Array.isArray(classesIds) ? classesIds : [];
+  const validCoursesIds = Array.isArray(coursesIds)
+    ? coursesIds.map(Number)
+    : [];
+  const validClassesIds = Array.isArray(classesIds)
+    ? classesIds.map(Number)
+    : [];
 
   try {
     // Check if all course IDs are valid
@@ -71,6 +75,7 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
 
     // Check if all class IDs are valid
     if (validClassesIds.length > 0) {
+      console.log('Valid class ids: ' + validClassesIds);
       const classes = await prisma.class.findMany({
         where: {
           id: { in: validClassesIds },
@@ -117,7 +122,7 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
         tx, // Pass transaction object to repository
       });
 
-      logger.info({ 'Teacher basic details successfully created': teacher });
+      logger.info('Teacher basic details successfully created');
 
       // Step 3: Create Teacher Personal Details
       const teacherPersonalDetails = await createTeacherPersonalDetails({
@@ -126,8 +131,8 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
         socialMediaHandles,
         maritalStatus,
         userId: teacher.id,
-        coursesIds: validCoursesIds.length > 0 ? validCoursesIds : undefined,
-        classesIds: validClassesIds.length > 0 ? validClassesIds : undefined,
+        coursesIds: validCoursesIds.length > 0 ? validCoursesIds : [],
+        classesIds: validClassesIds.length > 0 ? validClassesIds : [],
         tx, // Pass transaction object to repository
       });
 

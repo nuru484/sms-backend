@@ -7,6 +7,7 @@ import {
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
   validateDateInput, // Validation function for validating date of birth
+  validateUsernameInput,
 } from '../general-validators.js';
 
 import { body } from 'express-validator';
@@ -29,7 +30,7 @@ const createTeacherValidators = () => ({
   validateLastName: validateInput('lastName', { maxLength: 255 }),
 
   // Validator for username field with a unique constraint, max length 255 characters
-  validateUsername: validateInput('username'),
+  validateUsername: validateUsernameInput('username'),
 
   // Validator for gender with a max length of 50 characters
   validateGender: validateInput('gender', { maxLength: 50 }),
@@ -54,7 +55,10 @@ const createTeacherValidators = () => ({
     .withMessage('Invalid employment type.'),
 
   // Validator for spoken languages input
-  validateSpokenLanguages: validateInput('spokenLanguages'),
+  validateSpokenLanguages: validateInput('spokenLanguages')
+    .isArray()
+    .withMessage('Spoken languages must be an array')
+    .bail(),
 
   // Validator for course ID
   validateCoursesIds: body('coursesIds')
@@ -69,20 +73,6 @@ const createTeacherValidators = () => ({
     .isArray()
     .withMessage('Class IDs must be an array')
     .bail(),
-
-  // Validator for social media handles (optional)
-  // validateSocialMediaHandles: body('socialMediaHandles')
-  //   .optional()
-  //   .custom((value) => {
-  //     if (
-  //       typeof value !== 'object' || // Check if value is not an object
-  //       value === null || // Exclude null values
-  //       Array.isArray(value) // Exclude arrays
-  //     ) {
-  //       throw new Error('Social media handles must be a valid JSON object.');
-  //     }
-  //     return true; // Validation passed
-  //   }),
 
   validateSocialMediaHandles: body('socialMediaHandles')
     .optional()
