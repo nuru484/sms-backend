@@ -2,12 +2,22 @@
 import upload from '../../config/multer.js';
 
 // Import the service responsible for processing the student registration logic.
-import processStudentRegistration from '../../services/userRegistration/student-registration-service.js';
+import {
+  processStudentRegistration,
+  updateStudentBasicAndPersonalDetails,
+  updateParentDetails,
+} from '../../services/userRegistration/student-registration-service.js';
 
 // Import validation middleware for student registration, parent details, and address details
-import validateStudentDetails from '../../validators/validationMiddleware/userRegistration/student-registration-validation-middleware.js';
-import validateStudentParentsDetails from '../../validators/validationMiddleware/userRegistration/parents-registration-validation-middleware.js';
-import validateAddressDetails from '../../validators/validationMiddleware/address-validation-middleware.js';
+import {
+  validateStudentDetails,
+  validateStudentUpdateDetails,
+} from '../../validators/validationMiddleware/userRegistration/student-registration-validation-middleware.js';
+import {
+  validateStudentParentsDetails,
+  validateStudentParentUpdateDetails,
+} from '../../validators/validationMiddleware/userRegistration/parents-registration-validation-middleware.js';
+import { validateAddressDetails } from '../../validators/validationMiddleware/address-validation-middleware.js';
 import validateProfilePhotos from '../../validators/validationMiddleware/files-validation-middleware.js';
 
 /**
@@ -54,6 +64,62 @@ export const registerStudent = [
       return res.status(201).json(response);
     } catch (error) {
       // Delegate the error to the next middleware for centralized handling.
+      next(error);
+    }
+  },
+];
+
+// Controller to update student's basic and personal details
+export const updateStudentBasicAndPersonal = [
+  upload.single('studentProfilePhoto'), // Handle student profile photo upload
+
+  validateStudentUpdateDetails, // Validate the student update details
+
+  async (req, res, next) => {
+    const studentUpdatePayload = Object.assign({}, req.body);
+    const profilePhoto = req.file; // Get profile photo uploaded in the request
+    const { studentId } = req.params;
+
+    try {
+      const response = await updateStudentBasicAndPersonalDetails(
+        studentId,
+        studentUpdatePayload,
+        profilePhoto
+      );
+
+      return res.status(200).json({
+        message: 'Student basic and personal details updated successfully.',
+        data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+];
+
+// Controller to update parent's basic and personal details
+export const updateParentBasicAndPersonal = [
+  upload.single('profilePhoto'), // Handle parent profile photo upload
+
+  validateStudentParentUpdateDetails,
+
+  async (req, res, next) => {
+    const parentUpdatePayload = Object.assign({}, req.body);
+    const profilePhoto = req.file; // Get profile photo uploaded in the request
+    const { parentId } = req.params;
+
+    try {
+      const response = await updateParentDetails(
+        parentId,
+        parentUpdatePayload,
+        profilePhoto
+      );
+
+      return res.status(200).json({
+        message: 'Parent basic and personal details updated successfully.',
+        data: response,
+      });
+    } catch (error) {
       next(error);
     }
   },

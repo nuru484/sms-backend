@@ -1,7 +1,13 @@
 // src/controllers/userRegistration/index.js
 
 // Import of  the controller function responsible for handling student registration logic.
-import { registerStudent } from './student-registration-controller.js';
+import {
+  registerStudent,
+  updateStudentBasicAndPersonal,
+  updateParentBasicAndPersonal,
+} from './student-registration-controller.js';
+
+import { updateUserAddress } from './general-user-registration-controller.js';
 
 // Import of the controller function responsible for handling admin registration logic.
 import { registerAdmin } from './admin-registration-controller.js';
@@ -15,4 +21,11 @@ import { registerTeacher } from './teacher-registration-controller.js';
  * These exports make the registration functionalities accessible to other parts
  * of the application, enabling modular and reusable code design.
  */
-export { registerStudent, registerAdmin, registerTeacher };
+export {
+  registerStudent,
+  updateStudentBasicAndPersonal,
+  updateUserAddress,
+  updateParentBasicAndPersonal,
+  registerAdmin,
+  registerTeacher,
+};

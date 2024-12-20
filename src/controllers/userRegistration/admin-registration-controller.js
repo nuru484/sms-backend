@@ -19,7 +19,7 @@ import validateAdminDetails from '../../validators/validationMiddleware/userRegi
  * or delegates error handling to the next middleware.
  */
 export const registerAdmin = [
-  upload.fields([{ name: 'profilePhoto' }]),
+  upload.single('profilePhoto'),
 
   validateAdminDetails,
 

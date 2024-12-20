@@ -1,5 +1,5 @@
 // src/services/studentFormerSchool/administrative-details-services.js
-import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js'; // To check student admission
+import { getStudentByUserId } from '../../repositories/userDetails/studentDetails/student-repository.js';
 import {
   createAdministrativeDetails,
   updateAdministrativeDetails,
@@ -97,20 +97,20 @@ export const updateAdministrativeDetailsForStudent = async (
       );
     }
 
-    // Upload new files to Cloudinary if provided
-    if (filesData.transferCertificate) {
-      const transferCertificateUrl =
-        filesData.transferCertificate &&
-        (await uploadFileToCloudinary(filesData.transferCertificate[0]));
-      updateData.transferCertificate = transferCertificateUrl;
-    }
+    const { transferCertificate, recommendationLetter } = filesData;
 
-    if (filesData.recommendationLetter) {
-      const recommendationLetterUrl =
-        filesData.recommendationLetter &&
-        (await uploadFileToCloudinary(filesData.recommendationLetter[0]));
-      updateData.recommendationLetter = recommendationLetterUrl;
-    }
+    // Upload new files to Cloudinary if provided
+    const transferCertificateUrl =
+      transferCertificate &&
+      (await uploadFileToCloudinary(transferCertificate[0]));
+
+    updateData.transferCertificate = transferCertificateUrl;
+
+    const recommendationLetterUrl =
+      recommendationLetter &&
+      (await uploadFileToCloudinary(recommendationLetter[0]));
+
+    updateData.recommendationLetter = recommendationLetterUrl;
 
     // Delete old files from Cloudinary
     if (administrativeDetails.transferCertificate) {

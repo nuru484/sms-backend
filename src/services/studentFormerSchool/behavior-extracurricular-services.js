@@ -5,7 +5,7 @@ import {
   updateBehaviorAndExtracurricularDetails,
 } from '../../repositories/studentFormerSchool/behavior-extracurricular-repository.js';
 
-import { getStudentByUserId } from '../../repositories/studentDetails/student-repository.js';
+import { getStudentByUserId } from '../../repositories/userDetails/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 

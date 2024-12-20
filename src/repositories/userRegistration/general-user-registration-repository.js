@@ -64,7 +64,7 @@ export const createUserBasicDetails = async ({
  * @returns {Promise<Object>} - Returns the updated user object if successful.
  * @throws {CustomError} - Throws a custom error if there is a problem with user update or database interaction.
  */
-export const updateUserBasicDetails = async (userData, userId) => {
+export const updateUserBasicDetails = async (userId, userData) => {
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -123,10 +123,10 @@ export const createUserAddress = async ({
  * @returns {Promise<Object>} - Returns the updated address object if successful.
  * @throws {CustomError} - Throws a custom error if there is a problem with address update or database interaction.
  */
-export const updateUserAddress = async (addressData, addressId) => {
+export const updateUserAddress = async (addressId, addressData) => {
   try {
     const updatedAddress = await prisma.address.update({
-      where: { id: addressId },
+      where: { id: parseInt(addressId) },
       data: addressData,
     });
 

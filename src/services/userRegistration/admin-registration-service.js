@@ -2,7 +2,6 @@
 
 // Import necessary functions and utilities
 import { createUserBasicDetails } from '../../repositories/userRegistration/general-user-registration-repository.js';
-import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js';
 import { uploadFileToCloudinary } from '../../config/claudinary.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
@@ -14,7 +13,7 @@ import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
  * @returns {Promise<Object>} - Returns a success message if registration is successful.
  * @throws {CustomError} - Throws an error if any step in the process fails.
  */
-const processAdminRegistration = async (payload, profilePhotoFile) => {
+const processAdminRegistration = async (payload, profilePhoto) => {
   const {
     firstName,
     middleName,
@@ -28,10 +27,8 @@ const processAdminRegistration = async (payload, profilePhotoFile) => {
   } = payload;
 
   try {
-    const { profilePhoto } = profilePhotoFile;
-
     const profilePhotoUrl =
-      profilePhoto && (await uploadFileToCloudinary(profilePhoto[0]));
+      profilePhoto && (await uploadFileToCloudinary(profilePhoto));
 
     // Using Prisma's transaction to ensure all database operations succeed or fail together
     const result = await prisma.$transaction(async (tx) => {
@@ -49,8 +46,6 @@ const processAdminRegistration = async (payload, profilePhotoFile) => {
         password, // Assuming password is hashed before being passed
         tx, // Pass transaction object to repository
       });
-
-      logger.info('Admin user record successfully created');
 
       // Return success message
       return {

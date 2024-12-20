@@ -7,7 +7,7 @@ import processTeacherRegistration from '../../services/userRegistration/teacher-
 
 // Import validation middleware for teacher registration and address details
 import validateTeacherDetails from '../../validators/validationMiddleware/userRegistration/teacher-registration-validation-middleware.js';
-import validateAddressDetails from '../../validators/validationMiddleware/address-validation-middleware.js';
+import { validateAddressDetails } from '../../validators/validationMiddleware/address-validation-middleware.js';
 import validateProfilePhotos from '../../validators/validationMiddleware/files-validation-middleware.js';
 
 /**

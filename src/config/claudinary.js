@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
-
 import ENV from './env.js';
+import { CustomError } from '../utils/middleware/errorHandler.js';
+import logger from '../utils/logger.js';
 
 // Cloudinary setup
 cloudinary.config({
@@ -27,7 +28,8 @@ export const uploadFileToCloudinary = async (file) => {
       );
 
       if (!file || !file.buffer) {
-        throw new Error(
+        throw new CustomError(
+          400,
           'Invalid file object. Ensure the file is provided and has a buffer property.'
         );
       }
@@ -46,7 +48,7 @@ export const deleteFileFromCloudinary = async (publicId) => {
     const extractedPublicId = extractPublicId(publicId);
 
     const result = await cloudinary.uploader.destroy(extractedPublicId);
-    logger.log(`Cloudinary deletion result for ${publicId}:`, result);
+    logger.info(`Cloudinary deletion result: ${JSON.stringify(result)}`);
     return result;
   } catch (error) {
     throw error;

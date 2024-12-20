@@ -1,6 +1,5 @@
 // src/repositories/course/course-repository.js
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 /**
  * Repository function to create a single course in the database.

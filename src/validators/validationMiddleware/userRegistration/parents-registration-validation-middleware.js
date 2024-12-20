@@ -3,12 +3,16 @@ import handleValidationErrors from '../../../utils/middleware/validation-error-h
 import {
   studentFatherRegistrationValidators,
   studentMotherRegistrationValidators,
+  studentParentUpdateValidators,
 } from '../../userRegistration/parents-registration-validators.js';
 
-const validateStudentParentsDetails = [
+export const validateStudentParentsDetails = [
   ...studentFatherRegistrationValidators,
   ...studentMotherRegistrationValidators,
   handleValidationErrors,
 ];
 
-export default validateStudentParentsDetails;
+export const validateStudentParentUpdateDetails = [
+  ...studentParentUpdateValidators,
+  handleValidationErrors,
+];

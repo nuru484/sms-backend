@@ -79,10 +79,10 @@ export const createParentPersonalDetails = async ({
  * @returns {Promise<Object>} - Returns the updated student details object if successful.
  * @throws {CustomError} - Throws a custom error if there is an issue during the update process or database interaction.
  */
-export const updateStudentPersonalDetails = async (studentData, studentId) => {
+export const updateStudentPersonalDetails = async (studentId, studentData) => {
   try {
     const updatedStudent = await prisma.student.update({
-      where: { id: studentId },
+      where: { id: parseInt(studentId) },
       data: studentData,
     });
 
@@ -101,16 +101,32 @@ export const updateStudentPersonalDetails = async (studentData, studentId) => {
  * @returns {Promise<Object>} - Returns the updated parent object if successful.
  * @throws {CustomError} - Throws a custom error if there is an issue during the update process or database interaction.
  */
-export const updateParentPersonalDetails = async (parentData, parentId) => {
+export const updateParentPersonalDetails = async (
+  parentId,
+  updateData,
+  wardsIds
+) => {
   try {
+    // Prepare the data object
+    const data = {
+      ...updateData, // Spread only valid fields from updateData
+      ...(wardsIds && {
+        // Only include wards if wardsIds is provided
+        wards: {
+          connect: wardsIds.map((id) => ({ id: parseInt(id) })), // Connect the parent
+        },
+      }),
+    };
+
+    // Update the parent record
     const updatedParent = await prisma.parent.update({
-      where: { id: parentId },
-      data: parentData,
+      where: { id: parseInt(parentId) },
+      data,
     });
 
     return updatedParent;
   } catch (error) {
-    // Throw a generic internal server error if an unexpected error occurs.
+    // Throw a generic internal server error if an unexpected error occurs
     throw error;
   }
 };
