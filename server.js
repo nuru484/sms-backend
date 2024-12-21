@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser'; // To parse cookies in the request
 import morgan from 'morgan';
 import logger from './src/utils/logger.js';
 
-// Import routes and error-handling middleware
+// Import routes and error-handling middleware.
 import routes from './src/routes/index.js';
 import { handleError } from './src/utils/middleware/errorHandler.js';
 
