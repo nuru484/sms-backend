@@ -1,5 +1,5 @@
 // src/services/studentFormerSchool/administrative-details-services.js
-import { getStudentByUserId } from '../../repositories/userDetails/studentDetails/student-repository.js';
+import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
 import {
   createAdministrativeDetails,
   updateAdministrativeDetails,
@@ -19,7 +19,7 @@ export const createAdministrativeDetailsForStudent = async (
   feesCleared
 ) => {
   try {
-    const student = await getStudentByUserId(studentId);
+    const student = await getStudentById(studentId);
 
     if (!student) {
       throw new CustomError(404, `Student with ID of ${studentId} not found!`);
@@ -72,7 +72,7 @@ export const updateAdministrativeDetailsForStudent = async (
   updateData
 ) => {
   try {
-    const student = await getStudentByUserId(parseInt(studentId));
+    const student = await getStudentById(parseInt(studentId));
 
     if (!student) {
       throw new CustomError(404, 'Student not found');

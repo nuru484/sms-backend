@@ -4,8 +4,7 @@ import {
   createAcademicPerformanceDetails,
   updateAcademicPerformanceDetails,
 } from '../../repositories/studentFormerSchool/academic-perfomance-repository.js';
-
-import { getStudentByUserId } from '../../repositories/userDetails/studentDetails/student-repository.js';
+import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
@@ -28,7 +27,7 @@ export const createAcademicPerformanceForStudent = async (
 
   try {
     // Step 1: Check the student's admission status before proceeding
-    const student = await getStudentByUserId(parseInt(studentId));
+    const student = await getStudentById(parseInt(studentId));
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');
@@ -68,7 +67,7 @@ export const updateAcademicPerformanceForStudent = async (
 ) => {
   try {
     // Step 1: Check if the student exists and their admission status
-    const student = await getStudentByUserId(parseInt(studentId));
+    const student = await getStudentById(parseInt(studentId));
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');

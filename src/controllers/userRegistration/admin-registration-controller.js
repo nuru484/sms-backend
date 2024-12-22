@@ -25,7 +25,7 @@ export const registerAdmin = [
 
   async (req, res, next) => {
     const adminRegistrationPayload = Object.assign({}, req.body); // Extract the registration payload from the request body.
-    const profilePhoto = req.files;
+    const profilePhoto = req.file;
 
     try {
       // Call the service function to process the admin registration.

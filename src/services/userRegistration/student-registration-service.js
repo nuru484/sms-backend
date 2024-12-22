@@ -13,7 +13,8 @@ import {
   updateStudentPersonalDetails,
   updateParentPersonalDetails,
 } from '../../repositories/userRegistration/student-registration-repository.js';
-import { getStudentByUserId } from '../../repositories/userDetails/studentDetails/student-repository.js';
+
+import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
 import logger from '../../utils/logger.js';
 import {
   uploadFileToCloudinary,
@@ -197,7 +198,7 @@ export const updateStudentBasicAndPersonalDetails = async (
       ethnicity,
     } = payload;
 
-    const student = await getStudentByUserId(studentId);
+    const student = await getStudentById(studentId);
     if (!student) {
       throw new CustomError(400, `Student with ID ${studentId} not found!`);
     }
