@@ -1,12 +1,9 @@
 // src/services/userRegistration/teacher-registration-service.js
 
 // Import required repository functions for user and teacher data handling
-import {
-  createUserBasicDetails,
-  createUserAddress,
-} from '../../repositories/userRegistration/general-user-registration-repository.js';
+import { createUserBasicDetails } from '../../repositories/userRegistration/general-user-registration-repository.js';
+import { createUserAddress } from '../address/address-services.js';
 import { createTeacherPersonalDetails } from '../../repositories/userRegistration/teacher-registration-repository.js';
-
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations

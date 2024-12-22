@@ -30,17 +30,22 @@ export const getUsers = async ({
       skip,
       take,
       where,
-      include: {
-        user: true,
-        StudentApplicationNumber: true,
-      },
+      include:
+        entity === 'student'
+          ? {
+              user: true,
+              StudentApplicationNumber: true,
+            }
+          : {
+              user: true,
+            },
     });
 
     const totalUsers = await prisma[entity].count({ where });
 
     return {
       users,
-      totalStudents,
+      totalUsers,
       totalPages: Math.ceil(totalUsers / pageSize),
       currentPage: page,
     };
@@ -61,16 +66,17 @@ export const deleteUserById = async (userId) => {
   }
 };
 
-export const getUserAddress = async (userId) => {
+/**
+ * Repository function to delete all users from the database.
+ *
+ * @returns {Promise<number>} - Returns the count of deleted users if successful.
+ * @throws {CustomError} - Throws a custom error if there is a problem with user deletion.
+ */
+export const deleteAllUsers = async () => {
   try {
-    const address = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        address: true, // Fetch the student's address
-      },
-    });
+    const result = await prisma.user.deleteMany({});
 
-    return address;
+    return result.count;
   } catch (error) {
     throw error;
   }
@@ -86,21 +92,6 @@ export const getUserAttendance = async (userId) => {
     });
 
     return attendance;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getUserHealthAndSafety = async (userId) => {
-  try {
-    const healthAndSafety = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        HealthAndSafety: true,
-      },
-    });
-
-    return healthAndSafety;
   } catch (error) {
     throw error;
   }

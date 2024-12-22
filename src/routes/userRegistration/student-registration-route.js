@@ -8,7 +8,6 @@ const router = Router();
 import {
   registerStudent,
   updateStudentBasicAndPersonal,
-  updateUserAddress,
   updateParentBasicAndPersonal,
 } from '../../controllers/userRegistration/index.js';
 
@@ -21,14 +20,10 @@ router.post(
 
 router.put('/update/basic-personal/:studentId', updateStudentBasicAndPersonal);
 
-router.put('/update/address/:addressId', updateUserAddress);
-
 router.put(
   '/parent/update/basic-personal/:parentId',
   updateParentBasicAndPersonal
 );
-
-router.put('/parent/update/address/:addressId', updateUserAddress);
 
 // Export the configured router to be used in the main application
 export default router;

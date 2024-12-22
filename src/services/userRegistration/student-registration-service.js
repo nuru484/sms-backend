@@ -4,9 +4,8 @@
 import {
   createUserBasicDetails,
   updateUserBasicDetails,
-  createUserAddress,
 } from '../../repositories/userRegistration/general-user-registration-repository.js';
-
+import { createUserAddress } from '../address/address-services.js';
 import {
   createStudentPersonalDetails,
   createParentPersonalDetails,

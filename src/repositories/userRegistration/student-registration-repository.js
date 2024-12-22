@@ -5,10 +5,6 @@ import prisma from '../../config/prismaClient.js'; // Prisma client for database
 
 /**
  * Repository function to create and associate personal details for a student in the database.
- *
- * @param {Object} studentData - Object containing student personal details like dateOfBirth, ethnicity, admission status, etc.
- * @returns {Promise<Object>} - Returns the created student personal details object if successful.
- * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
  */
 export const createStudentPersonalDetails = async ({
   ethnicity,

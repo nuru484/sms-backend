@@ -7,8 +7,6 @@ import {
   updateParentBasicAndPersonal,
 } from './student-registration-controller.js';
 
-import { updateUserAddress } from './general-user-registration-controller.js';
-
 // Import of the controller function responsible for handling admin registration logic.
 import { registerAdmin } from './admin-registration-controller.js';
 
@@ -24,7 +22,6 @@ import { registerTeacher } from './teacher-registration-controller.js';
 export {
   registerStudent,
   updateStudentBasicAndPersonal,
-  updateUserAddress,
   updateParentBasicAndPersonal,
   registerAdmin,
   registerTeacher,

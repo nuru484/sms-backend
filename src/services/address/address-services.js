@@ -1,12 +1,15 @@
 // src/services/userRegistration/general-registration-service.js
+import {
+  updateUserAddress,
+  createUserAddress,
+} from '../../repositories/address/user-address-repository.js';
 
-import { updateUserAddress } from '../../repositories/userRegistration/general-user-registration-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import prisma from '../../config/prismaClient.js';
 import logger from '../../utils/logger.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
-export const updateAddressDetails = async (addressId, payload) => {
+const updateAddressDetails = async (addressId, payload) => {
   try {
     const { city, country, region, postalCode, digitalAddress } = payload;
 
@@ -34,3 +37,5 @@ export const updateAddressDetails = async (addressId, payload) => {
     handlePrismaError(error, 'address details');
   }
 };
+
+export { createUserAddress, updateAddressDetails };

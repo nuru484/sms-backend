@@ -1,6 +1,6 @@
 // src/controllers/userRegistration/general-user-registration-controller.js
-import { updateAddressDetails } from '../../services/userRegistration/general-registration-service.js';
 import { validateAddressDetails } from '../../validators/validationMiddleware/address-validation-middleware.js';
+import { updateAddressDetails } from '../../services/address/address-services.js';
 
 // Controller to update addresses of students or parents
 export const updateUserAddress = [
