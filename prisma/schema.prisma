@@ -80,7 +80,7 @@ model Student {
   level                      Level[]
   StudentApplicationNumber   StudentApplicationNumber @relation(fields: [studentApplicationNumberId], references: [id])
   userId                     Int                      @unique
-  studentApplicationNumberId Int
+  studentApplicationNumberId Int                      @unique
 
   // Many-to-many relations
   parents Parent[] @relation("StudentParents")
@@ -186,15 +186,15 @@ model EducationalBackground {
 }
 
 model HealthAndSafety {
-  id                        Int      @id @default(autoincrement())
-  emergencyContactName      String?
-  emergencyContactPhone     String?
-  allergies                 String?
-  medicalConditions         String[]
-  healthInsurancePolicyCard String?
-  comments                  String
-  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId                    Int
+  id                      Int      @id @default(autoincrement())
+  emergencyContactName    String?
+  emergencyContactPhone   String?
+  allergies               String[]
+  medicalConditions       String[]
+  healthInsurancePolicyId String?
+  comments                String
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                  Int
 }
 
 model Address {

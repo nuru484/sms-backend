@@ -22,6 +22,9 @@ const createStudentValidators = () => ({
     maxLength: 50,
     required: true,
   }),
+
+  validateApplicationNumber: validateInput('studentApplicationNumber'),
+
   validateEthnicity: validateInput('ethnicity'),
   validateRole: validateInput('studentRole')
     .isIn(['STUDENT'])
@@ -58,6 +61,11 @@ const createStudentUpdateValidators = () => ({
     maxLength: 50,
     required: false, // Not required on update
   }),
+
+  validateApplicationNumber: validateInput('studentApplicationNumber', {
+    required: false,
+  }),
+
   validateEthnicity: validateInput('ethnicity', { required: false }), // Ethnicity may not be updated
   validateDateOfBirth: validateDateInput('dateOfBirth', { required: false }), // Not required on update
   validateUsername: validateInput('studentUsername', {

@@ -6,19 +6,20 @@ import prisma from '../../config/prismaClient.js'; // Prisma client for database
 /**
  * Repository function to create and associate personal details for a student in the database.
  */
-export const createStudentPersonalDetails = async ({
-  ethnicity,
-  admissionStatus,
+export const createStudentPersonalDetails = async (
   userId,
-}) => {
+  studentApplicationNumberId,
+  studentData
+) => {
   try {
-    // Prepare data to be stored, including user connection and optional previous school connection.
-    const studentData = { ethnicity, admissionStatus };
-
     const studentDataToCreate = {
       ...studentData,
       user: {
-        connect: { id: userId }, // Connect the student to the user via the user ID
+        connect: { id: parseInt(userId) }, // Connect the student to the user via the user ID
+      },
+
+      StudentApplicationNumber: {
+        connect: { id: parseInt(studentApplicationNumberId) }, // Connect the student to the user via the user ID
       },
     };
 

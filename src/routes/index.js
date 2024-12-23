@@ -16,6 +16,7 @@ import studentFormerSchoolRouter from './studentFormerSchool/index.js';
 import admissionsRouter from './admissions/index.js';
 import classRouter from './class/index.js';
 import addressRouter from './address/index.js';
+import healthAndSafetyRouter from './healthAndSafety/index.js';
 
 // Mounting the all the routes under the `/api/v1` prefix
 
@@ -36,6 +37,8 @@ routes.use('/admissions', admissionsRouter); // Level
 routes.use('/classes', classRouter); // Level
 
 routes.use('/address', addressRouter);
+
+routes.use('/health-safety', healthAndSafetyRouter);
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server

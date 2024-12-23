@@ -53,7 +53,5 @@ app.use(handleError);
 // Define the port and start the server
 const port = process.env.PORT || 3000; // Use PORT from .env or default to 3000
 app.listen(port, () => {
-  logger.info(`App is listening on port ${port}`); // Log when the server is up
-  logger.info(` http://localhost:${port}/`); // Log the server URL
-  logger.info(`Allowed origins: [${Array.from(allowedOrigins)}]`); // Log allowed origins
+  logger.info(`App is listening on http://localhost:${port}`);
 });

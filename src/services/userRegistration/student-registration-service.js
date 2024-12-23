@@ -58,6 +58,7 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     admissionStatus,
     studentUsername,
     password,
+    studentApplicationNumber,
 
     city,
     country,
@@ -70,6 +71,16 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     profilePhotos;
 
   try {
+    const applicationNuber = await prisma.studentApplicationNumber.findUnique({
+      where: {
+        number: studentApplicationNumber,
+      },
+    });
+
+    if (!applicationNuber) {
+      throw new CustomError(400, `Invalid student application number`);
+    }
+
     // Step 1: Create Student User Record
     const studentProfilePhotoUrl = await uploadFileToCloudinary(
       studentProfilePhoto[0]
@@ -90,11 +101,11 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     logger.info(`Student basic details created successfully.`);
 
     // Step 3: Create Student Personal Details
-    const studentPersonalDetails = await createStudentPersonalDetails({
-      ethnicity,
-      admissionStatus,
-      userId: student.id, // Use the student's ID for reference
-    });
+    const studentPersonalDetails = await createStudentPersonalDetails(
+      student.id, // Use the student's ID for reference
+      applicationNuber.id,
+      { ethnicity, admissionStatus }
+    );
 
     logger.info(`Student personal details created successfully.`);
 

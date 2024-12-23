@@ -38,7 +38,7 @@ router.put(
   '/class/:id',
   authenticateJWT,
   authorizeRole(['ADMIN']),
-  // validateClassUpdateDetails, // Middleware to validate class update details
+  validateClassUpdateDetails, // Middleware to validate class update details
   handleClassUpdate // Controller to handle the class update logic
 );
 

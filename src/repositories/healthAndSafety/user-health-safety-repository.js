@@ -1,5 +1,7 @@
 //src/repositories/healthAndSafety/user-health-safety-repository.js
 
+import prisma from '../../config/prismaClient.js';
+
 // Create User Health and Safety
 export const createUserHealthAndSafety = async (
   userId,
@@ -38,13 +40,10 @@ export const updateUserHealthAndSafety = async (
   }
 };
 
-export const getUserHealthAndSafety = async (userId) => {
+export const getUserHealthAndSafety = async (healthAndSafetyId) => {
   try {
-    const healthAndSafety = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        HealthAndSafety: true,
-      },
+    const healthAndSafety = await prisma.healthAndSafety.findUnique({
+      where: { id: parseInt(healthAndSafetyId) },
     });
 
     return healthAndSafety;
@@ -54,10 +53,10 @@ export const getUserHealthAndSafety = async (userId) => {
 };
 
 // Delete User Health and Safety
-export const deleteUserHealthAndSafety = async (userId) => {
+export const deleteUserHealthAndSafety = async (healthAndSafetyId) => {
   try {
     const deletedHealthAndSafety = await prisma.healthAndSafety.delete({
-      where: { userId: parseInt(userId) },
+      where: { id: parseInt(healthAndSafetyId) },
     });
 
     return deletedHealthAndSafety;

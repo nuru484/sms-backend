@@ -54,6 +54,18 @@ export const getUsers = async ({
   }
 };
 
+export const geUserById = async (userId) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+    });
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const deleteUserById = async (userId) => {
   try {
     const deletedUser = await prisma.user.delete({
