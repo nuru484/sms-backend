@@ -91,7 +91,6 @@ model Student {
 
   // One to many relations
   Grade                   Grade[]
-  StudentReport           StudentReport[]
   ReportDetail            ReportDetail[]
   Payment                 Payment[]
   Sale                    Sale[]
@@ -134,7 +133,8 @@ model Teacher {
 
   courses Course[] @relation("TeacherCourses")
 
-  Grade Grade[]
+  Grade           Grade[]
+  LessonTimetable LessonTimetable[]
 }
 
 model OtherStaff {
@@ -233,10 +233,11 @@ model Course {
   teacher  Teacher[] @relation("TeacherCourses")
   class    Class[]   @relation("ClassCourses")
 
-  Grade        Grade[]
-  ReportDetail ReportDetail[]
-  Exam         Exam[]
-  Curriculum   Curriculum[]
+  Grade           Grade[]
+  ReportDetail    ReportDetail[]
+  Exam            Exam[]
+  Curriculum      Curriculum[]
+  LessonTimetable LessonTimetable[]
 }
 
 model Level {
@@ -261,8 +262,31 @@ model Class {
   level   Level? @relation(fields: [levelId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   levelId Int?
 
-  courses  Course[] @relation("ClassCourses")
-  students User[]
+  courses         Course[]          @relation("ClassCourses")
+  students        User[]
+  LessonTimetable LessonTimetable[]
+}
+
+model LessonTimetable {
+  id        Int      @id @default(autoincrement())
+  dayOfWeek String // e.g., "Monday", "Tuesday", etc.
+  startTime DateTime // The starting time of the lesson
+  endTime   DateTime // The ending time of the lesson
+  courseId  Int
+  teacherId Int
+  classId   Int
+  termId    Int
+
+  // Relations
+  course  Course  @relation(fields: [courseId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayOfWeek, startTime, classId], name: "timetable_unique_schedule")
 }
 
 // Model representing exams taken by students in a course
@@ -322,27 +346,12 @@ model Term {
   start DateTime
   end   DateTime
 
-  StudentReport StudentReport[]
-  ReportDetail  ReportDetail[]
-  Exam          Exam[]
-}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model StudentReport {
-  id              Int     @id @default(autoincrement())
-  overallGrade    Float? // Optional overall grade for the period
-  positionInClass Int
-  comments        String? @db.VarChar(255) // General remarks about the student's performance
-
-  // Relations
-  term    Term    @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  termId    Int
-  studentId Int
-
-  reportDetails ReportDetail[]
-
-  @@unique([studentId, termId])
+  ReportDetail    ReportDetail[]
+  Exam            Exam[]
+  LessonTimetable LessonTimetable[]
 }
 
 model ReportDetail {
@@ -351,20 +360,15 @@ model ReportDetail {
   courseComments   String? @db.VarChar(255) // Comments on performance for the specific course
 
   // Relations
-  term          Term          @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course        Course        @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  grade         Grade         @relation(fields: [gradeId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  studentReport StudentReport @relation(fields: [reportId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  term    Term    @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  grade   Grade   @relation(fields: [gradeId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   termId    Int
   courseId  Int
   studentId Int
   gradeId   Int
-  reportId  Int
-
-  // Unique constraint to prevent duplicate entries for the same report and course
-  @@unique([reportId, courseId])
 }
 
 model Attendance {

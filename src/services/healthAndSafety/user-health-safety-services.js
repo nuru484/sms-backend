@@ -115,16 +115,16 @@ export const getUserAllHealthAndSafetyService = async (
   options = {}
 ) => {
   try {
-    const healthAndSafety = await getUserAllHealthAndSafety(userId, options);
+    const response = await getUserAllHealthAndSafety(userId, options);
 
-    if (!healthAndSafety || healthAndSafety.length === 0) {
+    if (!response || response.healthAndSafety.length === 0) {
       throw new CustomError(
         404,
         `There are no health and safety details for student ID ${studentId}.`
       );
     }
 
-    return healthAndSafety;
+    return response;
   } catch (error) {
     handlePrismaError(error, 'health and safety');
   }

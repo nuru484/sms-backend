@@ -97,13 +97,11 @@ export const getCourseById = async (id) => {
 
 /**
  * Service function to fetch all courses with pagination and search.
- *
- * @param {Object} query - Query parameters (page, limit, search).
- * @returns {Promise<Object>} - Returns the courses and pagination info.
+
  */
-export const getCourses = async (query) => {
+export const getCourses = async (options) => {
   try {
-    const response = await fetchCourses(query);
+    const response = await fetchCourses(options);
 
     if (!response || response.courses.length === 0) {
       throw new CustomError(404, `There are currently no courses available.`);

@@ -72,40 +72,79 @@ export const fetchLevelById = async (id) => {
  * @param {Object} query - Query parameters (page, limit, search).
  * @returns {Promise<Object>} - Returns an object containing the levels and pagination info.
  */
-export const fetchLevels = async ({ page = 1, limit = 10, search = '' }) => {
+export const fetchLevels = async (options = {}) => {
+  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+
   try {
     const skip = (page - 1) * limit;
 
-    // Fetch the total number of levels
+    // Prepare search filters for name, code, description, and order
+    const searchFilters = {
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            code: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            order: {
+              equals: isNaN(Number(search)) ? undefined : Number(search), // If search is a valid number, match on 'order'
+            },
+          },
+        ],
+      }),
+    };
+
+    // Fetch total count of levels matching the filters
     const total = await prisma.level.count({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive', // Case-insensitive search
-        },
-      },
+      where: searchFilters,
     });
 
-    // Fetch the levels with pagination and search
-    const levels = await prisma.level.findMany({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive',
+    let levels;
+    if (fetchAll) {
+      // Fetch all levels without pagination
+      levels = await prisma.level.findMany({
+        where: searchFilters,
+        orderBy: {
+          order: 'asc', // Optional: order levels by 'order' field
         },
-      },
-      skip,
-      take: limit,
-    });
+      });
+    } else {
+      // Fetch paginated levels with search filters
+      levels = await prisma.level.findMany({
+        where: searchFilters,
+        skip,
+        take: limit,
+        orderBy: {
+          order: 'asc', // Ensure levels are ordered by the 'order' field
+        },
+      });
+    }
 
     return {
       levels,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: fetchAll
+        ? null // No pagination info if fetching all levels
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
     };
   } catch (error) {
     throw error;

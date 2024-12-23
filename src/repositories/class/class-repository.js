@@ -82,40 +82,85 @@ export const fetchClassById = async (id) => {
  * @param {Object} query - Query parameters (page, limit, search).
  * @returns {Promise<Object>} - Returns an object containing the classes and pagination info.
  */
-export const fetchClasses = async ({ page = 1, limit = 10, search = '' }) => {
+export const fetchClasses = async (options = {}) => {
+  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+
   try {
     const skip = (page - 1) * limit;
 
-    // Fetch the total number of classes
+    // Prepare search filters for name, code, hall, description, and roomNumber
+    const searchFilters = {
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            code: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            hall: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            roomNumber: {
+              equals: isNaN(Number(search)) ? undefined : Number(search), // Exact match for roomNumber
+            },
+          },
+        ],
+      }),
+    };
+
+    // Fetch total count of classes matching the filters
     const total = await prisma.class.count({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive', // Case-insensitive search
-        },
-      },
+      where: searchFilters,
     });
 
-    // Fetch the classes with pagination and search
-    const classes = await prisma.class.findMany({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive',
+    let classes;
+    if (fetchAll) {
+      // Fetch all classes without pagination
+      classes = await prisma.class.findMany({
+        where: searchFilters,
+        orderBy: {
+          name: 'asc', // Optional: order classes by name
         },
-      },
-      skip,
-      take: limit,
-    });
+      });
+    } else {
+      // Fetch paginated classes with search filters
+      classes = await prisma.class.findMany({
+        where: searchFilters,
+        skip,
+        take: limit,
+        orderBy: {
+          name: 'asc', // Optional: order classes by name
+        },
+      });
+    }
 
     return {
       classes,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: fetchAll
+        ? null // No pagination if fetching all records
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
     };
   } catch (error) {
     throw error;

@@ -65,7 +65,6 @@ export const deleteDisciplinaryAction = async (disciplinaryActionId) => {
   }
 };
 
-// Repository function
 export const getStudentDisciplinaryActions = async (
   studentId,
   options = {}
@@ -73,53 +72,77 @@ export const getStudentDisciplinaryActions = async (
   const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
-    // Prepare search filters based on the searchQuery
+    // Parse and structure the search filters
     const searchFilters = {
       studentId: parseInt(studentId),
       ...(searchQuery && {
         OR: [
           {
             action: {
-              contains: searchQuery, // Match searchQuery in action field
+              contains: searchQuery,
               mode: 'insensitive', // Case insensitive match
             },
           },
           {
             reason: {
-              contains: searchQuery, // Match searchQuery in reason field
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
           {
             status: {
-              contains: searchQuery, // Match searchQuery in status field
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
           {
             remarks: {
-              contains: searchQuery, // Match searchQuery in remarks field
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
         ],
       }),
     };
 
+    // Fetch the total number of matching records
+    const total = await prisma.disciplinaryAction.count({
+      where: searchFilters,
+    });
+
+    let disciplinaryActions;
     if (fetchAll) {
-      // Fetch all disciplinary actions without pagination and apply search filters
-      return await prisma.disciplinaryAction.findMany({
+      // Fetch all records without pagination
+      disciplinaryActions = await prisma.disciplinaryAction.findMany({
         where: searchFilters,
+        orderBy: {
+          date: 'desc', // Changed to 'date' if 'createdAt' is unavailable
+        },
+      });
+    } else {
+      // Paginate results
+      const skip = (page - 1) * limit;
+      disciplinaryActions = await prisma.disciplinaryAction.findMany({
+        where: searchFilters,
+        skip,
+        take: limit,
+        orderBy: {
+          date: 'desc', // Changed to 'date' for pagination
+        },
       });
     }
 
-    // Paginate results with search filters applied
-    const skip = (page - 1) * limit;
-    return await prisma.disciplinaryAction.findMany({
-      where: searchFilters,
-      skip,
-      take: limit,
-    });
+    return {
+      disciplinaryActions,
+      pagination: fetchAll
+        ? null // No pagination info if fetching all records
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+    };
   } catch (error) {
     throw error;
   }

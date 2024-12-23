@@ -71,40 +71,68 @@ export const fetchCourseById = async (id) => {
  * @param {Object} query - Query parameters (page, limit, search).
  * @returns {Promise<Object>} - Returns an object containing the courses and pagination info.
  */
-export const fetchCourses = async ({ page = 1, limit = 10, search = '' }) => {
+export const fetchCourses = async (options = {}) => {
+  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+
   try {
     const skip = (page - 1) * limit;
 
-    // Fetch the total number of courses
+    // Prepare search filters
+    const searchFilters = {
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            code: {
+              contains: search,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+        ],
+      }),
+    };
+
+    // Fetch total count of courses matching the filters
     const total = await prisma.course.count({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive', // Case-insensitive search
-        },
-      },
+      where: searchFilters,
     });
 
-    // Fetch the courses with pagination and search
-    const courses = await prisma.course.findMany({
-      where: {
-        name: {
-          contains: search,
-          mode: 'insensitive',
+    let courses;
+    if (fetchAll) {
+      // Fetch all courses without pagination
+      courses = await prisma.course.findMany({
+        where: searchFilters,
+        orderBy: {
+          name: 'asc', // Optional: order courses alphabetically by name
         },
-      },
-      skip,
-      take: limit,
-    });
+      });
+    } else {
+      // Fetch paginated courses
+      courses = await prisma.course.findMany({
+        where: searchFilters,
+        skip,
+        take: limit,
+        orderBy: {
+          name: 'asc', // Optional: order courses alphabetically by name
+        },
+      });
+    }
 
     return {
       courses,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: fetchAll
+        ? null // No pagination info if fetching all courses
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
     };
   } catch (error) {
     throw error;

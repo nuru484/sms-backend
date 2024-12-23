@@ -70,6 +70,8 @@ export const getUserAllHealthAndSafety = async (userId, options = {}) => {
   const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
+    const skip = (page - 1) * limit;
+
     // Prepare search filters based on the searchQuery
     const searchFilters = {
       userId: parseInt(userId),
@@ -77,14 +79,14 @@ export const getUserAllHealthAndSafety = async (userId, options = {}) => {
         OR: [
           {
             emergencyContactName: {
-              contains: searchQuery, // Match searchQuery in emergencyContactName
+              contains: searchQuery,
               mode: 'insensitive', // Case insensitive match
             },
           },
           {
             emergencyContactPhone: {
-              contains: searchQuery, // Match searchQuery in emergencyContactPhone
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
           {
@@ -99,34 +101,51 @@ export const getUserAllHealthAndSafety = async (userId, options = {}) => {
           },
           {
             healthInsurancePolicyId: {
-              contains: searchQuery, // Match searchQuery in healthInsurancePolicyId
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
           {
             comments: {
-              contains: searchQuery, // Match searchQuery in comments
-              mode: 'insensitive', // Case insensitive match
+              contains: searchQuery,
+              mode: 'insensitive',
             },
           },
         ],
       }),
     };
 
+    // Fetch total count
+    const total = await prisma.healthAndSafety.count({
+      where: searchFilters,
+    });
+
+    let healthAndSafety;
     if (fetchAll) {
-      // Fetch all health and safety records without pagination and apply search filters
-      return await prisma.healthAndSafety.findMany({
+      // Fetch all records if fetchAll is true
+      healthAndSafety = await prisma.healthAndSafety.findMany({
         where: searchFilters,
+      });
+    } else {
+      // Fetch paginated results
+      healthAndSafety = await prisma.healthAndSafety.findMany({
+        where: searchFilters,
+        skip,
+        take: limit,
       });
     }
 
-    // Paginate results with search filters applied
-    const skip = (page - 1) * limit;
-    return await prisma.healthAndSafety.findMany({
-      where: searchFilters,
-      skip,
-      take: limit,
-    });
+    return {
+      healthAndSafety,
+      pagination: fetchAll
+        ? null // No pagination info if fetching all records
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+    };
   } catch (error) {
     throw error;
   }

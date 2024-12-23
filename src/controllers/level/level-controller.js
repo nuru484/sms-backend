@@ -104,14 +104,18 @@ export const handleGetLevelById = async (req, res, next) => {
  * Controller to fetch all levels with pagination and search.
  */
 export const handleGetLevels = async (req, res, next) => {
-  const { page, limit, search } = req.query;
-
   try {
-    const result = await getLevels({
-      page: Number(page),
-      limit: Number(limit),
-      search,
-    });
+    const { page, limit, fetchAll, searchQuery } = req.query;
+
+    const options = {
+      page: page ? parseInt(page) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
+      fetchAll: fetchAll === 'true',
+      searchQuery: searchQuery ? searchQuery : null,
+    };
+
+    const result = await getLevels(options);
+
     res.status(200).json({
       message: 'Levels fetched successfully',
       data: result,

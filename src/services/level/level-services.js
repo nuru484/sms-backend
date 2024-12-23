@@ -100,13 +100,11 @@ export const getLevelById = async (id) => {
 
 /**
  * Service function to fetch all levels with pagination and search.
- *
- * @param {Object} query - Query parameters (page, limit, search).
- * @returns {Promise<Object>} - Returns the levels and pagination info.
+
  */
-export const getLevels = async (query) => {
+export const getLevels = async (options) => {
   try {
-    const response = await fetchLevels(query);
+    const response = await fetchLevels(options);
 
     if (!response || response.levels.length === 0) {
       throw new CustomError(404, `There are no levels currently.`);

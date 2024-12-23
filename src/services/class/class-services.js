@@ -152,19 +152,16 @@ export const getClassById = async (id) => {
 
 /**
  * Service function to fetch all classes with pagination and search.
- *
- * @param {Object} query - Query parameters (page, limit, search).
- * @returns {Promise<Object>} - Returns the classes and pagination info.
  */
-export const getClasses = async (query) => {
+export const getClasses = async (options) => {
   try {
     // Call the repository to fetch classes with pagination
-    const response = await fetchClasses(query);
+    const response = await fetchClasses(options);
 
     if (!response || response.classes === 0) {
       throw new CustomError(404, 'There are no classes available currently');
     }
-    return result;
+    return response;
   } catch (error) {
     handlePrismaError(error, 'class');
   }

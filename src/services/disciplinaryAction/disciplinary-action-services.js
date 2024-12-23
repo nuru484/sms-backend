@@ -116,19 +116,16 @@ export const getStudentDisciplinaryActionsService = async (
   options = {}
 ) => {
   try {
-    const disciplinaryActions = await getStudentDisciplinaryActions(
-      studentId,
-      options
-    );
+    const response = await getStudentDisciplinaryActions(studentId, options);
 
-    if (!disciplinaryActions || disciplinaryActions.length === 0) {
+    if (!response || response.disciplinaryActions.length === 0) {
       throw new CustomError(
         404,
         `There are no disciplinary actions for student ID ${studentId}.`
       );
     }
 
-    return disciplinaryActions;
+    return response;
   } catch (error) {
     handlePrismaError(error, 'disciplinary action');
   }
