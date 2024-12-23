@@ -1,5 +1,5 @@
 // src/services/studentFormerSchool/administrative-details-services.js
-import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
+import { getStudentById } from '../../repositories/users/student-repository.js';
 import {
   createAdministrativeDetails,
   updateAdministrativeDetails,

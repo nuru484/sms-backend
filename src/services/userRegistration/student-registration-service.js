@@ -13,7 +13,7 @@ import {
   updateParentPersonalDetails,
 } from '../../repositories/userRegistration/student-registration-repository.js';
 
-import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
+import { getStudentById } from '../../repositories/users/student-repository.js';
 import logger from '../../utils/logger.js';
 import {
   uploadFileToCloudinary,

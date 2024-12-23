@@ -2,7 +2,7 @@ import {
   createFormerSchoolDetails,
   updateFormerSchoolDetails,
 } from '../../repositories/studentFormerSchool/former-school-repository.js';
-import { getStudentById } from '../../repositories/userDetails/studentDetails/student-repository.js';
+import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 

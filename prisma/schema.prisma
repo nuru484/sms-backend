@@ -47,6 +47,7 @@ model User {
   refreshToken   String?         @unique
   role           role
   employmentType employmentType?
+  isRevoked      Boolean         @default(false) // Flag to indicate if access is revoked
 
   // Relations to specific profiles
   student Student?
@@ -68,6 +69,7 @@ model User {
   PerformanceAndEvaluators PerformanceAndEvaluation[] @relation("Evaluators")
   AttendanceRecorders      Attendance[]               @relation("AttendanceRecorder")
   StudentBehavior          StudentBehavior[]
+  class                    Class[]
 }
 
 model Student {
@@ -131,7 +133,6 @@ model Teacher {
   userId Int  @unique
 
   courses Course[] @relation("TeacherCourses")
-  classes Class[]  @relation("TeacherClass")
 
   Grade Grade[]
 }
@@ -260,8 +261,8 @@ model Class {
   level   Level? @relation(fields: [levelId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   levelId Int?
 
-  teachers Teacher[] @relation("TeacherClass")
-  courses  Course[]  @relation("ClassCourses")
+  courses  Course[] @relation("ClassCourses")
+  students User[]
 }
 
 // Model representing exams taken by students in a course
@@ -676,12 +677,11 @@ model StudentBehavior {
   behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
   description  String // Detailed description of the behavior
 
-  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Disciplinary action taken (if any)
-  reporter             User               @relation(fields: [reporterId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  student              Student            @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  disciplinaryActionId Int
-  reporterId           Int
-  studentId            Int
+  disciplinaryAction DisciplinaryAction[]
+  reporter           User                 @relation(fields: [reporterId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  student            Student              @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reporterId         Int
+  studentId          Int
 }
 
 model ExtracurricularActivity {

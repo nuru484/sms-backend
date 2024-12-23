@@ -50,11 +50,15 @@ export const validateDateInput = (
     `${dateInputName} must be a valid date!`
   );
 
+  // Apply required validation only if the 'required' option is true
   if (options.required) {
     validation.notEmpty().withMessage(`${dateInputName} is required!`);
   }
 
-  validation.isISO8601().toDate();
+  // Only validate ISO8601 format if the field is not empty (or required)
+  if (options.required || options.allowEmpty === false) {
+    validation.isISO8601().toDate();
+  }
 
   return validation;
 };

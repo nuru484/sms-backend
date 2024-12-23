@@ -20,53 +20,21 @@ import {
   validateLevelUpdateDetails,
 } from '../../validators/validationMiddleware/level/level-validation-middleware.js';
 
-import authenticateJWT from '../../authentication/jwtAuthentication.js';
-import authorizeRole from '../../utils/middleware/authorizeRole.js';
+router.post('/level', validateLevelDetails, handleLevelCreation);
 
-// Define the POST route for level creation at the '/create' endpoint
-// The route applies validation middleware and invokes the controller to handle the level creation logic
-router.post(
-  '/level',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
-  validateLevelDetails, // Middleware to validate level details
-  handleLevelCreation // Controller to handle the level creation logic
-);
-
-router.put(
-  '/level/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
-  validateLevelUpdateDetails, // Middleware to validate level update details
-  handleLevelUpdate // Controller to handle the level update logic
-);
+router.put('/level/:id', validateLevelUpdateDetails, handleLevelUpdate);
 
 // Get level by ID
-router.get(
-  '/level/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
-  handleGetLevelById
-);
+router.get('/level/:id', handleGetLevelById);
 
 // Get all levels
-router.get('/', authenticateJWT, authorizeRole(['ADMIN']), handleGetLevels);
+router.get('/', handleGetLevels);
 
 // Delete level by ID
-router.delete(
-  '/level/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
-  handleDeleteLevelById
-);
+router.delete('/level/:id', handleDeleteLevelById);
 
 // Delete all levels
-router.delete(
-  '/',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
-  handleDeleteAllLevels
-);
+router.delete('/', handleDeleteAllLevels);
 
 // Export the configured router to be used in the main application
 export default router;

@@ -1,5 +1,5 @@
 // src/repositories/student/student-repository.js
-import prisma from '../../../config/prismaClient.js'; // Prisma client for database operations
+import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 export const getStudentById = async (studentId) => {
   try {
@@ -86,21 +86,6 @@ export const getStudentExtracurricularActivities = async (studentId) => {
     });
 
     return activities;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getStudentDisciplinaryActions = async (studentId) => {
-  try {
-    const disciplinaryActions = await prisma.student.findMany({
-      where: { id: parseInt(studentId) },
-      select: {
-        DisciplinaryAction: true,
-      },
-    });
-
-    return disciplinaryActions;
   } catch (error) {
     throw error;
   }

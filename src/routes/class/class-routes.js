@@ -20,15 +20,10 @@ import {
   validateClassUpdateDetails,
 } from '../../validators/validationMiddleware/class/class-validation-middleware.js';
 
-import authenticateJWT from '../../authentication/jwtAuthentication.js';
-import authorizeRole from '../../utils/middleware/authorizeRole.js';
-
 // Define the POST route for class creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the class creation logic
 router.post(
   '/class',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   validateClassDetails, // Middleware to validate class details
   handleClassCreation // Controller to handle the class creation logic
 );
@@ -36,8 +31,6 @@ router.post(
 // Define the PUT route for class update at the '/update/:id' endpoint
 router.put(
   '/class/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   validateClassUpdateDetails, // Middleware to validate class update details
   handleClassUpdate // Controller to handle the class update logic
 );
@@ -45,32 +38,24 @@ router.put(
 // Get class by ID
 router.get(
   '/class/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   handleGetClassById // Controller to fetch a class by ID
 );
 
 // Get all classes with pagination and optional search
 router.get(
   '/',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   handleGetClasses // Controller to fetch all classes with pagination and search
 );
 
 // Delete class by ID
 router.delete(
   '/class/:id',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   handleDeleteClassById // Controller to delete a class by ID
 );
 
 // Delete all classes
 router.delete(
   '/',
-  authenticateJWT,
-  authorizeRole(['ADMIN']),
   handleDeleteAllClasses // Controller to delete all classes
 );
 
