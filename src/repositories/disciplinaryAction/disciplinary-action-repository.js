@@ -70,20 +70,53 @@ export const getStudentDisciplinaryActions = async (
   studentId,
   options = {}
 ) => {
-  const { page = 1, limit = 10, fetchAll = false } = options;
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
+    // Prepare search filters based on the searchQuery
+    const searchFilters = {
+      studentId: parseInt(studentId),
+      ...(searchQuery && {
+        OR: [
+          {
+            action: {
+              contains: searchQuery, // Match searchQuery in action field
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            reason: {
+              contains: searchQuery, // Match searchQuery in reason field
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            status: {
+              contains: searchQuery, // Match searchQuery in status field
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            remarks: {
+              contains: searchQuery, // Match searchQuery in remarks field
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+        ],
+      }),
+    };
+
     if (fetchAll) {
-      // Fetch all disciplinary actions without pagination
+      // Fetch all disciplinary actions without pagination and apply search filters
       return await prisma.disciplinaryAction.findMany({
-        where: { studentId: parseInt(studentId) },
+        where: searchFilters,
       });
     }
 
-    // Paginate results
+    // Paginate results with search filters applied
     const skip = (page - 1) * limit;
     return await prisma.disciplinaryAction.findMany({
-      where: { studentId: parseInt(studentId) },
+      where: searchFilters,
       skip,
       take: limit,
     });

@@ -5,6 +5,7 @@ import {
   updateUserHealthAndSafety,
   getUserHealthAndSafety,
   deleteUserHealthAndSafety,
+  getUserAllHealthAndSafety,
 } from '../../repositories/healthAndSafety/user-health-safety-repository.js';
 import { geUserById } from '../../repositories/users/general-user-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
@@ -105,5 +106,26 @@ export const deleteHealthAndSafetyDetails = async (healthAndSafetyId) => {
     return deletedHealthAndSafety;
   } catch (error) {
     handlePrismaError(error, 'health and safety details');
+  }
+};
+
+// Service function
+export const getUserAllHealthAndSafetyService = async (
+  userId,
+  options = {}
+) => {
+  try {
+    const healthAndSafety = await getUserAllHealthAndSafety(userId, options);
+
+    if (!healthAndSafety || healthAndSafety.length === 0) {
+      throw new CustomError(
+        404,
+        `There are no health and safety details for student ID ${studentId}.`
+      );
+    }
+
+    return healthAndSafety;
+  } catch (error) {
+    handlePrismaError(error, 'health and safety');
   }
 };

@@ -64,3 +64,70 @@ export const deleteUserHealthAndSafety = async (healthAndSafetyId) => {
     throw error;
   }
 };
+
+// Repository function
+export const getUserAllHealthAndSafety = async (userId, options = {}) => {
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
+
+  try {
+    // Prepare search filters based on the searchQuery
+    const searchFilters = {
+      userId: parseInt(userId),
+      ...(searchQuery && {
+        OR: [
+          {
+            emergencyContactName: {
+              contains: searchQuery, // Match searchQuery in emergencyContactName
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            emergencyContactPhone: {
+              contains: searchQuery, // Match searchQuery in emergencyContactPhone
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            allergies: {
+              hasSome: [searchQuery], // Match if searchQuery is present in allergies array
+            },
+          },
+          {
+            medicalConditions: {
+              hasSome: [searchQuery], // Match if searchQuery is present in medicalConditions array
+            },
+          },
+          {
+            healthInsurancePolicyId: {
+              contains: searchQuery, // Match searchQuery in healthInsurancePolicyId
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+          {
+            comments: {
+              contains: searchQuery, // Match searchQuery in comments
+              mode: 'insensitive', // Case insensitive match
+            },
+          },
+        ],
+      }),
+    };
+
+    if (fetchAll) {
+      // Fetch all health and safety records without pagination and apply search filters
+      return await prisma.healthAndSafety.findMany({
+        where: searchFilters,
+      });
+    }
+
+    // Paginate results with search filters applied
+    const skip = (page - 1) * limit;
+    return await prisma.healthAndSafety.findMany({
+      where: searchFilters,
+      skip,
+      take: limit,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

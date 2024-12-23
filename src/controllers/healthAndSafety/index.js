@@ -3,6 +3,7 @@ import {
   updateUserHealthAndSafety,
   getUserHealthAndSafety,
   deleteUserHealthAndSafety,
+  getUserAllHealthAndSafety,
 } from './user-health-safety-controller.js';
 
 export {
@@ -10,4 +11,5 @@ export {
   updateUserHealthAndSafety,
   getUserHealthAndSafety,
   deleteUserHealthAndSafety,
+  getUserAllHealthAndSafety,
 };

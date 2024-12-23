@@ -7,6 +7,7 @@ import {
   updateUserHealthAndSafety,
   getUserHealthAndSafety,
   deleteUserHealthAndSafety,
+  getUserAllHealthAndSafety,
 } from '../../controllers/healthAndSafety/index.js';
 
 import {
@@ -29,6 +30,8 @@ router.put(
 router.get('/:healthAndSafetyId', getUserHealthAndSafety);
 
 router.delete('/:healthAndSafetyId', deleteUserHealthAndSafety);
+
+router.get('/user/:userId', getUserAllHealthAndSafety);
 
 // Export the configured router to be used in the main application
 export default router;
