@@ -21,7 +21,7 @@ import {
 // - Validates the request body using `validateInitializeMomoTransaction`
 // - Calls the `initializeMomoTransaction` controller to handle the business logic
 router.post(
-  '/initiate',
+  '/',
   authLimiter, // Middleware to apply rate limits
   validateMomoTransaction, // Validation middleware for payload
   initializeMomoTransaction // Controller to handle transaction initialization

@@ -18,7 +18,7 @@ import validateLoginDetails from '../../validators/validationMiddleware/auth/log
 // - Validates the request body using `validateLoginDetails`
 // - Calls the `login` controller to handle the login business logic
 router.post(
-  '/login',
+  '/',
   authLimiter, // Middleware to apply rate limits
   validateLoginDetails, // Validation middleware for login credentials
   login // Controller to handle login logic

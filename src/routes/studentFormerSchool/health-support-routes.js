@@ -19,7 +19,7 @@ import { validateHealthAndSupportDetails } from '../../validators/validationMidd
 
 // Route to create health and support details for a student
 router.post(
-  '/create/:formerSchoolId/:studentId', // The studentId and formerSchoolId are passed in the route parameters
+  '/:formerSchoolId/student/:studentId', // The studentId and formerSchoolId are passed in the route parameters
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
@@ -29,7 +29,7 @@ router.post(
 
 // Route to update health and support details for a student
 router.put(
-  '/update/:healthAndSupportId/:studentId',
+  '/:healthAndSupportId/student/:studentId',
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles

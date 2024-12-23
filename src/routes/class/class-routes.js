@@ -26,7 +26,7 @@ import authorizeRole from '../../utils/middleware/authorizeRole.js';
 // Define the POST route for class creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the class creation logic
 router.post(
-  '/class/create',
+  '/class',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   validateClassDetails, // Middleware to validate class details
@@ -35,7 +35,7 @@ router.post(
 
 // Define the PUT route for class update at the '/update/:id' endpoint
 router.put(
-  '/class/update/:id',
+  '/class/:id',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   // validateClassUpdateDetails, // Middleware to validate class update details

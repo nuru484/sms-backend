@@ -10,7 +10,7 @@ import { registerAdmin } from '../../controllers/userRegistration/index.js';
 // Define the POST route for admin registration at the '/register' endpoint
 // The route is protected by validation middlewares and invokes the controller to handle the registration
 router.post(
-  '/register',
+  '/',
   registerAdmin // Controller to handle the admin registration logic
 );
 

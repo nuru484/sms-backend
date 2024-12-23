@@ -8,7 +8,7 @@ const router = Router();
 import updateAdmissionStatusRoute from './update-admission-status-route.js';
 
 // Mount the auth  routes under the '/auth' path
-router.use('/students', updateAdmissionStatusRoute);
+router.use('/student', updateAdmissionStatusRoute);
 
 // Export the configured router to be used in the main application
 export default router;

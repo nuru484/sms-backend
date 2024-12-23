@@ -29,7 +29,7 @@ routes.use('/auth', authRouter); // authentication
 
 routes.use('/levels', levelRouter); // Level
 
-routes.use('/student-former-school', studentFormerSchoolRouter); // Student former school
+routes.use('/former-school', studentFormerSchoolRouter); // Student former school
 
 routes.use('/admissions', admissionsRouter); // Level
 

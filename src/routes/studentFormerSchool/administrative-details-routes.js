@@ -12,14 +12,14 @@ import authenticateJWT from '../../authentication/jwtAuthentication.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 
 router.post(
-  '/create/:formerSchoolId/:studentId',
+  '/:formerSchoolId/student/:studentId',
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   createAdministrativeDetails
 ); // Create route
 
 router.put(
-  '/update/:administrativeDetailsId/:studentId',
+  '/:administrativeDetailsId/student/:studentId',
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
   updateAdministrativeDetails

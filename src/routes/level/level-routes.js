@@ -26,7 +26,7 @@ import authorizeRole from '../../utils/middleware/authorizeRole.js';
 // Define the POST route for level creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the level creation logic
 router.post(
-  '/level/create',
+  '/level',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   validateLevelDetails, // Middleware to validate level details
@@ -34,7 +34,7 @@ router.post(
 );
 
 router.put(
-  '/level/update/:id',
+  '/level/:id',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   validateLevelUpdateDetails, // Middleware to validate level update details

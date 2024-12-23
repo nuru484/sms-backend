@@ -14,16 +14,13 @@ import {
 // Define the POST route for student registration at the '/register' endpoint
 // The route applies validation middleware and invokes the controller to handle the student registration logic
 router.post(
-  '/register',
+  '/',
   registerStudent // Controller to handle the student registration logic
 );
 
-router.put('/update/basic-personal/:studentId', updateStudentBasicAndPersonal);
+router.patch('/:studentId/personal', updateStudentBasicAndPersonal);
 
-router.put(
-  '/parent/update/basic-personal/:parentId',
-  updateParentBasicAndPersonal
-);
+router.patch('/parent/:parentId/personal', updateParentBasicAndPersonal);
 
 // Export the configured router to be used in the main application
 export default router;

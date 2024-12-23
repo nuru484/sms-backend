@@ -44,11 +44,11 @@ export const createAdministrativeDetailsForStudent = async (
     const { transferCertificate, recommendationLetter } = filesData;
 
     const transferCertificateUrl =
-      transferCertificateUrl &&
+      transferCertificate &&
       (await uploadFileToCloudinary(transferCertificate[0]));
 
     const recommendationLetterUrl =
-      recommendationLetterUrl &&
+      recommendationLetter &&
       (await uploadFileToCloudinary(recommendationLetter[0]));
 
     const administrativeDetails = await createAdministrativeDetails({

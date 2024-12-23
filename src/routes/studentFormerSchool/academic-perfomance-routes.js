@@ -20,7 +20,7 @@ import authenticateJWT from '../../authentication/jwtAuthentication.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 
 router.post(
-  '/create/:formerSchoolId/:studentId', // The userId is passed in the route parameters
+  '/:formerSchoolId/student/:studentId', // The userId is passed in the route parameters
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
@@ -29,7 +29,7 @@ router.post(
 );
 
 router.put(
-  '/update/:academicPerformanceId/:studentId',
+  '/:academicPerformanceId/student/:studentId',
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles

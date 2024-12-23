@@ -20,7 +20,7 @@ import {
 import { validateFormerSchoolDetails } from '../../validators/validationMiddleware/studentFormerSchool/former-school-validation-middleware.js';
 
 router.post(
-  '/create/:studentId', // The userId is passed in the route parameters
+  '/student/:studentId', // The userId is passed in the route parameters
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles
@@ -29,7 +29,7 @@ router.post(
 );
 
 router.put(
-  '/update/:formerSchoolId/:studentId',
+  '/:formerSchoolId/student/:studentId',
   authLimiter, // Middleware to apply rate limits
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN', 'STUDENT', 'PARENT']), // Middleware to authorize roles

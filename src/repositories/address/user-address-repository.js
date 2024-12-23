@@ -51,16 +51,25 @@ export const updateUserAddress = async (addressId, addressData) => {
   }
 };
 
-export const getUserAddress = async (userId) => {
+export const getUserAddress = async (addressId) => {
   try {
-    const address = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        address: true, // Fetch the student's address
-      },
+    const address = await prisma.address.findUnique({
+      where: { id: parseInt(addressId) },
     });
 
     return address;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteUserAddress = async (addressId) => {
+  try {
+    const deletedAddress = await prisma.address.delete({
+      where: { id: parseInt(addressId) },
+    });
+
+    return deletedAddress;
   } catch (error) {
     throw error;
   }

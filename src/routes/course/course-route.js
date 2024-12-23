@@ -26,7 +26,7 @@ import authorizeRole from '../../utils/middleware/authorizeRole.js';
 // Define the POST route for course creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the course creation logic
 router.post(
-  '/course/create',
+  '/course',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   validateCourseDetails, // Middleware to validate course details
@@ -34,7 +34,7 @@ router.post(
 );
 
 router.put(
-  '/course/update/:id',
+  '/course/:id',
   authenticateJWT,
   authorizeRole(['ADMIN']),
   validateCourseUpdateDetails,

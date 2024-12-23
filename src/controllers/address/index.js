@@ -1,3 +1,7 @@
-import { updateUserAddress } from '../address/address-controllers.js';
+import {
+  updateUserAddress,
+  getUserAddress,
+  deleteUserAddress,
+} from '../address/address-controllers.js';
 
-export { updateUserAddress };
+export { updateUserAddress, getUserAddress, deleteUserAddress };

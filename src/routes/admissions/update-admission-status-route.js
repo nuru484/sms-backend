@@ -14,7 +14,7 @@ import validateUpdateAdmissionStatusDetails from '../../validators/validationMid
 
 // Define the PUT route for updating admission status
 router.put(
-  '/admit/:userId',
+  '/:userId',
   authenticateJWT, // Middleware to authenticate the user
   authorizeRole(['ADMIN']), // Middleware to authorize roles (e.g., only ADMIN can update admission status)
   validateUpdateAdmissionStatusDetails,

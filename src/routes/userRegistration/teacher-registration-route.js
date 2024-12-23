@@ -10,7 +10,7 @@ import { registerTeacher } from '../../controllers/userRegistration/index.js';
 // Define the POST route for teacher registration at the '/register' endpoint
 // The route applies validation middleware and invokes the controller to handle the teacher registration logic
 router.post(
-  '/register',
+  '/',
   registerTeacher // Controller to handle the teacher registration logic
 );
 

@@ -2,9 +2,9 @@
 import { Router } from 'express';
 const router = Router();
 
-import addressRoutes from './address-routes.js';
+import studentAddressRoutes from './student-address-routes.js';
 
-router.use('/student', addressRoutes);
+router.use('/', studentAddressRoutes);
 
 // Export the configured router to be used in the main application
 export default router;

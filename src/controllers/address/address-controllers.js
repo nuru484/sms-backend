@@ -1,6 +1,10 @@
 // src/controllers/userRegistration/general-user-registration-controller.js
 import { validateAddressDetails } from '../../validators/validationMiddleware/address-validation-middleware.js';
-import { updateAddressDetails } from '../../services/address/address-services.js';
+import {
+  updateAddressDetails,
+  getAddressDetails,
+  deleteAddressDetails,
+} from '../../services/address/address-services.js';
 
 // Controller to update addresses of students or parents
 export const updateUserAddress = [
@@ -8,6 +12,7 @@ export const updateUserAddress = [
 
   async (req, res, next) => {
     const addressUpdatePayload = Object.assign({}, req.body);
+
     const { addressId } = req.params;
 
     try {
@@ -25,3 +30,33 @@ export const updateUserAddress = [
     }
   },
 ];
+
+export const getUserAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+
+    const response = await getAddressDetails(addressId);
+
+    return res.status(200).json({
+      message: 'User address successfully fetched.',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+
+    const response = await deleteAddressDetails(addressId);
+
+    return res.status(200).json({
+      message: 'User address successfully deleted.',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
