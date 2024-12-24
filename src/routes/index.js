@@ -19,6 +19,8 @@ import addressRouter from './address/index.js';
 import healthAndSafetyRouter from './healthAndSafety/index.js';
 import disciplinaryActionRouter from './disciplinaryAction/index.js';
 
+import studentBehaviorRouter from './studentBehavior/index.js';
+
 // Mounting the all the routes under the `/api/v1` prefix
 
 routes.use('/payment', paymentRouter); // Payments
@@ -42,6 +44,8 @@ routes.use('/address', addressRouter);
 routes.use('/health-safety', healthAndSafetyRouter);
 
 routes.use('/disciplinary-action', disciplinaryActionRouter);
+
+routes.use('/student-behavior', studentBehaviorRouter);
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server

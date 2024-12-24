@@ -679,6 +679,7 @@ model StudentBehavior {
   id           Int      @id @default(autoincrement())
   behaviorDate DateTime // Date of the behavior record
   behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
+  behavior     String // The behavior name
   description  String // Detailed description of the behavior
 
   disciplinaryAction DisciplinaryAction[]
