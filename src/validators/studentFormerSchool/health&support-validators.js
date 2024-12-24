@@ -8,12 +8,8 @@ const createHealthAndSupportValidators = () => ({
   // Validator for healthRecords (optional, must be valid JSON)
   validateHealthRecords: body('healthRecords')
     .optional()
-    .custom((value) => {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Health Records must be a valid JSON array.');
-      }
-      return true;
-    }),
+    .isObject()
+    .withMessage('Health Records must be a valid json object.'),
 
   // Validator for specialNeeds (optional, max length 500 characters)
   validateSpecialNeeds: validateInput('specialNeeds', {

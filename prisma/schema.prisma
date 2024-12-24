@@ -696,7 +696,7 @@ model ExtracurricularActivity {
   endDate      DateTime? // End date of the activity (if applicable)
   position     String? // Position or role in the activity (e.g., Team Captain)
   description  String? // Additional description or details about the activity
-  achievements Json? // List of achievements (e.g., awards, recognitions)
+  achievements String[] // List of achievements (e.g., awards, recognitions)
   student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   studentId    Int
 }
@@ -763,10 +763,10 @@ model AcademicPerformance {
   id              Int          @id @default(autoincrement())
   previousGrade   String? // Last grade or class attended
   promotionStatus String? // Promoted, retained, or repeating
-  courses         Json? // List of subjects studied
+  courses         String[] // List of subjects studied
   grades          Json? // Grades or marks for subjects
   classRanking    String? // Class ranking (optional)
-  specialPrograms Json? // Participation in special programs (e.g., gifted, remedial)
+  specialPrograms String[] // Participation in special programs (e.g., gifted, remedial)
   formerSchool    FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId  Int
 }
@@ -775,8 +775,8 @@ model BehaviorAndExtracurricular {
   id                  Int          @id @default(autoincrement())
   behaviorRecord      String? // Notes on behavior or conduct
   disciplinaryActions String? // Any disciplinary actions
-  extracurriculars    Json? // List of clubs, sports, or activities
-  achievements        Json? // Awards or recognitions
+  extracurriculars    String[] // List of clubs, sports, or activities
+  achievements        String[] // Awards or recognitions
   formerSchool        FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId      Int
 }

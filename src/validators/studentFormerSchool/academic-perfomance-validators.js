@@ -18,26 +18,14 @@ const createAcademicPerformanceValidators = () => ({
   // Validator for courses (optional, must be a valid object)
   validateCourses: body('courses')
     .optional()
-    .custom((value) => {
-      if (
-        typeof value !== 'object' || // Check if value is not an object
-        value === null || // Exclude null values
-        Array.isArray(value) // Exclude arrays
-      ) {
-        throw new Error('Courses must be a valid JSON object.');
-      }
-      return true; // Validation passed
-    }),
+    .isArray()
+    .withMessage('Course must be a valid array.'),
 
   // Validator for grades (optional, must be a valid object)
   validateGrades: body('grades')
     .optional()
-    .custom((value) => {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Grades must be a valid JSON object.');
-      }
-      return true;
-    }),
+    .isObject()
+    .withMessage('Grades must be a valid json object.'),
 
   // Validator for classRanking (optional, max length 50 characters)
   validateClassRanking: validateInput('classRanking', {
@@ -48,12 +36,8 @@ const createAcademicPerformanceValidators = () => ({
   // Validator for specialPrograms (optional, must be a valid array)
   validateSpecialPrograms: body('specialPrograms')
     .optional()
-    .custom((value) => {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Special programs must be a valid JSON array.');
-      }
-      return true;
-    }),
+    .isArray()
+    .withMessage('Special Programs must be a valid array.'),
 });
 
 // Generate validators using the factory function

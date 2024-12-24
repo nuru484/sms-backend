@@ -1,3 +1,4 @@
+import { body } from 'express-validator';
 import { validateInput } from './general-validators.js';
 
 // Factory function to generate Health and Safety-specific validators
@@ -10,14 +11,13 @@ const createHealthAndSafetyValidators = () => ({
     maxLength: 15,
     required: false,
   }),
-  validateAllergies: validateInput('allergies', {
-    required: false,
-  })
+  validateAllergies: body('allergies')
+    .optional()
     .isArray()
     .withMessage('Allergies must be an array'),
-  validateMedicalConditions: validateInput('medicalConditions', {
-    required: false,
-  })
+
+  validateMedicalConditions: body('medicalConditions')
+    .optional()
     .isArray()
     .withMessage('Medical conditions must be an array'),
 
@@ -49,16 +49,16 @@ const createHealthAndSafetyUpdateValidators = () => ({
     maxLength: 15,
     required: false,
   }), // Not required on update
-  validateAllergies: validateInput('allergies', {
-    required: false,
-  })
+  validateAllergies: body('allergies')
+    .optional()
     .isArray()
     .withMessage('Allergies must be an array'), // Not required on update
-  validateMedicalConditions: validateInput('medicalConditions', {
-    required: false,
-  })
+
+  validateMedicalConditions: body('medicalConditions')
+    .optional()
     .isArray()
     .withMessage('Medical conditions must be an array'), // Not required on update
+
   validateHealthInsurancePolicyId: validateInput('healthInsurancePolicyId', {
     maxLength: 50,
     required: false,

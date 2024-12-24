@@ -1,3 +1,5 @@
+// src/routes/disciplinaryAction/disciplinary-action-routes.js
+
 // Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();

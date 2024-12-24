@@ -20,22 +20,14 @@ const createBehaviorAndExtracurricularValidators = () => ({
   // Validator for extracurriculars (optional, must be a valid JSON array)
   validateExtracurriculars: body('extracurriculars')
     .optional()
-    .custom((value) => {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Extracurriculars must be a valid JSON object.');
-      }
-      return true;
-    }),
+    .isArray()
+    .withMessage('Extracurriculars must be a valid Array.'),
 
   // Validator for achievements (optional, must be a valid JSON array)
   validateAchievements: body('achievements')
     .optional()
-    .custom((value) => {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Achievements must be a valid JSON object.');
-      }
-      return true;
-    }),
+    .isArray()
+    .withMessage('Extracurriculars must be a valid Array.'),
 });
 
 // Generate validators using the factory function

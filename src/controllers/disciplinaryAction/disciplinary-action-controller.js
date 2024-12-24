@@ -1,3 +1,4 @@
+// src/controllers/disciplinaryAction/disciplinary-action-controller.js
 import {
   createDisciplinaryActionDetails,
   updateDisciplinaryActionDetails,
