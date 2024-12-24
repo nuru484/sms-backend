@@ -7,7 +7,7 @@ import {
   deleteUserHealthAndSafety,
   getUserAllHealthAndSafety,
 } from '../../repositories/healthAndSafety/user-health-safety-repository.js';
-import { geUserById } from '../../repositories/users/general-user-repository.js';
+import { getUserById } from '../../repositories/users/general-user-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
@@ -19,7 +19,7 @@ export const createHealthAndSafetyDetails = async (
   healthAndSafetyData
 ) => {
   try {
-    const user = await geUserById(userId);
+    const user = await getUserById(userId);
 
     if (!user) {
       throw new CustomError(404, `User with ID ${userId} not found.`);

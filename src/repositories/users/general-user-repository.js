@@ -54,7 +54,7 @@ export const getUsers = async ({
   }
 };
 
-export const geUserById = async (userId) => {
+export const getUserById = async (userId) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },

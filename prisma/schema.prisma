@@ -371,25 +371,29 @@ model ReportDetail {
   gradeId   Int
 }
 
-model Attendance {
-  id            Int      @id @default(autoincrement())
-  date          DateTime // The date of attendance
-  status        String // e.g., "Present", "Absent", "Late", "Excused"
-  remarks       String? // Optional: Additional details or notes
-  category      role // "Student" or "Staff" to distinguish user type
-  absenceReason String?
+enum attendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+  LATE
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Attendance {
+  id            Int              @id @default(autoincrement())
+  date          DateTime         @default(now()) // The date of attendance
+  status        attendanceStatus
+  absenceReason String?
+  latitude      Float?
+  longitude     Float?
 
   // Relationships
-  user     User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  recorder User @relation("AttendanceRecorder", fields: [recorderId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  recorder User? @relation("AttendanceRecorder", fields: [recorderId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
 
   userId     Int
-  recorderId Int
+  recorderId Int?
 
-  @@index([userId, date])
+  @@unique([userId, date]) // Enforce uniqueness for the same user and date
 }
 
 model Payment {

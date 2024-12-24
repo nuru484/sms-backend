@@ -1,4 +1,4 @@
-//src/repositories/healthAndSafety/user-health-safety-repository.js
+// src/repositories/healthAndSafety/user-health-safety-repository.js
 
 import prisma from '../../config/prismaClient.js';
 
