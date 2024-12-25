@@ -48,6 +48,7 @@ model User {
   role           role
   employmentType employmentType?
   isRevoked      Boolean         @default(false) // Flag to indicate if access is revoked
+  metadata       Json? // Additional details about the user
 
   // Relations to specific profiles
   student Student?
@@ -56,7 +57,7 @@ model User {
   parent  Parent?
   address Address?
 
-  EventParticipant         EventParticipant[]
+  Events                   Event[]
   Trip                     Trip[]
   Position                 Position[]
   Attendance               Attendance[]
@@ -337,21 +338,6 @@ model Grade {
 
   // Index for quick lookup of grades by student and course
   @@index([studentId, courseId])
-}
-
-model Term {
-  id    Int      @id @default(autoincrement())
-  name  String
-  year  DateTime
-  start DateTime
-  end   DateTime
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  ReportDetail    ReportDetail[]
-  Exam            Exam[]
-  LessonTimetable LessonTimetable[]
 }
 
 model ReportDetail {
@@ -643,28 +629,6 @@ model BookCategory {
   books       Book[] // Relation to Book model, representing books in this category
 }
 
-// Model representing school-wide events (e.g., meetings, sports events)
-model Event {
-  id          Int      @id @default(autoincrement()) // Unique identifier for each event
-  name        String   @db.VarChar(100) // Name of the event
-  description String?  @db.Text // Optional description of the event
-  eventDate   DateTime // Date the event is scheduled to take place
-  location    String?  @db.VarChar(255) // Optional location of the event
-
-  participants EventParticipant[] // Relation to EventParticipant model for tracking participants
-}
-
-// Model linking users (students, teachers, or parents) to an event
-model EventParticipant {
-  id      Int    @id @default(autoincrement()) // Unique identifier for each event participant
-  userId  Int // Foreign key to the participating user
-  eventId Int // Foreign key to the event
-  role    String @db.VarChar(50) // Role of the participant (e.g., "Speaker", "Guest")
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to User model
-  event Event @relation(fields: [eventId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Event model
-}
-
 // Model tracking disciplinary actions taken against students
 model DisciplinaryAction {
   id      Int      @id @default(autoincrement()) // Unique identifier for each disciplinary action
@@ -800,4 +764,90 @@ model HealthAndSupport {
   specialNeeds   String? // Details of accommodations or support required
   formerSchool   FormerSchool @relation(fields: [formerSchoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   formerSchoolId Int
+}
+
+model AcademicCalendar {
+  id        Int       @id @default(autoincrement())
+  year      String    @unique // Academic year, e.g., "2024/2025" or "2025"
+  startDate DateTime // Start date of the academic year
+  endDate   DateTime // End date of the academic year
+  terms     Term[] // 1:N relation to Term
+  holidays  Holiday[] // 1:N relation to Holiday
+  events    Event[] // 1:N relation to Event
+  metadata  Json? // For additional fields, such as custom attributes
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([startDate]) // Index for querying by start date
+  @@index([endDate]) // Index for querying by end date
+}
+
+model Term {
+  id                 Int               @id @default(autoincrement())
+  name               String // Name of the term, e.g., "Fall", "Spring", etc.
+  startDate          DateTime // Start date of the term
+  endDate            DateTime // End date of the term
+  academicCalendarId Int // Foreign key to AcademicCalendar
+  academicCalendar   AcademicCalendar  @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sessions           Session[] // 1:N relation to Session
+  metadata           Json? // For custom attributes or extensions
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  LessonTimetable    LessonTimetable[]
+  Exam               Exam[]
+  ReportDetail       ReportDetail[]
+
+  @@unique([academicCalendarId, name]) // Ensure term names are unique within an academic calendar
+  @@index([startDate]) // Index for querying by start date
+  @@index([endDate]) // Index for querying by end date
+  @@index([academicCalendarId]) // Optimize foreign key queries
+}
+
+model Holiday {
+  id                 Int              @id @default(autoincrement())
+  name               String // Holiday name, e.g., "Christmas", "Independence Day"
+  date               DateTime // Holiday date
+  description        String? // Optional description
+  academicCalendarId Int // Foreign key to AcademicCalendar
+  academicCalendar   AcademicCalendar @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([academicCalendarId, date]) // Prevent duplicate holidays on the same date in a calendar
+  @@index([date]) // Index for querying by date
+  @@index([academicCalendarId]) // Optimize foreign key queries
+}
+
+model Event {
+  id                 Int              @id @default(autoincrement())
+  name               String // Event name, e.g., "Parent-Teacher Conference"
+  date               DateTime // Event date
+  description        String? // Optional description
+  academicCalendarId Int // Foreign key to AcademicCalendar
+  academicCalendar   AcademicCalendar @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  metadata           Json? // For additional event-specific details
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  participants       User[] // Relation to participants
+
+  @@unique([academicCalendarId, name, date]) // Prevent duplicate events with the same name on the same date
+  @@index([date]) // Index for querying by event date
+  @@index([academicCalendarId]) // Optimize foreign key queries
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  name      String // Name of the session, e.g., "Midterms", "Final Exams"
+  startDate DateTime // Session start date
+  endDate   DateTime // Session end date
+  termId    Int // Foreign key to Term
+  term      Term     @relation(fields: [termId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  metadata  Json? // For session-specific data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([termId, name]) // Ensure session names are unique within a term
+  @@index([startDate]) // Index for querying by start date
+  @@index([endDate]) // Index for querying by end date
+  @@index([termId]) // Optimize foreign key queries
 }

@@ -9,6 +9,8 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 
+import { saveToCache, client } from '../../config/redis.js';
+
 const updateAddressDetails = async (addressId, payload) => {
   try {
     const { city, country, region, postalCode, digitalAddress } = payload;
@@ -31,6 +33,13 @@ const updateAddressDetails = async (addressId, payload) => {
       digitalAddress,
     });
 
+    const cacheKey = `address:${addressId}`;
+
+    // Invalidate the cache
+    client.del(cacheKey, (err) => {
+      if (err) console.error('Error invalidating cache:', err);
+    });
+
     logger.info(`Address updated successfully.`);
     return updatedAddress;
   } catch (error) {
@@ -50,6 +59,10 @@ const getAddressDetails = async (addressId) => {
       );
     }
 
+    // Cache key generator
+    const addressCacheKey = `address:${addressId}`;
+    saveToCache(addressCacheKey, address); // Save to cache
+
     return address;
   } catch (error) {
     handlePrismaError(error, 'address details');
@@ -67,6 +80,13 @@ const deleteAddressDetails = async (addressId) => {
         404
       );
     }
+
+    const cacheKey = `address:${addressId}`;
+
+    // Invalidate the cache
+    client.del(cacheKey, (err) => {
+      if (err) console.error('Error invalidating cache:', err);
+    });
 
     return deletedAddress;
   } catch (error) {
