@@ -1,4 +1,4 @@
-// src/services/level/level-creation-service.js
+// src/services/level/level-services.js
 
 import {
   createLevel,
@@ -11,6 +11,7 @@ import {
 import prisma from '../../config/prismaClient.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create a single level.
@@ -23,12 +24,13 @@ export const createSingleLevel = async (levelData) => {
   const { name, code, description, order } = levelData;
 
   try {
-    // Call the repository to create the level
     const level = await createLevel({ name, code, description, order });
+
+    const allLevelsCacheKey = `allLevels`;
+    client.del(allLevelsCacheKey); // Invalidate the cache for all levels
 
     return level;
   } catch (error) {
-    // Throw a generic internal server error if an unexpected error occurs.
     handlePrismaError(error, 'Level');
   }
 };
@@ -42,18 +44,17 @@ export const createSingleLevel = async (levelData) => {
  */
 export const createMultipleLevels = async (levels) => {
   try {
-    const levelPromises = levels.map((level) => {
-      return prisma.level.create({
-        data: level,
-      });
-    });
+    const levelPromises = levels.map((level) =>
+      prisma.level.create({ data: level })
+    );
 
-    // Use $transaction to run all Prisma Client promises in a transaction
     const createdLevels = await prisma.$transaction(levelPromises);
+
+    const allLevelsCacheKey = `allLevels`;
+    client.del(allLevelsCacheKey); // Invalidate the cache for all levels
 
     return createdLevels;
   } catch (error) {
-    // Throw a generic internal server error if an unexpected error occurs.
     handlePrismaError(error, 'Level');
   }
 };
@@ -68,12 +69,16 @@ export const createMultipleLevels = async (levels) => {
  */
 export const updateLevel = async (id, updateData) => {
   try {
-    // Call the repository to update the level
+    const levelCacheKey = `level:${id}`;
+    const allLevelsCacheKey = `allLevels`;
+
+    await client.del(levelCacheKey); // Invalidate cache for the updated level
+    await client.del(allLevelsCacheKey); // Invalidate the cache for all levels
+
     const updatedLevel = await updateLevelById(id, updateData);
 
     return updatedLevel;
   } catch (error) {
-    // Throw a generic internal server error if an unexpected error occurs.
     handlePrismaError(error, 'Level');
   }
 };
@@ -92,6 +97,9 @@ export const getLevelById = async (id) => {
       throw new CustomError(404, `Level with ID ${id} not found.`);
     }
 
+    const levelCacheKey = `level:${id}`;
+    saveToCache(levelCacheKey, level); // Save to cache
+
     return level;
   } catch (error) {
     handlePrismaError(error, 'Level');
@@ -100,7 +108,6 @@ export const getLevelById = async (id) => {
 
 /**
  * Service function to fetch all levels with pagination and search.
-
  */
 export const getLevels = async (options) => {
   try {
@@ -109,6 +116,10 @@ export const getLevels = async (options) => {
     if (!response || response.levels.length === 0) {
       throw new CustomError(404, `There are no levels currently.`);
     }
+
+    const allLevelsCacheKey = `allLevels`;
+    saveToCache(allLevelsCacheKey, response); // Save to cache
+
     return response;
   } catch (error) {
     handlePrismaError(error, 'Level');
@@ -123,7 +134,15 @@ export const getLevels = async (options) => {
  */
 export const removeLevelById = async (id) => {
   try {
-    return await deleteLevelById(id);
+    const deletedLevel = await deleteLevelById(id);
+
+    const levelCacheKey = `level:${id}`;
+    const allLevelsCacheKey = `allLevels`;
+
+    await client.del(levelCacheKey); // Invalidate cache for the deleted level
+    await client.del(allLevelsCacheKey); // Invalidate the cache for all levels
+
+    return deletedLevel;
   } catch (error) {
     handlePrismaError(error, 'Level');
   }
@@ -136,15 +155,19 @@ export const removeLevelById = async (id) => {
  */
 export const removeAllLevels = async () => {
   try {
-    const response = await deleteAllLevels();
+    const deletedCount = await deleteAllLevels();
 
-    if (!response || response === 0) {
+    if (!deletedCount || deletedCount === 0) {
       throw new CustomError(
         404,
         `There are currently no levels available to delete.`
       );
     }
-    return response;
+
+    const allLevelsCacheKey = `allLevels`;
+    await client.del(allLevelsCacheKey); // Invalidate the cache for all levels
+
+    return deletedCount;
   } catch (error) {
     handlePrismaError(error, 'Level');
   }

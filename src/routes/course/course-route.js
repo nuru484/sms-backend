@@ -19,6 +19,12 @@ import {
   validateCourseUpdateDetails,
 } from '../../validators/validationMiddleware/course/course-validation-middleware.js';
 
+import { cacheMiddleware } from '../../config/redis.js';
+
+// Cache key generator
+const courseCacheKey = (req) => `course:${req.params.id}`;
+const allCoursesCacheKey = () => `allCourses`;
+
 // Define the POST route for course creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the course creation logic
 router.post(
@@ -34,10 +40,10 @@ router.put(
 );
 
 // Get course by ID
-router.get('/course/:id', handleGetCourseById);
+router.get('/course/:id', cacheMiddleware(courseCacheKey), handleGetCourseById);
 
 // Get all courses
-router.get('/', handleGetCourses);
+router.get('/', cacheMiddleware(allCoursesCacheKey), handleGetCourses);
 
 // Delete course by ID
 router.delete('/course/:id', handleDeleteCourseById);

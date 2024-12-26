@@ -3,30 +3,11 @@
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
-export const createFormerSchoolDetails = async ({
-  name,
-  address,
-  contactNumber,
-  email,
-  schoolType,
-  startDate,
-  endDate,
-  reasonForLeaving,
+export const createFormerSchoolDetails = async (
   studentId,
-}) => {
+  formerSchoolData
+) => {
   try {
-    // Prepare data to be stored, including student connection
-    const formerSchoolData = {
-      name,
-      address,
-      contactNumber,
-      email,
-      schoolType,
-      startDate,
-      endDate,
-      reasonForLeaving,
-    };
-
     const formerSchoolDataToCreate = {
       ...formerSchoolData,
       student: {
@@ -45,8 +26,6 @@ export const createFormerSchoolDetails = async ({
     throw error;
   }
 };
-
-// ################################################################################################
 
 export const updateFormerSchoolDetails = async (id, updateData) => {
   try {
@@ -69,6 +48,24 @@ export const getFormerSchoolById = async (id) => {
     return prisma.formerSchool.findUnique({
       where: { id: parseInt(id) },
     });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getStudentFormerSchoolDetails = async (studentId) => {
+  try {
+    const formerSchool = await prisma.formerSchool.findMany({
+      where: { studentId: parseInt(studentId) },
+      include: {
+        AcademicPerformance: true,
+        BehaviorAndExtracurricular: true,
+        AdministrativeDetails: true,
+        HealthAndSupport: true,
+      },
+    });
+
+    return formerSchool;
   } catch (error) {
     throw error;
   }

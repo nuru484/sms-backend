@@ -1,6 +1,16 @@
+// src/routes/healthAndSafety/user-health-safety-routes.js
+
 // Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
+
+import { cacheMiddleware } from '../../config/redis.js';
+
+// Cache key generator
+const userHealthAndSafetyCacheKey = (req) =>
+  `healthAndSafety:${req.params.healthAndSafetyId}`;
+const userAllHealthAndSafetyCacheKey = (req) =>
+  `allHealthAndSafetyOfUser:${req.params.userId}`;
 
 import {
   createUserHealthAndSafety,
@@ -27,11 +37,19 @@ router.put(
   updateUserHealthAndSafety
 );
 
-router.get('/:healthAndSafetyId', getUserHealthAndSafety);
+router.get(
+  '/:healthAndSafetyId',
+  cacheMiddleware(userHealthAndSafetyCacheKey),
+  getUserHealthAndSafety
+);
 
 router.delete('/:healthAndSafetyId', deleteUserHealthAndSafety);
 
-router.get('/user/:userId', getUserAllHealthAndSafety);
+router.get(
+  '/user/:userId',
+  cacheMiddleware(userAllHealthAndSafetyCacheKey),
+  getUserAllHealthAndSafety
+);
 
 // Export the configured router to be used in the main application
 export default router;

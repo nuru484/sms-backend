@@ -11,6 +11,7 @@ import {
 import prisma from '../../config/prismaClient.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create a single course.
@@ -25,6 +26,10 @@ export const createSingleCourse = async (courseData) => {
   try {
     // Call the repository to create the course
     const course = await createCourse({ name, code });
+
+    // Invalidate the cache for all courses
+    const allCoursesCacheKey = `allCourses`;
+    await client.del(allCoursesCacheKey);
 
     return course;
   } catch (error) {
@@ -50,6 +55,10 @@ export const createMultipleCourses = async (courses) => {
     // Use $transaction to run all Prisma Client promises in a transaction
     const createdCourses = await prisma.$transaction(coursePromises);
 
+    // Invalidate the cache for all courses
+    const allCoursesCacheKey = `allCourses`;
+    await client.del(allCoursesCacheKey);
+
     return createdCourses;
   } catch (error) {
     handlePrismaError(error, 'Course');
@@ -66,6 +75,14 @@ export const createMultipleCourses = async (courses) => {
  */
 export const updateCourse = async (id, updateData) => {
   try {
+    // Cache keys for the course and all courses
+    const courseCacheKey = `course:${id}`;
+    const allCoursesCacheKey = `allCourses`;
+
+    // Invalidate the cache
+    await client.del(courseCacheKey);
+    await client.del(allCoursesCacheKey);
+
     // Call the repository to update the course
     const updatedCourse = await updateCourseById(id, updateData);
 
@@ -89,6 +106,10 @@ export const getCourseById = async (id) => {
       throw new CustomError(404, `Course with ID of ${id} not found.`);
     }
 
+    // Cache the course data
+    const courseCacheKey = `course:${id}`;
+    saveToCache(courseCacheKey, course);
+
     return course;
   } catch (error) {
     handlePrismaError(error, 'Course');
@@ -97,7 +118,6 @@ export const getCourseById = async (id) => {
 
 /**
  * Service function to fetch all courses with pagination and search.
-
  */
 export const getCourses = async (options) => {
   try {
@@ -106,6 +126,10 @@ export const getCourses = async (options) => {
     if (!response || response.courses.length === 0) {
       throw new CustomError(404, `There are currently no courses available.`);
     }
+
+    // Cache the courses data
+    const allCoursesCacheKey = `allCourses`;
+    saveToCache(allCoursesCacheKey, response);
 
     return response;
   } catch (error) {
@@ -121,6 +145,14 @@ export const getCourses = async (options) => {
  */
 export const removeCourseById = async (id) => {
   try {
+    // Cache keys for the course and all courses
+    const courseCacheKey = `course:${id}`;
+    const allCoursesCacheKey = `allCourses`;
+
+    // Invalidate the cache
+    await client.del(courseCacheKey);
+    await client.del(allCoursesCacheKey);
+
     return await deleteCourseById(id);
   } catch (error) {
     handlePrismaError(error, 'Course');
@@ -142,6 +174,11 @@ export const removeAllCourses = async () => {
         `There are currently no courses available to delete.`
       );
     }
+
+    // Invalidate the cache for all courses
+    const allCoursesCacheKey = `allCourses`;
+    await client.del(allCoursesCacheKey);
+
     return response;
   } catch (error) {
     handlePrismaError(error, 'Course');

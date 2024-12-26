@@ -13,6 +13,7 @@ import prisma from '../../config/prismaClient.js'; // Assuming you're using Pris
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
+import { cli } from 'winston/lib/winston/config/index.js';
 
 /**
  * Service function to create a single class.
@@ -48,6 +49,9 @@ export const createSingleClass = async (classData) => {
       roomNumber,
       levelId,
     });
+
+    const allClassesCacheKey = `allClasses`;
+    client.del(allClassesCacheKey); // Invalidate the cache
 
     return newClass;
   } catch (error) {
@@ -87,6 +91,9 @@ export const createMultipleClasses = async (classes) => {
 
     const classPromises = classes.map((classData) => createClass(classData));
     const createdClasses = await Promise.all(classPromises);
+
+    const allClassesCacheKey = `allClasses`;
+    client.del(allClassesCacheKey); // Invalidate the cache
 
     return createdClasses;
   } catch (error) {

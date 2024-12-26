@@ -71,6 +71,7 @@ model User {
   AttendanceRecorders      Attendance[]               @relation("AttendanceRecorder")
   StudentBehavior          StudentBehavior[]
   class                    Class[]
+  courses                  Course[]
 }
 
 model Student {
@@ -87,8 +88,8 @@ model Student {
 
   // Many-to-many relations
   parents Parent[] @relation("StudentParents")
-  courses Course[] @relation("StudentCourses")
-  Trip    Trip[]
+
+  Trip Trip[]
 
   // One to many relations
   Grade                   Grade[]
@@ -131,8 +132,6 @@ model Teacher {
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId Int  @unique
-
-  courses Course[] @relation("TeacherCourses")
 
   Grade           Grade[]
   LessonTimetable LessonTimetable[]
@@ -230,9 +229,8 @@ model Course {
   name String @db.VarChar(100)
   code String @unique @db.VarChar(50)
 
-  students Student[] @relation("StudentCourses")
-  teacher  Teacher[] @relation("TeacherCourses")
-  class    Class[]   @relation("ClassCourses")
+  user  User[]
+  class Class[] @relation("ClassCourses")
 
   Grade           Grade[]
   ReportDetail    ReportDetail[]

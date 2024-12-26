@@ -20,7 +20,6 @@ export const loginUser = async ({ username, password }) => {
     const user = await findUserByUsernameAndUpdateToken(username);
 
     if (!user) {
-      console.log('hello world');
       throw new CustomError(404, 'User not found');
     }
 

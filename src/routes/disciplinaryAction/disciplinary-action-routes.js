@@ -19,6 +19,15 @@ import {
   validateDisciplinaryActionUpdate,
 } from '../../validators/validationMiddleware/disciplinary-action-validation-middleware.js';
 
+import { cacheMiddleware } from '../../config/redis.js';
+
+// Cache key generator
+const disciplinaryActionCacheKey = (req) =>
+  `disciplinaryAction:${req.params.disciplinaryActionId}`;
+
+const allDisciplinaryActionOfStudentCacheKey = (req) =>
+  `allDisciplinaryActionsOfStudent:${req.params.studentId}`;
+
 // Route to create a disciplinary action for a student
 router.post(
   '/:studentId',
@@ -34,7 +43,11 @@ router.put(
 );
 
 // Route to get a disciplinary action by ID
-router.get('/:disciplinaryActionId', getDisciplinaryAction);
+router.get(
+  '/:disciplinaryActionId',
+  cacheMiddleware(disciplinaryActionCacheKey),
+  getDisciplinaryAction
+);
 
 // Route to delete a disciplinary action by ID
 router.delete('/:disciplinaryActionId', deleteDisciplinaryAction);
@@ -43,6 +56,7 @@ router.delete('/:disciplinaryActionId', deleteDisciplinaryAction);
 router.get(
   '/student/:studentId',
   authorizeRole(['STUDENT', 'ADMIN', 'TEACHER', 'STAFF']),
+  cacheMiddleware(allDisciplinaryActionOfStudentCacheKey),
   getStudentDisciplinaryActions
 );
 

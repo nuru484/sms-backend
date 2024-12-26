@@ -10,6 +10,7 @@ import {
 import { getUserById } from '../../repositories/users/general-user-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create health and safety details for a user.
@@ -29,6 +30,8 @@ export const createHealthAndSafetyDetails = async (
       userId,
       healthAndSafetyData
     );
+
+    client.del(`allHealthAndSafetyOfUser:${userId}`);
 
     return newHealthAndSafety;
   } catch (error) {
@@ -59,6 +62,12 @@ export const updateHealthAndSafetyDetails = async (
       healthAndSafetyData
     );
 
+    const userHealthAndSafetyCacheKey = `healthAndSafety:${healthAndSafetyId}`;
+    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${healthAndSafety.userId}`;
+
+    client.del(userHealthAndSafetyCacheKey);
+    client.del(userAllHealthAndSafetyCacheKey);
+
     return updatedHealthAndSafety;
   } catch (error) {
     handlePrismaError(error, 'health and safety details');
@@ -79,6 +88,9 @@ export const getHealthAndSafetyDetails = async (healthAndSafetyId) => {
         404
       );
     }
+
+    const userHealthAndSafetyCacheKey = `healthAndSafety:${healthAndSafetyId}`;
+    saveToCache(userHealthAndSafetyCacheKey, healthAndSafety);
 
     return healthAndSafety;
   } catch (error) {
@@ -103,6 +115,12 @@ export const deleteHealthAndSafetyDetails = async (healthAndSafetyId) => {
       );
     }
 
+    const userHealthAndSafetyCacheKey = `healthAndSafety:${healthAndSafetyId}`;
+    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${deletedHealthAndSafety.userId}`;
+
+    client.del(userHealthAndSafetyCacheKey);
+    client.del(userAllHealthAndSafetyCacheKey);
+
     return deletedHealthAndSafety;
   } catch (error) {
     handlePrismaError(error, 'health and safety details');
@@ -123,6 +141,9 @@ export const getUserAllHealthAndSafetyService = async (
         `There are no health and safety details for student ID ${studentId}.`
       );
     }
+
+    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${userId}`;
+    saveToCache(userAllHealthAndSafetyCacheKey, response);
 
     return response;
   } catch (error) {

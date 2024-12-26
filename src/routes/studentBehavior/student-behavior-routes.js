@@ -1,3 +1,5 @@
+// src/routes/studentBehavior/student-behavior-routes.js
+
 // Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
@@ -9,8 +11,14 @@ import {
   deleteStudentBehavior,
   getStudentBehaviors,
 } from '../../controllers/studentBehavior/index.js';
-
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
+import { cacheMiddleware } from '../../config/redis.js';
+
+const studentBehaviorCacheKey = {
+  getStudentBehavior: (req) => `studentBehavior:${req.params.behaviorId}`,
+  getStudentBehaviors: (req) =>
+    `studentBehaviors:student:${req.params.studentId}`,
+};
 
 import {
   validateStudentBehaviorDetails,
@@ -35,6 +43,7 @@ router.put(
 router.get(
   '/:behaviorId',
   authorizeRole(['STUDENT', 'ADMIN', 'TEACHER', 'STAFF']),
+  cacheMiddleware(studentBehaviorCacheKey.getStudentBehavior),
   getStudentBehavior
 );
 
@@ -45,6 +54,7 @@ router.delete('/:behaviorId', deleteStudentBehavior);
 router.get(
   '/student/:studentId',
   authorizeRole(['STUDENT', 'ADMIN', 'TEACHER', 'STAFF']),
+  cacheMiddleware(studentBehaviorCacheKey.getStudentBehaviors),
   getStudentBehaviors
 );
 

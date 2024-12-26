@@ -10,17 +10,6 @@ export const createFormerSchoolForStudent = async (
   studentId,
   formerSchoolData
 ) => {
-  const {
-    name,
-    address,
-    contactNumber,
-    email,
-    schoolType,
-    startDate,
-    endDate,
-    reasonForLeaving,
-  } = formerSchoolData;
-
   try {
     // Step 1: Check the student's admission status before proceeding
     const student = await getStudentById(parseInt(studentId));
@@ -37,25 +26,16 @@ export const createFormerSchoolForStudent = async (
     }
 
     // Step 2: Proceed to create the former school details
-    const formerSchool = await createFormerSchoolDetails({
-      name,
-      address,
-      contactNumber,
-      email,
-      schoolType,
-      startDate,
-      endDate,
-      reasonForLeaving,
-      studentId: parseInt(student.id), // Connect the former school to the student
-    });
+    const formerSchool = await createFormerSchoolDetails(
+      studentId,
+      formerSchoolData
+    );
 
     return formerSchool;
   } catch (error) {
     handlePrismaError(error);
   }
 };
-
-/// ##############################################################################################
 
 export const updateFormerSchoolForStudent = async (
   studentId,

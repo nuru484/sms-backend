@@ -89,6 +89,9 @@ export const createAttendanceDetails = async (
       recorderId
     );
 
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+    client.del(userAllAttendanceCacheKey); // Invalidate the cache
+
     return newAttendance;
   } catch (error) {
     handlePrismaError(error, 'attendance');
@@ -127,9 +130,8 @@ export const updateAttendanceDetails = async (
       recorderId
     );
 
-    const userId = attendance.userId; // Get the user ID from the attendance record
     const userAttendanceCacheKey = `attendance:${attendanceId}`;
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${attendance.userId}`;
 
     // Invalidate the cache
     await client.del(userAttendanceCacheKey);
@@ -179,9 +181,8 @@ export const deleteAttendanceDetails = async (attendanceId) => {
       );
     }
 
-    const userId = deletedAttendance.userId; // Get userId from the deleted attendance record.
     const userAttendanceCacheKey = `attendance:${attendanceId}`;
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${deletedAttendance.userId}`;
 
     // Invalidate the cache
     await client.del(userAttendanceCacheKey);

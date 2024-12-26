@@ -10,6 +10,7 @@ import {
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create an extracurricular activity for a student.
@@ -29,6 +30,9 @@ export const createExtracurricularActivityDetails = async (
       studentId,
       extracurricularActivityData
     );
+
+    const studentExtracurricularActivitiesCacheKey = `extracurricularActivitiesOfStudent:${studentId}`;
+    client.del(studentExtracurricularActivitiesCacheKey);
 
     return newExtracurricularActivity;
   } catch (error) {
@@ -60,6 +64,12 @@ export const updateExtracurricularActivityDetails = async (
       extracurricularActivityData
     );
 
+    const extracurricularActivityCacheKey = `extracurricularActivity:${extracurricularActivityId}`;
+    const studentExtracurricularActivitiesCacheKey = `extracurricularActivitiesOfStudent:${extracurricularActivity.studentId}`;
+
+    client.del(extracurricularActivityCacheKey);
+    client.del(studentExtracurricularActivitiesCacheKey);
+
     return updatedExtracurricularActivity;
   } catch (error) {
     handlePrismaError(error, 'extracurricular activity');
@@ -84,6 +94,9 @@ export const getExtracurricularActivityDetails = async (
       );
     }
 
+    const extracurricularActivityCacheKey = `extracurricularActivity:${extracurricularActivityId}`;
+    saveToCache(extracurricularActivityCacheKey, extracurricularActivity);
+
     return extracurricularActivity;
   } catch (error) {
     handlePrismaError(error, 'extracurricular activity');
@@ -107,6 +120,12 @@ export const deleteExtracurricularActivityDetails = async (
         `Extracurricular Activity with ID ${extracurricularActivityId} not found.`
       );
     }
+
+    const extracurricularActivityCacheKey = `extracurricularActivity:${extracurricularActivityId}`;
+    const studentExtracurricularActivitiesCacheKey = `extracurricularActivitiesOfStudent:${deletedExtracurricularActivity.studentId}`;
+
+    client.del(extracurricularActivityCacheKey);
+    client.del(studentExtracurricularActivitiesCacheKey);
 
     return deletedExtracurricularActivity;
   } catch (error) {
@@ -133,6 +152,9 @@ export const getAllStudentExtracurricularActivitiesService = async (
         `There are no extracurricular activities for student ID ${studentId}.`
       );
     }
+
+    const studentExtracurricularActivitiesCacheKey = `extracurricularActivitiesOfStudent:${studentId}`;
+    saveToCache(studentExtracurricularActivitiesCacheKey, response);
 
     return response;
   } catch (error) {

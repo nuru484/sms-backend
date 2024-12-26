@@ -10,6 +10,8 @@ import {
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { saveToCache, client } from '../../config/redis.js';
+import { cli } from 'winston/lib/winston/config/index.js';
 
 /**
  * Service function to create a student behavior record.
@@ -31,6 +33,9 @@ export const createStudentBehaviorDetails = async (
       reporterId,
       behaviorData
     );
+
+    const studentBehaviorsCacheKey = `studentBehaviors:student:${studentId}`;
+    client.del(studentBehaviorsCacheKey);
 
     return newStudentBehavior;
   } catch (error) {
@@ -60,6 +65,11 @@ export const updateStudentBehaviorDetails = async (
       behaviorData
     );
 
+    const studentBehaviorCacheKey = `studentBehavior:${behaviorId}`;
+    const studentBehaviorsCacheKey = `studentBehaviors:student:${studentBehavior.studentId}`;
+    client.del(studentBehaviorCacheKey);
+    client.del(studentBehaviorsCacheKey);
+
     return updatedStudentBehavior;
   } catch (error) {
     handlePrismaError(error, 'student behavior');
@@ -80,6 +90,9 @@ export const getStudentBehaviorDetails = async (behaviorId) => {
       );
     }
 
+    const studentBehaviorCacheKey = `studentBehavior:${behaviorId}`;
+    saveToCache(studentBehaviorCacheKey, studentBehavior);
+
     return studentBehavior;
   } catch (error) {
     handlePrismaError(error, 'student behavior');
@@ -99,6 +112,11 @@ export const deleteStudentBehaviorDetails = async (behaviorId) => {
         `Student Behavior with ID ${behaviorId} not found.`
       );
     }
+
+    const studentBehaviorCacheKey = `studentBehavior:${behaviorId}`;
+    const studentBehaviorsCacheKey = `studentBehaviors:student:${deletedStudentBehavior.studentId}`;
+    client.del(studentBehaviorCacheKey);
+    client.del(studentBehaviorsCacheKey);
 
     return deletedStudentBehavior;
   } catch (error) {
@@ -122,6 +140,9 @@ export const getAllStudentBehaviorsDetails = async (
         `There are no behavior records for student ID ${studentId}.`
       );
     }
+
+    const studentBehaviorsCacheKey = `studentBehaviors:student:${studentId}`;
+    saveToCache(studentBehaviorsCacheKey, response);
 
     return response;
   } catch (error) {

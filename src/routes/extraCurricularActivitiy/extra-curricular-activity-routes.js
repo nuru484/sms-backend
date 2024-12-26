@@ -17,6 +17,12 @@ import {
   validateExtracurricularActivityDetails,
   validateExtracurricularActivityUpdate,
 } from '../../validators/validationMiddleware/extra-curricular-activity-validation-middleware.js';
+import { cacheMiddleware } from '../../config/redis.js';
+
+const extracurricularActivityCacheKey = (req) =>
+  `extracurricularActivity:${req.params.extracurricularActivityId}`;
+const studentExtracurricularActivitiesCacheKey = (req) =>
+  `extracurricularActivitiesOfStudent:${req.params.studentId}`;
 
 // Route to create an extracurricular activity for a student
 router.post(
@@ -33,7 +39,11 @@ router.put(
 );
 
 // Route to get an extracurricular activity by ID
-router.get('/:extracurricularActivityId', getExtracurricularActivity);
+router.get(
+  '/:extracurricularActivityId',
+  cacheMiddleware(extracurricularActivityCacheKey),
+  getExtracurricularActivity
+);
 
 // Route to delete an extracurricular activity by ID
 router.delete('/:extracurricularActivityId', deleteExtracurricularActivity);
@@ -42,6 +52,7 @@ router.delete('/:extracurricularActivityId', deleteExtracurricularActivity);
 router.get(
   '/student/:studentId',
   authorizeRole(['STUDENT', 'ADMIN', 'TEACHER', 'STAFF']),
+  cacheMiddleware(studentExtracurricularActivitiesCacheKey),
   getStudentExtracurricularActivities
 );
 
