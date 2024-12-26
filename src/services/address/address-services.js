@@ -8,7 +8,6 @@ import {
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
-
 import { saveToCache, client } from '../../config/redis.js';
 
 const updateAddressDetails = async (addressId, payload) => {
@@ -36,9 +35,7 @@ const updateAddressDetails = async (addressId, payload) => {
     const cacheKey = `address:${addressId}`;
 
     // Invalidate the cache
-    client.del(cacheKey, (err) => {
-      if (err) console.error('Error invalidating cache:', err);
-    });
+    await client.del(cacheKey);
 
     logger.info(`Address updated successfully.`);
     return updatedAddress;
@@ -84,9 +81,7 @@ const deleteAddressDetails = async (addressId) => {
     const cacheKey = `address:${addressId}`;
 
     // Invalidate the cache
-    client.del(cacheKey, (err) => {
-      if (err) console.error('Error invalidating cache:', err);
-    });
+    await client.del(cacheKey);
 
     return deletedAddress;
   } catch (error) {

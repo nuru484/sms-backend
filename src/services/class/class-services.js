@@ -12,6 +12,7 @@ import logger from '../../utils/logger.js'; // Logger for logging operations
 import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create a single class.
@@ -101,7 +102,7 @@ export const createMultipleClasses = async (classes) => {
  * @returns {Promise<Object>} - Returns the updated class object.
  * @throws {CustomError} - Throws an error if the update fails.
  */
-export const updateClass = async (id, updateData) => {
+export const updateClass = async (classId, updateData) => {
   try {
     // Validate the levelId if provided
     if (updateData.levelId) {
@@ -116,11 +117,20 @@ export const updateClass = async (id, updateData) => {
         );
       }
     } else {
-      logger.warn(`No levelId provided for class: ${updateData.name || id}`);
+      logger.warn(
+        `No levelId provided for class: ${updateData.name || classId}`
+      );
     }
 
+    const classCacheKey = `class:${classId}`;
+    const allClassesCacheKey = `allClasses`;
+
+    // Invalidate the cache
+    await client.del(classCacheKey);
+    await client.del(allClassesCacheKey);
+
     // Perform the update
-    const updatedClass = await updateClassById(id, updateData);
+    const updatedClass = await updateClassById(classId, updateData);
 
     return updatedClass;
   } catch (error) {
@@ -135,14 +145,18 @@ export const updateClass = async (id, updateData) => {
  * @returns {Promise<Object>} - Returns the class object if found.
  * @throws {CustomError} - Throws an error if the class is not found.
  */
-export const getClassById = async (id) => {
+export const getClassById = async (classId) => {
   try {
     // Call the repository to fetch the class by ID
-    const classData = await fetchClassById(id);
+    const classData = await fetchClassById(classId);
 
     if (!classData) {
-      throw new CustomError(404, `Class with the ID of ${id} not found.`);
+      throw new CustomError(404, `Class with the ID of ${classId} not found.`);
     }
+
+    // Cache key generator
+    const classCacheKey = `class:${classId}`;
+    saveToCache(classCacheKey, classData); // Save to cache
 
     return classData;
   } catch (error) {
@@ -161,6 +175,11 @@ export const getClasses = async (options) => {
     if (!response || response.classes === 0) {
       throw new CustomError(404, 'There are no classes available currently');
     }
+
+    // Cache key generator
+    const classesCacheKey = `allClasses`;
+    saveToCache(classesCacheKey, response); // Save to cache
+
     return response;
   } catch (error) {
     handlePrismaError(error, 'class');
@@ -174,10 +193,17 @@ export const getClasses = async (options) => {
  * @returns {Promise<Object>} - Returns the deleted class object.
  * @throws {CustomError} - Throws an error if the class deletion fails.
  */
-export const removeClassById = async (id) => {
+export const removeClassById = async (classId) => {
   try {
     // Call the repository to delete the class by ID
-    const deletedClass = await deleteClassById(id);
+    const deletedClass = await deleteClassById(classId);
+
+    const classCacheKey = `class:${classId}`;
+    const allClassesCacheKey = `allClasses`;
+
+    // Invalidate the cache
+    await client.del(classCacheKey);
+    await client.del(allClassesCacheKey);
 
     return deletedClass;
   } catch (error) {
@@ -198,6 +224,10 @@ export const removeAllClasses = async () => {
     if (deletedCount === 0) {
       throw new CustomError(404, 'There are no classes to delete.');
     }
+
+    // Invalidate the cache
+    const allClassesCacheKey = `allClasses`;
+    await client.del(allClassesCacheKey);
 
     return deletedCount;
   } catch (error) {

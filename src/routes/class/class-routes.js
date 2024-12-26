@@ -20,6 +20,12 @@ import {
   validateClassUpdateDetails,
 } from '../../validators/validationMiddleware/class/class-validation-middleware.js';
 
+import { cacheMiddleware } from '../../config/redis.js';
+
+// Cache key generator
+const classCacheKey = (req) => `class:${req.params.id}`;
+const allClassesCacheKey = (req) => `allClasses`;
+
 // Define the POST route for class creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the class creation logic
 router.post(
@@ -38,12 +44,14 @@ router.put(
 // Get class by ID
 router.get(
   '/class/:id',
+  cacheMiddleware(classCacheKey),
   handleGetClassById // Controller to fetch a class by ID
 );
 
 // Get all classes with pagination and optional search
 router.get(
   '/',
+  cacheMiddleware(allClassesCacheKey),
   handleGetClasses // Controller to fetch all classes with pagination and search
 );
 

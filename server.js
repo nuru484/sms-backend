@@ -1,4 +1,3 @@
-// Import necessary modules and packages
 import express from 'express'; // Web framework for Node.js
 import { config } from 'dotenv'; // To load environment variables from a .env file
 config(); // Initialize dotenv configuration
@@ -9,6 +8,7 @@ import morgan from 'morgan';
 import routes from './src/routes/index.js';
 import { handleError } from './src/utils/middleware/errorHandler.js';
 import logger from './src/utils/logger.js';
+import { client } from './src/config/redis.js';
 
 const app = express(); // Initialize the Express app
 
@@ -40,7 +40,7 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware for parsing cookies from incoming requests
 app.use(cookieParser());
 
-// Morgan middeleware to log http request and it's details
+// Morgan middleware to log HTTP request and its details
 app.use(morgan(':method :url :status :response-time ms'));
 
 // Register routes for the app
@@ -51,6 +51,21 @@ app.use(handleError);
 
 // Define the port and start the server
 const port = process.env.PORT || 3000; // Use PORT from .env or default to 3000
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info(`App is listening on http://localhost:${port}`);
 });
+
+// Graceful shutdown
+const shutdown = (signal) => {
+  logger.info(`${signal} received: shutting down gracefully`);
+  server.close(() => {
+    logger.info('Server shut down gracefully');
+    client.quit(() => {
+      logger.info('Redis client disconnected');
+      process.exit(0);
+    });
+  });
+};
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

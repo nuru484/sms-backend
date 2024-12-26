@@ -4,7 +4,6 @@ const client = createClient();
 import logger from '../utils/logger.js';
 
 client.on('error', (err) => console.log('Redis Client Error', err));
-
 await client.connect();
 
 // Middleware for caching
@@ -14,7 +13,13 @@ const cacheMiddleware = (keyGenerator) => async (req, res, next) => {
     const data = await client.get(cacheKey);
     if (data) {
       logger.info('Cache hit');
-      return res.status(200).json(JSON.parse(data));
+
+      client.expire(cacheKey, 3600); // Extend TTL on access
+
+      return res.status(200).json({
+        message: `${cacheKey} successfully fetched from redis`,
+        data: JSON.parse(data),
+      });
     }
 
     logger.info('Cache miss');

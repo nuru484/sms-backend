@@ -12,6 +12,7 @@ import { getUserById } from '../../repositories/users/general-user-repository.js
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import prisma from '../../config/prismaClient.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 /**
  * Service function to create attendance for a user.
@@ -126,6 +127,14 @@ export const updateAttendanceDetails = async (
       recorderId
     );
 
+    const userId = attendance.userId; // Get the user ID from the attendance record
+    const userAttendanceCacheKey = `attendance:${attendanceId}`;
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+
+    // Invalidate the cache
+    await client.del(userAttendanceCacheKey);
+    await client.del(userAllAttendanceCacheKey);
+
     return updatedAttendance;
   } catch (error) {
     handlePrismaError(error, 'attendance');
@@ -145,6 +154,10 @@ export const getAttendanceDetails = async (attendanceId) => {
         `Attendance record with ID ${attendanceId} not found.`
       );
     }
+
+    // Cache key generator
+    const userAttendanceCacheKey = `attendance:${attendanceId}`;
+    saveToCache(userAttendanceCacheKey, attendance); // Save to cache
 
     return attendance;
   } catch (error) {
@@ -166,6 +179,14 @@ export const deleteAttendanceDetails = async (attendanceId) => {
       );
     }
 
+    const userId = deletedAttendance.userId; // Get userId from the deleted attendance record.
+    const userAttendanceCacheKey = `attendance:${attendanceId}`;
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+
+    // Invalidate the cache
+    await client.del(userAttendanceCacheKey);
+    await client.del(userAllAttendanceCacheKey);
+
     return deletedAttendance;
   } catch (error) {
     handlePrismaError(error, 'attendance');
@@ -185,6 +206,10 @@ export const getUserAllAttendanceService = async (userId, options = {}) => {
         `There are no attendance records for user ID ${userId}.`
       );
     }
+
+    // Cache key generator
+    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
+    saveToCache(userAllAttendanceCacheKey, response); // Save to cache
 
     return response;
   } catch (error) {

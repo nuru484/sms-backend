@@ -17,15 +17,30 @@ import {
   validateAttendanceUpdate,
 } from '../../validators/validationMiddleware/attendance-validation-middleware.js';
 
+import { cacheMiddleware } from '../../config/redis.js';
+
+// Cache key generator
+const userAttendanceCacheKey = (req) => `attendance:${req.params.attendanceId}`;
+const userAllAttendanceCacheKey = (req) =>
+  `allAttendanceOfUser:${req.params.userId}`;
+
 router.post('/:userId', validateAttendanceDetails, createUserAttendance);
 
 router.put('/:attendanceId', validateAttendanceUpdate, updateUserAttendance);
 
-router.get('/:attendanceId', getUserAttendance);
+router.get(
+  '/:attendanceId',
+  cacheMiddleware(userAttendanceCacheKey),
+  getUserAttendance
+);
 
 router.delete('/:attendanceId', deleteUserAttendance);
 
-router.get('/user/:userId', getUserAllAttendance);
+router.get(
+  '/user/:userId',
+  cacheMiddleware(userAllAttendanceCacheKey),
+  getUserAllAttendance
+);
 
 // Export the configured router to be used in the main application
 export default router;
