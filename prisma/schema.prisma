@@ -88,8 +88,7 @@ model Student {
 
   // Many-to-many relations
   parents Parent[] @relation("StudentParents")
-
-  Trip Trip[]
+  Trip    Trip[]
 
   // One to many relations
   Grade                   Grade[]

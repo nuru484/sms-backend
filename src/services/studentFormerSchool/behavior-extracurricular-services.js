@@ -1,15 +1,12 @@
 // src/services/studentFormerSchool/behavior-extracurricular-services.js
-
 import {
   createBehaviorAndExtracurricularDetails,
   updateBehaviorAndExtracurricularDetails,
 } from '../../repositories/studentFormerSchool/behavior-extracurricular-repository.js';
-
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
-
-// ################################################################################################
+import { client } from '../../config/redis.js';
 
 // Function to create behavior and extracurricular details for a student
 export const createBehaviorAndExtracurricularForStudent = async (
@@ -17,16 +14,9 @@ export const createBehaviorAndExtracurricularForStudent = async (
   formerSchoolId,
   behaviorAndExtracurricularData
 ) => {
-  const {
-    behaviorRecord,
-    disciplinaryActions,
-    extracurriculars,
-    achievements,
-  } = behaviorAndExtracurricularData;
-
   try {
     // Step 1: Check the student's admission status before proceeding
-    const student = await getStudentById(parseInt(studentId));
+    const student = await getStudentById(studentId);
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');
@@ -41,21 +31,19 @@ export const createBehaviorAndExtracurricularForStudent = async (
 
     // Step 2: Proceed to create the behavior and extracurricular details
     const behaviorAndExtracurricular =
-      await createBehaviorAndExtracurricularDetails({
-        behaviorRecord,
-        disciplinaryActions,
-        extracurriculars,
-        achievements,
-        formerSchoolId: parseInt(formerSchoolId), // Link behavior and extracurricular details to the former school
-      });
+      await createBehaviorAndExtracurricularDetails(
+        formerSchoolId,
+        behaviorAndExtracurricularData
+      );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return behaviorAndExtracurricular;
   } catch (error) {
     handlePrismaError(error, 'Former school');
   }
 };
-
-// ################################################################################################
 
 // Function to update behavior and extracurricular details for a student
 export const updateBehaviorAndExtracurricularForStudent = async (
@@ -84,6 +72,8 @@ export const updateBehaviorAndExtracurricularForStudent = async (
         parseInt(behaviorAndExtracurricularId),
         updateData
       );
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return updatedBehaviorAndExtracurricular;
   } catch (error) {

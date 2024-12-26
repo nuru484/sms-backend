@@ -3,6 +3,7 @@
 import {
   createFormerSchoolForStudent,
   updateFormerSchoolForStudent,
+  getStudentFormerSchoolDetailsService,
 } from '../../services/studentFormerSchool/former-school-services.js';
 
 export const createFormerSchool = async (req, res, next) => {
@@ -30,8 +31,6 @@ export const createFormerSchool = async (req, res, next) => {
   }
 };
 
-// ################################################################################################
-
 export const updateFormerSchool = async (req, res, next) => {
   try {
     // Extract update data from the request body
@@ -51,6 +50,24 @@ export const updateFormerSchool = async (req, res, next) => {
     return res.status(200).json({
       message: 'Former school details updated successfully',
       updatedFormerSchool,
+    });
+  } catch (error) {
+    // Pass the error to the next middleware for centralized error handling
+    next(error);
+  }
+};
+
+export const getFormerSchool = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+
+    // Call the service layer to handle the logic for fetching former school details
+    const formerSchool = await getStudentFormerSchoolDetailsService(studentId);
+
+    // Respond to the client with the former school details
+    return res.status(200).json({
+      message: 'Former school details successfully fetched.',
+      formerSchool,
     });
   } catch (error) {
     // Pass the error to the next middleware for centralized error handling

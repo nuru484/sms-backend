@@ -3,29 +3,16 @@
 // Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
-// ################################################################################################
-
 // Function to create behavior and extracurricular details
-export const createBehaviorAndExtracurricularDetails = async ({
-  behaviorRecord,
-  disciplinaryActions,
-  extracurriculars,
-  achievements,
-  formerSchoolId, // The ID of the former school to link the record
-}) => {
+export const createBehaviorAndExtracurricularDetails = async (
+  formerSchoolId,
+  behaviorAndExtracurricularData
+) => {
   try {
-    // Prepare the data to be stored
-    const behaviorAndExtracurricularData = {
-      behaviorRecord,
-      disciplinaryActions,
-      extracurriculars,
-      achievements,
-    };
-
     const behaviorAndExtracurricularDataToCreate = {
       ...behaviorAndExtracurricularData,
       formerSchool: {
-        connect: { id: formerSchoolId }, // Connect the record to the former school via its ID
+        connect: { id: parseInt(formerSchoolId, 10) }, // Connect the record to the former school via its ID
       },
     };
 
@@ -42,8 +29,6 @@ export const createBehaviorAndExtracurricularDetails = async ({
   }
 };
 
-// ################################################################################################
-
 // Function to update behavior and extracurricular details
 export const updateBehaviorAndExtracurricularDetails = async (
   id,
@@ -53,7 +38,7 @@ export const updateBehaviorAndExtracurricularDetails = async (
     // Perform the update operation in the database using Prisma
     const updatedBehaviorAndExtracurricularDetails =
       await prisma.behaviorAndExtracurricular.update({
-        where: { id },
+        where: { id: parseInt(id) },
         data: updateData,
       });
 

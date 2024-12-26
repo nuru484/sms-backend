@@ -1,5 +1,4 @@
 // src/services/studentFormerSchool/health-support-services.js
-
 import {
   createHealthAndSupportDetails,
   updateHealthAndSupportDetails,
@@ -7,8 +6,7 @@ import {
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
-
-// ################################################################################################
+import { client } from '../../config/redis.js';
 
 // Function to create health and support details for a student
 export const createHealthAndSupportForStudent = async (
@@ -16,8 +14,6 @@ export const createHealthAndSupportForStudent = async (
   formerSchoolId,
   healthAndSupportData
 ) => {
-  const { healthRecords, specialNeeds } = healthAndSupportData;
-
   try {
     // Step 1: Check the student's admission status before proceeding
     const student = await getStudentById(parseInt(studentId));
@@ -34,19 +30,19 @@ export const createHealthAndSupportForStudent = async (
     }
 
     // Step 2: Proceed to create the health and support details
-    const healthAndSupport = await createHealthAndSupportDetails({
-      healthRecords,
-      specialNeeds,
-      formerSchoolId: parseInt(formerSchoolId), // Link health and support to the former school
-    });
+    const healthAndSupport = await createHealthAndSupportDetails(
+      formerSchoolId,
+      healthAndSupportData
+    );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return healthAndSupport;
   } catch (error) {
     handlePrismaError(error, 'Former school');
   }
 };
-
-// ################################################################################################
 
 // Function to update health and support details for a student
 export const updateHealthAndSupportForStudent = async (
@@ -74,6 +70,9 @@ export const updateHealthAndSupportForStudent = async (
       parseInt(healthAndSupportId),
       updateData
     );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return updatedHealthAndSupport;
   } catch (error) {

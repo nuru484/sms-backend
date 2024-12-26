@@ -1,5 +1,4 @@
 // src/controllers/studentFormerSchool/administrative-details-controller.js
-
 import {
   createAdministrativeDetailsForStudent,
   updateAdministrativeDetailsForStudent,
@@ -18,14 +17,17 @@ export const createAdministrativeDetails = [
       const { studentId, formerSchoolId } = req.params;
       const filesData = req.files; // Get files uploaded in the request
 
-      const feesCleared = req.body.feesCleared === 'true'; // Extract other data from body and Converts 'true' to true and 'false' to false
+      const administrativeDetailsData = Object.assign({}, req.body);
+      administrativeDetailsData.feesCleared = !!JSON.parse(
+        req.body.feesCleared
+      );
 
       // Call the service to create the administrative details
       const administrativeDetails = await createAdministrativeDetailsForStudent(
         studentId,
         formerSchoolId,
         filesData,
-        feesCleared
+        administrativeDetailsData
       );
 
       // Respond to the client
@@ -49,12 +51,10 @@ export const updateAdministrativeDetails = [
   async (req, res, next) => {
     try {
       const { studentId, administrativeDetailsId } = req.params;
-      const feesCleared = req.body.feesCleared === 'true'; // Extract other data from body and Converts 'true' to true and 'false' to false
       const filesData = req.files; // Get files uploaded in the request
 
-      const updateData = {
-        feesCleared,
-      };
+      const updateData = Object.assign({}, req.body);
+      updateData.feesCleared = !!JSON.parse(req.body.feesCleared);
 
       // Call the service to update the administrative details
       const updatedAdministrativeDetails =

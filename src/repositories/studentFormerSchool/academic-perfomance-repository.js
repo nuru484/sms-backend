@@ -1,35 +1,16 @@
 // src/repositories/studentFormerSchool/academic-perfomance-repository.js
-
-// Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
-// ################################################################################################
-
 // Function to create academic performance details
-export const createAcademicPerformanceDetails = async ({
-  previousGrade,
-  promotionStatus,
-  courses,
-  grades,
-  classRanking,
-  specialPrograms,
-  formerSchoolId, // The ID of the former school to link the academic performance record to
-}) => {
+export const createAcademicPerformanceDetails = async (
+  formerSchoolId,
+  academicPerformanceData
+) => {
   try {
-    // Prepare the data to be stored
-    const academicPerformanceData = {
-      previousGrade,
-      promotionStatus,
-      courses,
-      grades,
-      classRanking,
-      specialPrograms,
-    };
-
     const academicPerformanceDataToCreate = {
       ...academicPerformanceData,
       formerSchool: {
-        connect: { id: formerSchoolId }, // Connect the academic performance record to the former school via its ID
+        connect: { id: parseInt(formerSchoolId) }, // Connect the academic performance record to the former school via its ID
       },
     };
 
@@ -45,15 +26,13 @@ export const createAcademicPerformanceDetails = async ({
   }
 };
 
-// ################################################################################################
-
 // Function to update academic performance details
 export const updateAcademicPerformanceDetails = async (id, updateData) => {
   try {
     // Perform the update operation in the database using Prisma
     const updatedAcademicPerformanceDetails =
       await prisma.academicPerformance.update({
-        where: { id },
+        where: { id: parseInt(id) },
         data: updateData,
       });
 

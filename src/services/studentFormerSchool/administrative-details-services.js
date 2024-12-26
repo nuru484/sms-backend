@@ -10,13 +10,14 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { uploadFileToCloudinary } from '../../config/claudinary.js';
 import { deleteFileFromCloudinary } from '../../config/claudinary.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { client } from '../../config/redis.js';
 
 // Function to create administrative details for a student
 export const createAdministrativeDetailsForStudent = async (
   studentId,
   formerSchoolId,
   filesData,
-  feesCleared
+  administrativeDetailsData
 ) => {
   try {
     const student = await getStudentById(studentId);
@@ -51,12 +52,19 @@ export const createAdministrativeDetailsForStudent = async (
       recommendationLetter &&
       (await uploadFileToCloudinary(recommendationLetter[0]));
 
-    const administrativeDetails = await createAdministrativeDetails({
-      transferCertificateUrl,
-      recommendationLetterUrl,
-      feesCleared,
+    administrativeDetailsData = {
+      ...administrativeDetailsData,
+      transferCertificate: transferCertificateUrl,
+      recommendationLetter: recommendationLetterUrl,
+    };
+
+    const administrativeDetails = await createAdministrativeDetails(
       formerSchoolId,
-    });
+      administrativeDetailsData
+    );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return administrativeDetails;
   } catch (error) {
@@ -127,6 +135,9 @@ export const updateAdministrativeDetailsForStudent = async (
       administrativeDetailsId,
       updateData
     );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return updatedAdministrativeDetails;
   } catch (error) {

@@ -3,19 +3,11 @@
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 // Function to create administrative details
-export const createAdministrativeDetails = async ({
-  transferCertificateUrl,
-  recommendationLetterUrl,
-  feesCleared,
+export const createAdministrativeDetails = async (
   formerSchoolId,
-}) => {
+  administrativeDetailsData
+) => {
   try {
-    const administrativeDetailsData = {
-      transferCertificate: transferCertificateUrl,
-      recommendationLetter: recommendationLetterUrl,
-      feesCleared,
-    };
-
     const administrativeDetailsDataToCreate = {
       ...administrativeDetailsData,
       formerSchool: {

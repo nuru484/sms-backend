@@ -1,10 +1,12 @@
 import {
   createFormerSchoolDetails,
   updateFormerSchoolDetails,
+  getStudentFormerSchoolDetails,
 } from '../../repositories/studentFormerSchool/former-school-repository.js';
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { saveToCache, client } from '../../config/redis.js';
 
 export const createFormerSchoolForStudent = async (
   studentId,
@@ -30,6 +32,9 @@ export const createFormerSchoolForStudent = async (
       studentId,
       formerSchoolData
     );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return formerSchool;
   } catch (error) {
@@ -63,7 +68,31 @@ export const updateFormerSchoolForStudent = async (
       updateData
     );
 
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
+
     return updatedFormerSchool;
+  } catch (error) {
+    handlePrismaError(error, 'Former School');
+  }
+};
+
+export const getStudentFormerSchoolDetailsService = async (studentId) => {
+  try {
+    // Step 1: Check if the student exists
+    const student = await getStudentById(parseInt(studentId));
+
+    if (!student) {
+      throw new CustomError(404, 'Student not found.');
+    }
+
+    // Step 2: Update the former school details
+    const formerSchoolDetails = await getStudentFormerSchoolDetails(studentId);
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    saveToCache(studentFormerDetailsCacheKey, formerSchoolDetails);
+
+    return formerSchoolDetails;
   } catch (error) {
     handlePrismaError(error, 'Former School');
   }

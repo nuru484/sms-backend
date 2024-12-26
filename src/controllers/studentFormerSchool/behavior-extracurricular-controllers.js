@@ -3,8 +3,6 @@ import {
   updateBehaviorAndExtracurricularForStudent,
 } from '../../services/studentFormerSchool/behavior-extracurricular-services.js';
 
-// ################################################################################################
-
 // Controller to handle the creation of behavior and extracurricular details for a student
 export const createBehaviorAndExtracurricular = async (req, res, next) => {
   try {
@@ -13,8 +11,6 @@ export const createBehaviorAndExtracurricular = async (req, res, next) => {
 
     // Extract required data from the request body
     const behaviorAndExtracurricularData = req.body;
-
-    behaviorAndExtracurricularData.formerSchoolId = formerSchoolId;
 
     // Call the service layer to handle the logic for creating behavior and extracurricular details
     const behaviorAndExtracurricular =
@@ -34,8 +30,6 @@ export const createBehaviorAndExtracurricular = async (req, res, next) => {
     next(error);
   }
 };
-
-// ################################################################################################
 
 // Controller to handle the update of behavior and extracurricular details for a student
 export const updateBehaviorAndExtracurricular = async (req, res, next) => {

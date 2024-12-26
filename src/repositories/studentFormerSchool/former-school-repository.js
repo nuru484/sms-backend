@@ -1,6 +1,4 @@
 // src/repositories/studentFormerSchool/former-school-repository.js
-
-// Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 export const createFormerSchoolDetails = async (
@@ -11,7 +9,7 @@ export const createFormerSchoolDetails = async (
     const formerSchoolDataToCreate = {
       ...formerSchoolData,
       student: {
-        connect: { id: studentId }, // Connect the former school to the student via the student ID
+        connect: { id: parseInt(studentId) }, // Connect the former school to the student via the student ID
       },
     };
 
@@ -31,7 +29,7 @@ export const updateFormerSchoolDetails = async (id, updateData) => {
   try {
     // Perform the update operation in the database using Prisma
     const updatedFormerSchoolDetails = await prisma.formerSchool.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: updateData,
     });
 

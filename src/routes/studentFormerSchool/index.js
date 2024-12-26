@@ -4,6 +4,10 @@
 import { Router } from 'express';
 const router = Router();
 
+import authLimiter from '../../utils/middleware/rateLimit.js';
+import authenticateJWT from '../../authentication/jwtAuthentication.js';
+import authorizeRole from '../../utils/middleware/authorizeRole.js';
+
 // Import the routes in this directory
 import formerSchoolDetailsRoutes from './former-school-routes.js';
 
@@ -16,15 +20,45 @@ import healthSupportRoutes from './health-support-routes.js';
 import administrativeDetailsRoutes from './administrative-details-routes.js';
 
 // Mount the routes under their paths
-router.use('/basic-details', formerSchoolDetailsRoutes);
+router.use(
+  '/basic-details',
+  authLimiter,
+  authenticateJWT,
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']),
+  formerSchoolDetailsRoutes
+);
 
-router.use('/academic-perfomance', academicPerfomanceRoutes);
+router.use(
+  '/academic-perfomance',
+  authLimiter,
+  authenticateJWT,
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']),
+  academicPerfomanceRoutes
+);
 
-router.use('/behavior-extracurricular', behaviourExtracuricullarRoutes);
+router.use(
+  '/behavior-extracurricular',
+  authLimiter,
+  authenticateJWT,
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']),
+  behaviourExtracuricullarRoutes
+);
 
-router.use('/health-support', healthSupportRoutes);
+router.use(
+  '/health-support',
+  authLimiter,
+  authenticateJWT,
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']),
+  healthSupportRoutes
+);
 
-router.use('/administrative-details', administrativeDetailsRoutes);
+router.use(
+  '/administrative-details',
+  authLimiter,
+  authenticateJWT,
+  authorizeRole(['ADMIN', 'STUDENT', 'PARENT']),
+  administrativeDetailsRoutes
+);
 
 // Export the configured router to be used in the main application
 export default router;

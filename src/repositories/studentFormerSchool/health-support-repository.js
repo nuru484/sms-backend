@@ -1,27 +1,16 @@
 // src/repositories/studentFormerSchool/health-support-repository.js
-
-// Importing necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
-// ################################################################################################
-
 // Function to create health and support details
-export const createHealthAndSupportDetails = async ({
-  healthRecords,
-  specialNeeds,
-  formerSchoolId, // The ID of the former school to link the health and support record to
-}) => {
+export const createHealthAndSupportDetails = async (
+  formerSchoolId,
+  healthAndSupportData
+) => {
   try {
-    // Prepare the data to be stored
-    const healthAndSupportData = {
-      healthRecords,
-      specialNeeds,
-    };
-
     const healthAndSupportDataToCreate = {
       ...healthAndSupportData,
       formerSchool: {
-        connect: { id: formerSchoolId }, // Connect the health and support record to the former school via its ID
+        connect: { id: parseInt(formerSchoolId) }, // Connect the health and support record to the former school via its ID
       },
     };
 
@@ -37,15 +26,13 @@ export const createHealthAndSupportDetails = async ({
   }
 };
 
-// ################################################################################################
-
 // Function to update health and support details
 export const updateHealthAndSupportDetails = async (id, updateData) => {
   try {
     // Perform the update operation in the database using Prisma
     const updatedHealthAndSupportDetails = await prisma.healthAndSupport.update(
       {
-        where: { id },
+        where: { id: parseInt(id) },
         data: updateData,
       }
     );

@@ -1,5 +1,4 @@
 // src/services/studentFormerSchool/academic-perfomance-services.js
-
 import {
   createAcademicPerformanceDetails,
   updateAcademicPerformanceDetails,
@@ -7,8 +6,7 @@ import {
 import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
-
-// ################################################################################################
+import { client } from '../../config/redis.js';
 
 // Function to create academic performance for a student
 export const createAcademicPerformanceForStudent = async (
@@ -16,18 +14,9 @@ export const createAcademicPerformanceForStudent = async (
   formerSchoolId,
   academicPerformanceData
 ) => {
-  const {
-    previousGrade,
-    promotionStatus,
-    courses,
-    grades,
-    classRanking,
-    specialPrograms,
-  } = academicPerformanceData;
-
   try {
     // Step 1: Check the student's admission status before proceeding
-    const student = await getStudentById(parseInt(studentId));
+    const student = await getStudentById(studentId);
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');
@@ -41,23 +30,19 @@ export const createAcademicPerformanceForStudent = async (
     }
 
     // Step 2: Proceed to create the academic performance details
-    const academicPerformance = await createAcademicPerformanceDetails({
-      previousGrade,
-      promotionStatus,
-      courses,
-      grades,
-      classRanking,
-      specialPrograms,
-      formerSchoolId: parseInt(formerSchoolId), // Link academic performance to the former school
-    });
+    const academicPerformance = await createAcademicPerformanceDetails(
+      formerSchoolId,
+      academicPerformanceData
+    );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return academicPerformance;
   } catch (error) {
     handlePrismaError(error, 'Former School');
   }
 };
-
-// ################################################################################################
 
 // Function to update academic performance for a student
 export const updateAcademicPerformanceForStudent = async (
@@ -67,7 +52,7 @@ export const updateAcademicPerformanceForStudent = async (
 ) => {
   try {
     // Step 1: Check if the student exists and their admission status
-    const student = await getStudentById(parseInt(studentId));
+    const student = await getStudentById(studentId);
 
     if (!student) {
       throw new CustomError(404, 'Student not found.');
@@ -82,9 +67,12 @@ export const updateAcademicPerformanceForStudent = async (
 
     // Step 2: Update the academic performance details
     const updatedAcademicPerformance = await updateAcademicPerformanceDetails(
-      parseInt(academicPerformanceId),
+      academicPerformanceId,
       updateData
     );
+
+    const studentFormerDetailsCacheKey = `formerSchoolDetails:student:${studentId}`;
+    client.del(studentFormerDetailsCacheKey); // Invalidate the cache
 
     return updatedAcademicPerformance;
   } catch (error) {

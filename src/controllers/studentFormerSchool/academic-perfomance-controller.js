@@ -1,11 +1,8 @@
 // src/controllers/studentFormerSchool/academic-perfomance-controller.js
-
 import {
   createAcademicPerformanceForStudent,
   updateAcademicPerformanceForStudent,
 } from '../../services/studentFormerSchool/academic-perfomance-services.js';
-
-// ################################################################################################
 
 // Controller to handle the creation of academic performance for a student
 export const createAcademicPerformance = async (req, res, next) => {
@@ -33,8 +30,6 @@ export const createAcademicPerformance = async (req, res, next) => {
     next(error);
   }
 };
-
-// ################################################################################################
 
 // Controller to handle the update of academic performance for a student
 export const updateAcademicPerformance = async (req, res, next) => {

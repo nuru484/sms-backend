@@ -3,6 +3,7 @@
 import {
   createFormerSchool,
   updateFormerSchool,
+  getFormerSchool,
 } from './former-school-controller.js';
 
 import {
@@ -25,6 +26,7 @@ import {
 export {
   createFormerSchool,
   updateFormerSchool,
+  getFormerSchool,
   createAcademicPerformance,
   updateAcademicPerformance,
   createBehaviorAndExtracurricular,
