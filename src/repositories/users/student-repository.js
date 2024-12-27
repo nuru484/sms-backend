@@ -1,6 +1,55 @@
 // src/repositories/student/student-repository.js
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
+export const getStudents = async (options = {}) => {
+  const { page = 1, limit = 10, search = '' } = options;
+
+  try {
+    const skip = (page - 1) * limit;
+
+    const where = search
+      ? {
+          OR: [
+            { user: { username: { contains: search, mode: 'insensitive' } } },
+            { user: { firstName: { contains: search, mode: 'insensitive' } } },
+            { user: { lastName: { contains: search, mode: 'insensitive' } } },
+            { user: { middleName: { contains: search, mode: 'insensitive' } } },
+            { user: { email: { contains: search, mode: 'insensitive' } } },
+            {
+              StudentApplicationNumber: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        }
+      : {};
+
+    const students = await prisma.student.findMany({
+      skip,
+      take: limit,
+      where,
+      include: {
+        user: true,
+      },
+    });
+
+    const totalStudents = await prisma.student.count({ where });
+
+    return {
+      students,
+      pagination: {
+        totalStudents,
+        page,
+        limit,
+        totalPages: Math.ceil(totalStudents / limit),
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getStudentById = async (studentId) => {
   try {
     const student = await prisma.student.findUnique({
@@ -17,6 +66,18 @@ export const getStudentById = async (studentId) => {
   }
 };
 
+export const deleteStudentById = async (studentId) => {
+  try {
+    const deletedStudent = await prisma.student.delete({
+      where: { id: parseInt(studentId) },
+    });
+
+    return deletedStudent;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const deleteAllStudents = async () => {
   try {
     const deletedCount = await prisma.student.deleteMany({});
@@ -24,24 +85,5 @@ export const deleteAllStudents = async () => {
     return { message: `${deletedCount.count} students deleted.` };
   } catch (error) {
     throw error;
-  }
-};
-
-export const getStudentParents = async (studentId) => {
-  try {
-    const student = await prisma.student.findUnique({
-      where: { id: parseInt(studentId) },
-      include: {
-        parents: {
-          include: {
-            user: true, // Include related 'user' details for each parent
-          },
-        },
-      },
-    });
-
-    return student?.parents; // Return the parents, or empty array if not found
-  } catch (error) {
-    throw error; // Re-throw error to be handled higher up
   }
 };

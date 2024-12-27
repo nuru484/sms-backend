@@ -50,10 +50,16 @@ model User {
   isRevoked      Boolean         @default(false) // Flag to indicate if access is revoked
   metadata       Json? // Additional details about the user
 
+  // Password reset mechanism
+  resetToken       String?   @unique // Store a unique reset token
+  resetTokenExpiry DateTime? // Expiry for the reset token
+
+  // Optional password history to prevent reuse
+  passwordHistory String[] // Array of previously hashed passwords
+
   // Relations to specific profiles
   student Student?
   teacher Teacher?
-  staff   OtherStaff?
   parent  Parent?
   address Address?
 
@@ -72,6 +78,7 @@ model User {
   StudentBehavior          StudentBehavior[]
   class                    Class[]
   courses                  Course[]
+  Vehicle                  Vehicle[]
 }
 
 model Student {
@@ -134,18 +141,6 @@ model Teacher {
 
   Grade           Grade[]
   LessonTimetable LessonTimetable[]
-}
-
-model OtherStaff {
-  id Int @id @default(autoincrement())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  userId   Int @unique
-  salaryId Int
-
-  Vehicle Vehicle[]
 }
 
 model Position {
@@ -673,8 +668,7 @@ model Vehicle {
   type         String @db.VarChar(50) // Type of vehicle (e.g., "Bus", "Van")
   capacity     Int // Capacity of the vehicle (number of passengers)
 
-  driver   OtherStaff? @relation(fields: [driverId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Staff model
-  driverId Int? // Foreign key to the staff member driving the vehicle
+  driver User[]
 
   routes Route[] // Relation to Route model for vehicle routes
 }

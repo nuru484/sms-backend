@@ -6,14 +6,14 @@ const router = Router();
 
 // Import the routes for student and admin registration
 import studentRoutes from './student-registration-route.js';
-import adminRoutes from './admin-registration-route.js';
+import userRoutes from './user-registration-route.js';
 import teacherRoutes from './teacher-registration-route.js';
 
 // Mount the student registration routes under the '/student' path
 router.use('/student', studentRoutes);
 
-// Mount the admin registration routes under the '/admin' path
-router.use('/admin', adminRoutes);
+// Mount the user registration routes under the '/' path
+router.use('/', userRoutes);
 
 // Teacher routes '/teacher' path
 router.use('/teacher', teacherRoutes);

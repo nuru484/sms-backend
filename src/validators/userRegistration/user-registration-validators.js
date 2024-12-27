@@ -1,19 +1,19 @@
 // src/validators/userRegistration/admin-registration-validators.js
 
-// Importing general validation functions from the general-validators.js module
 import {
   validateInput, // General input validation function for various fields
   validateUsernameInput,
   validateEmailInput, // Validation function for validating email format
   validatePassword, // Validation function for validating password
   validateConfirmPassword, // Validation function for confirming password match
+  validateDateInput,
 } from '../general-validators.js';
 
 // Importing the `role` enum from Prisma client to ensure role values are validated against predefined values
-import { role } from '@prisma/client';
+import { role, employmentType } from '@prisma/client';
 
-// Factory function to generate a set of validators specific to admin registration
-const createAdminValidators = () => ({
+// Factory function to generate a set of validators specific to user registration
+const createUserValidators = () => ({
   // Validator for first name with a max length of 100 characters
   validateFirstName: validateInput('firstName', { maxLength: 100 }),
 
@@ -40,14 +40,21 @@ const createAdminValidators = () => ({
   // Validator for phone number with a max length of 15 characters
   validatePhoneNumber: validateInput('phoneNumber', { maxLength: 15 }),
 
+  validateEmploymentType: validateInput('employmentType', { required: false })
+    .optional()
+    .isIn(Object.values(employmentType))
+    .withMessage('Invalid employment type.'),
+
+  validateDateOfBirth: validateDateInput('dateOfBirth', { required: false }),
+
   // Validators for password and its confirmation, ensuring correct format and matching values
   validatePassword,
   validateConfirmPassword,
 });
 
 // Generate all the admin-specific validators using the factory function
-const adminValidators = createAdminValidators();
+const userValidators = createUserValidators();
 
 // Grouping all individual validators into one array for ease of use in middleware
 // This array is later used in the admin registration route for validation
-export const adminRegistrationValidators = Object.values(adminValidators);
+export const userRegistrationValidators = Object.values(userValidators);

@@ -7,8 +7,8 @@ import {
   updateParentBasicAndPersonal,
 } from './student-registration-controller.js';
 
-// Import of the controller function responsible for handling admin registration logic.
-import { registerAdmin } from './admin-registration-controller.js';
+// Import of the controller function responsible for handling user registration logic.
+import { registerUser } from './general-user-registration-controller.js';
 
 // Import of  the controller function responsible for handling teacher registration logic.
 import { registerTeacher } from './teacher-registration-controller.js';
@@ -23,6 +23,6 @@ export {
   registerStudent,
   updateStudentBasicAndPersonal,
   updateParentBasicAndPersonal,
-  registerAdmin,
+  registerUser,
   registerTeacher,
 };
