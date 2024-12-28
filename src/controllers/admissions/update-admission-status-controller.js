@@ -9,17 +9,17 @@ export const updateAdmissionStatus = async (req, res, next) => {
     const { admissionStatus } = req.body;
 
     // Extract userId from the request parameters
-    const { userId } = req.params;
+    const { studentId } = req.params;
 
     // Call the service layer to handle the logic for updating the admission status
     const updatedStudent = await updateStudentAdmissionStatus(
-      userId,
+      studentId,
       admissionStatus
     );
 
     // Log the successful transaction
     logger.info(
-      `Admission status successfully updated for user with ID: ${userId}`
+      `Admission status successfully updated for student with ID: ${studentId}`
     );
 
     // Respond to the client with the updated student details
