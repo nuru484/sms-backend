@@ -1,4 +1,5 @@
 // src/controllers/validators/registration/student/studentRegistrationValidators.js
+import prisma from '../../config/prismaClient.js';
 import {
   validateInput, // General input validation function for various fields
   validatePassword, // Validation function for validating password
@@ -6,6 +7,7 @@ import {
   validateDateInput, // Validation function for validating date of birth
   validateUsernameInput,
 } from '../general-validators.js';
+import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 // Factory function to generate student-specific validators
 const createStudentValidators = () => ({
@@ -23,7 +25,34 @@ const createStudentValidators = () => ({
     required: true,
   }),
 
-  validateApplicationNumber: validateInput('studentApplicationNumber'),
+  validateApplicationNumber: validateInput('studentApplicationNumber').custom(
+    async (value) => {
+      const number = await prisma.studentApplicationNumber.findUnique({
+        where: { number: value },
+      });
+
+      if (!number) {
+        throw new CustomError(400, `Invalid student application number`);
+      }
+
+      if (!number.isSold) {
+        throw new CustomError(
+          404,
+          `Student application number ${value} not sold.`
+        );
+      }
+
+      if (number.isUsed) {
+        throw new CustomError(
+          409,
+          `Student application number ${value} has been used already.`
+        );
+      }
+
+      // If all checks pass, validation is successful
+      return true;
+    }
+  ),
 
   validateEthnicity: validateInput('ethnicity'),
   validateRole: validateInput('studentRole')

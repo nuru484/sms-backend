@@ -10,16 +10,18 @@ import bcrypt from 'bcrypt'; // Bcrypt for password hashing
  * @throws {CustomError} - Throws a custom error if there is a problem with user creation or database interaction.
  */
 export const createUserBasicDetails = async (userDetails) => {
+  const { confirmPassword, ...sanitizedDetails } = userDetails;
+
   // Hash the password if provided, using bcrypt for secure storage.
-  const hashedPassword = userDetails.password
-    ? await bcrypt.hash(userDetails.password, 10)
+  const hashedPassword = sanitizedDetails.password
+    ? await bcrypt.hash(sanitizedDetails.password, 10)
     : null;
 
-  userDetails.password = hashedPassword;
+  sanitizedDetails.password = hashedPassword;
 
   try {
     const user = await prisma.user.create({
-      data: userDetails,
+      data: sanitizedDetails,
     });
 
     return user;

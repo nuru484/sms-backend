@@ -23,6 +23,7 @@ import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import prisma from '../../config/prismaClient.js';
 import { checkUniquenessOnUpdate } from '../../utils/helpers/validation-helpers.js';
+import { client } from '../../config/redis.js';
 
 // Main function to process student registration
 export const processStudentRegistration = async (payload, profilePhotos) => {
@@ -77,10 +78,6 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
       },
     });
 
-    if (!applicationNuber) {
-      throw new CustomError(400, `Invalid student application number`);
-    }
-
     // Step 1: Create Student User Record
     const studentProfilePhotoUrl = await uploadFileToCloudinary(
       studentProfilePhoto[0]
@@ -106,6 +103,16 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
       applicationNuber.id,
       { ethnicity, admissionStatus }
     );
+
+    // Mark the application number as used
+    await prisma.studentApplicationNumber.update({
+      where: {
+        id: applicationNuber.id,
+      },
+      data: {
+        isUsed: true,
+      },
+    });
 
     logger.info(`Student personal details created successfully.`);
 
@@ -179,6 +186,15 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
 
     logger.info(`Student mother personal details created successfully.`);
 
+    // Invalidate cache
+    const studentsCacheKeyPattern = `students:*`;
+    await Promise.all([
+      // Replace wildcard deletion logic
+      client
+        .keys(studentsCacheKeyPattern)
+        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
+    ]);
+
     // Return success message after all steps are successfully completed
     return {
       message: 'Student registration successful.',
@@ -246,6 +262,17 @@ export const updateStudentBasicAndPersonalDetails = async (
       { ethnicity }
     );
     logger.info(`Student personal details updated successfully.`);
+
+    // Invalidate cache
+    const studentCacheKey = `student:${studentId}`;
+    const studentsCacheKeyPattern = `students:*`;
+    await Promise.all([
+      client.del(studentCacheKey),
+      // Replace wildcard deletion logic
+      client
+        .keys(studentsCacheKeyPattern)
+        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
+    ]);
 
     return updatedStudent;
   } catch (error) {
@@ -328,6 +355,19 @@ export const updateParentDetails = async (parentId, payload, profilePhoto) => {
     );
 
     logger.info(`Parent personal details updated successfully.`);
+
+    // Invalidate cache
+    const studentsCacheKeyPattern = `students:*`;
+    await Promise.all([
+      wardsIds.map((wardId) => {
+        const studentCacheKey = `student:${wardId}`;
+        return client.del(studentCacheKey);
+      }), // Replace wildcard deletion logic
+
+      client
+        .keys(studentsCacheKeyPattern)
+        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
+    ]);
 
     return updatedParent;
   } catch (error) {

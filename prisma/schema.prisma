@@ -94,7 +94,6 @@ model Student {
 
   // Many-to-many relations
   parents Parent[] @relation("StudentParents")
-  Trip    Trip[]
   level   Level[]
 
   // One to many relations
@@ -112,7 +111,8 @@ model Student {
 model StudentApplicationNumber {
   id     Int      @id @default(autoincrement())
   number String   @unique
-  taken  Boolean?
+  isUsed Boolean? @default(false)
+  isSold Boolean? @default(false)
 
   Student Student[]
 }
@@ -691,8 +691,7 @@ model Trip {
   status   String   @db.VarChar(50) // Status of the trip (e.g., "Completed", "In Progress")
 
   // Many-to-Many Relationship with Student
-  students Student[] // Students participating in this trip
-  user     User[]
+  user User[]
 
   // Relations
   routeId Int // Foreign key to the route of the trip

@@ -124,11 +124,19 @@ export const removeAllStudents = async () => {
   try {
     const result = await deleteAllStudents();
 
-    const studentsCacheKey = `students:*`; // Wildcard to clear all related caches
+    // Invalidate cache
+    const studentCacheKeyPattern = `student:*`;
+    const studentsCacheKeyPattern = `students:*`;
+    await Promise.all([
+      client
+        .keys(studentCacheKeyPattern)
+        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
 
-    // Invalidate the cache
-    await client.del(studentsCacheKey);
-
+      // Replace wildcard deletion logic
+      client
+        .keys(studentsCacheKeyPattern)
+        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
+    ]);
     return result;
   } catch (error) {
     handlePrismaError(error, 'student');

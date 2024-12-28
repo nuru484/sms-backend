@@ -15,7 +15,7 @@ export const checkUniqueness = async (modelName, fieldName, value) => {
 
   return new Promise((resolve, reject) => {
     if (existingRecord) {
-      reject(new CustomError(400, `${fieldName} is already in use.`));
+      reject(new CustomError(409, `${fieldName} is already in use.`));
     } else {
       resolve();
     }
@@ -42,7 +42,7 @@ export const checkUniquenessOnUpdate = async (
 
   return new Promise((resolve, reject) => {
     if (existingRecord && existingRecord.id !== currentId) {
-      reject(new CustomError(400, `${fieldName} is already in use.`));
+      reject(new CustomError(409, `${fieldName} is already in use.`));
     } else {
       resolve();
     }

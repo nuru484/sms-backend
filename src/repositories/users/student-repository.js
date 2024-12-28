@@ -15,12 +15,6 @@ export const getStudents = async (options = {}) => {
             { user: { lastName: { contains: search, mode: 'insensitive' } } },
             { user: { middleName: { contains: search, mode: 'insensitive' } } },
             { user: { email: { contains: search, mode: 'insensitive' } } },
-            {
-              StudentApplicationNumber: {
-                contains: search,
-                mode: 'insensitive',
-              },
-            },
           ],
         }
       : {};

@@ -11,12 +11,12 @@ import {
  */
 export const handleGetAllStudents = async (req, res, next) => {
   try {
-    const { page, limit, searchQuery } = req.query;
+    const { page, limit, search } = req.query;
 
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      search: searchQuery ? searchQuery : null,
+      search: search ? search : undefined,
     };
 
     const result = await getAllStudents(options);
