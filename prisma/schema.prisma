@@ -88,7 +88,6 @@ model Student {
 
   // One to many elations
   user                       User                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  level                      Level[]
   StudentApplicationNumber   StudentApplicationNumber @relation(fields: [studentApplicationNumberId], references: [id])
   userId                     Int                      @unique
   studentApplicationNumberId Int                      @unique
@@ -96,6 +95,7 @@ model Student {
   // Many-to-many relations
   parents Parent[] @relation("StudentParents")
   Trip    Trip[]
+  level   Level[]
 
   // One to many relations
   Grade                   Grade[]
@@ -316,9 +316,9 @@ model Grade {
 
   // Relations
   student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   teacher Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  Exam    Exam     @relation(fields: [examId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  Exam    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   // Foreign keys for relations
   studentId Int
@@ -340,8 +340,8 @@ model ReportDetail {
   // Relations
   term    Term    @relation(fields: [termId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  grade   Grade   @relation(fields: [gradeId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  grade   Grade   @relation(fields: [gradeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   termId    Int
   courseId  Int
@@ -692,11 +692,11 @@ model Trip {
 
   // Many-to-Many Relationship with Student
   students Student[] // Students participating in this trip
+  user     User[]
 
-  route   Route @relation(fields: [routeId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Route model
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to User model tracking the trip
+  // Relations
   routeId Int // Foreign key to the route of the trip
-  userId  Int // Foreign key to the user tracking the trip
+  route   Route @relation(fields: [routeId], references: [id], onDelete: SetDefault, onUpdate: Cascade) // Relation to Route model
 }
 
 model FormerSchool {

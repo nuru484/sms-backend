@@ -1,5 +1,6 @@
 // src/repositories/healthAndSafety/user-health-safety-repository.js
 
+import e from 'express';
 import prisma from '../../config/prismaClient.js';
 
 // Create User Health and Safety
@@ -60,6 +61,18 @@ export const deleteUserHealthAndSafety = async (healthAndSafetyId) => {
     });
 
     return deletedHealthAndSafety;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteAllUserHealthAndSafety = async (userId) => {
+  try {
+    const response = await prisma.healthAndSafety.deleteMany({
+      where: { userId: parseInt(userId) },
+    });
+
+    return response;
   } catch (error) {
     throw error;
   }

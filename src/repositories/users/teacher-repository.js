@@ -1,3 +1,4 @@
+// src/repositories/users/teacher-repository.js
 import prisma from '../../config/prismaClient.js';
 
 export const getTeachers = async (options = {}) => {

@@ -13,7 +13,6 @@ import prisma from '../../config/prismaClient.js'; // Assuming you're using Pris
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
-import { cli } from 'winston/lib/winston/config/index.js';
 
 /**
  * Service function to create a single class.

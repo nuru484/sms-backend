@@ -1,4 +1,4 @@
-// src/repositories/student/student-repository.js
+// src/repositories/users/student-repository.js
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 export const getStudents = async (options = {}) => {
@@ -56,23 +56,10 @@ export const getStudentById = async (studentId) => {
       where: { id: parseInt(studentId) },
       include: {
         user: true,
-        StudentApplicationNumber: true,
       },
     });
 
     return student;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const deleteStudentById = async (studentId) => {
-  try {
-    const deletedStudent = await prisma.student.delete({
-      where: { id: parseInt(studentId) },
-    });
-
-    return deletedStudent;
   } catch (error) {
     throw error;
   }

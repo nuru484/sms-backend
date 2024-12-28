@@ -7,7 +7,7 @@ export const fetchUsers = async (options = {}) => {
     limit = 10,
     fetchAll = false,
     search = '',
-    role = null, // Additional role parameter
+    role = null,
   } = options;
 
   try {

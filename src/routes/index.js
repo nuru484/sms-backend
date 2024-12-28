@@ -21,6 +21,7 @@ import disciplinaryActionRouter from './disciplinaryAction/index.js';
 import studentBehaviorRouter from './studentBehavior/index.js';
 import extraCurricularActivityRouter from './extraCurricularActivitiy/index.js';
 import attendanceRouter from './attendance/index.js';
+import usersRouter from './users/index.js';
 
 // Mounting the all the routes under the `/api/v1` prefix
 
@@ -51,6 +52,8 @@ routes.use('/student-behavior', studentBehaviorRouter);
 routes.use('/extra-curricular-activity', extraCurricularActivityRouter);
 
 routes.use('/attendance', attendanceRouter);
+
+routes.use('/users', usersRouter);
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server
