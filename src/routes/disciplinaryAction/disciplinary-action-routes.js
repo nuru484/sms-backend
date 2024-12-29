@@ -1,6 +1,4 @@
 // src/routes/disciplinaryAction/disciplinary-action-routes.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
 
@@ -11,22 +9,26 @@ import {
   deleteDisciplinaryAction,
   getStudentDisciplinaryActions,
 } from '../../controllers/disciplinaryAction/index.js';
-
-import authorizeRole from '../../utils/middleware/authorizeRole.js';
-
 import {
   validateDisciplinaryActionDetails,
   validateDisciplinaryActionUpdate,
 } from '../../validators/validationMiddleware/disciplinary-action-validation-middleware.js';
-
+import authorizeRole from '../../utils/middleware/authorizeRole.js';
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
+
+// Cache key generator
 
 // Cache key generator
 const disciplinaryActionCacheKey = (req) =>
   `disciplinaryAction:${req.params.disciplinaryActionId}`;
 
-const allDisciplinaryActionOfStudentCacheKey = (req) =>
-  `allDisciplinaryActionsOfStudent:${req.params.studentId}`;
+const studentDisciplinaryActionsCacheKey = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `disciplinaryActions:student:${req.params.studentId}${JSON.stringify(
+    normalizedQuery
+  )}`;
+};
 
 // Route to create a disciplinary action for a student
 router.post(
@@ -56,7 +58,7 @@ router.delete('/:disciplinaryActionId', deleteDisciplinaryAction);
 router.get(
   '/student/:studentId',
   authorizeRole(['STUDENT', 'ADMIN', 'TEACHER', 'STAFF']),
-  cacheMiddleware(allDisciplinaryActionOfStudentCacheKey),
+  cacheMiddleware(studentDisciplinaryActionsCacheKey),
   getStudentDisciplinaryActions
 );
 

@@ -101,8 +101,8 @@ export const getStudentDisciplinaryActions = async (req, res, next) => {
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      fetchAll: fetchAll === 'true',
-      searchQuery: searchQuery ? searchQuery : null,
+      fetchAll: fetchAll ? fetchAll === 'true' : undefined,
+      searchQuery: searchQuery ? searchQuery : undefined,
     };
 
     const response = await getStudentDisciplinaryActionsService(

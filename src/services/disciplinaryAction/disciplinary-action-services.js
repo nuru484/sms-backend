@@ -11,6 +11,7 @@ import { getStudentById } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to create a disciplinary action for a student.
@@ -31,8 +32,8 @@ export const createDisciplinaryActionDetails = async (
       disciplinaryActionData
     );
 
-    const allDisciplinaryActionOfStudentCacheKey = `allDisciplinaryActionsOfStudent:${studentId}`;
-    client.del(allDisciplinaryActionOfStudentCacheKey); // Invalidate the cache
+    const patterns = [`disciplinaryActions:student:${studentId}{*}`];
+    await invalidateCache(client, patterns);
 
     return newDisciplinaryAction;
   } catch (error) {
@@ -64,13 +65,12 @@ export const updateDisciplinaryActionDetails = async (
       disciplinaryActionData
     );
 
-    const studentId = disciplinaryAction.studentId; // Get the student ID from the disciplinary action record
-    const disciplinaryActionCacheKey = `disciplinaryAction:${disciplinaryActionId}`;
-    const allStudentDisciplinaryActionCacheKey = `allDisciplinaryActionsOfStudent:${studentId}`;
-
-    // Invalidate the cache
-    await client.del(disciplinaryActionCacheKey);
-    await client.del(allStudentDisciplinaryActionCacheKey);
+    // Invalidate cache
+    const patterns = [
+      `disciplinaryAction:${disciplinaryActionId}`,
+      `disciplinaryActions:student:${studentId}{*}`,
+    ];
+    await invalidateCache(client, patterns);
 
     return updatedDisciplinaryAction;
   } catch (error) {
@@ -120,11 +120,13 @@ export const deleteDisciplinaryActionDetails = async (disciplinaryActionId) => {
     }
 
     const studentId = deletedDisciplinaryAction.studentId; // Get the student ID from the deleted disciplinary action record
-    const disciplinaryActionCacheKey = `disciplinaryAction:${disciplinaryActionId}`;
-    const allStudentDisciplinaryActionCacheKey = `allDisciplinaryActionsOfStudent:${studentId}`;
 
-    client.del(disciplinaryActionCacheKey); // Invalidate the cache
-    client.del(allStudentDisciplinaryActionCacheKey); // Invalidate the cache
+    // Invalidate cache
+    const patterns = [
+      `disciplinaryAction:${disciplinaryActionId}`,
+      `disciplinaryActions:student:${studentId}{*}`,
+    ];
+    await invalidateCache(client, patterns);
 
     return deletedDisciplinaryAction;
   } catch (error) {
@@ -147,8 +149,10 @@ export const getStudentDisciplinaryActionsService = async (
       );
     }
 
-    const allDisciplinaryActionOfStudentCacheKey = `allDisciplinaryActionsOfStudent:${studentId}`;
-    saveToCache(allDisciplinaryActionOfStudentCacheKey, response); // Save to cache
+    const studentDisciplinaryActionsCacheKey = `disciplinaryActions:student:${studentId}${JSON.stringify(
+      options
+    )}`;
+    saveToCache(studentDisciplinaryActionsCacheKey, response); // Save to cache
 
     return response;
   } catch (error) {

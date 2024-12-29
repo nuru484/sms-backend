@@ -11,7 +11,7 @@ export const createDisciplinaryAction = async (
       data: {
         ...disciplinaryActionData,
         student: {
-          connect: { id: parseInt(studentId) },
+          connect: { id: parseInt(studentId, 10) },
         },
       },
     });
@@ -29,7 +29,7 @@ export const updateDisciplinaryAction = async (
 ) => {
   try {
     const updatedDisciplinaryAction = await prisma.disciplinaryAction.update({
-      where: { id: parseInt(disciplinaryActionId) },
+      where: { id: parseInt(disciplinaryActionId, 10) },
       data: disciplinaryActionData,
     });
 
@@ -43,7 +43,7 @@ export const updateDisciplinaryAction = async (
 export const getDisciplinaryAction = async (disciplinaryActionId) => {
   try {
     const disciplinaryAction = await prisma.disciplinaryAction.findUnique({
-      where: { id: parseInt(disciplinaryActionId) },
+      where: { id: parseInt(disciplinaryActionId, 10) },
     });
 
     return disciplinaryAction;
@@ -56,7 +56,7 @@ export const getDisciplinaryAction = async (disciplinaryActionId) => {
 export const deleteDisciplinaryAction = async (disciplinaryActionId) => {
   try {
     const deletedDisciplinaryAction = await prisma.disciplinaryAction.delete({
-      where: { id: parseInt(disciplinaryActionId) },
+      where: { id: parseInt(disciplinaryActionId, 10) },
     });
 
     return deletedDisciplinaryAction;
