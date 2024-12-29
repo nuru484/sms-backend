@@ -3,7 +3,6 @@
 import {
   getStudents,
   getStudentById,
-  deleteAllStudents,
 } from '../../repositories/users/student-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
@@ -65,7 +64,6 @@ export const getStudentByIdService = async (studentId) => {
  * @returns {Promise<Object>} - Returns the deleted student object.
  * @throws {CustomError} - Throws an error if the deletion fails.
  */
-
 export const removeStudentById = async (studentId) => {
   try {
     const student = await getStudentById(studentId);
@@ -113,15 +111,50 @@ export const removeStudentById = async (studentId) => {
  * @returns {Promise<Object>} - Returns an object with a message about the deletion count.
  * @throws {CustomError} - Throws an error if the deletion fails.
  */
+
 export const removeAllStudents = async () => {
   try {
-    const result = await deleteAllStudents();
+    // Retrieve all students and their related parents
+    const students = await prisma.student.findMany({
+      include: {
+        user: true, // Include user details for deletion
+        parents: {
+          include: {
+            user: true, // Include user details of parents
+          },
+        },
+      },
+    });
+
+    // Collect all user IDs for students and their parents
+    const userIds = [];
+    students.forEach((student) => {
+      if (student.user?.id) {
+        userIds.push(student.user.id);
+      }
+
+      student.parents.forEach((parent) => {
+        if (parent.user?.id) {
+          userIds.push(parent.user.id);
+        }
+      });
+    });
+
+    // Perform the deletions in a transaction
+    const response = await prisma.$transaction([
+      // Delete all users related to students and parents
+      prisma.user.deleteMany({
+        where: { id: { in: userIds } },
+      }),
+    ]);
 
     // Invalidate cache
-    const patterns = [`student:*`, 'students:{*}'];
+    const patterns = [`student:*`, `students:{*}`];
     await invalidateCache(client, patterns);
 
-    return result;
+    return {
+      message: `Deleted ${students.length} students and their corresponding parents.`,
+    };
   } catch (error) {
     handlePrismaError(error, 'student');
   }
