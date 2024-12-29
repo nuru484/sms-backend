@@ -1,6 +1,4 @@
 // src/routes/course/course-route.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
 
@@ -12,18 +10,19 @@ import {
   handleDeleteCourseById,
   handleDeleteAllCourses,
 } from '../../controllers/course/index.js';
-
-// Import validation middleware for course creation
 import {
   validateCourseDetails,
   validateCourseUpdateDetails,
 } from '../../validators/validationMiddleware/course/course-validation-middleware.js';
-
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
 
 // Cache key generator
-const courseCacheKey = (req) => `course:${req.params.id}`;
-const allCoursesCacheKey = () => `allCourses`;
+const courseCacheKey = (req) => `course:${req.params.courseId}`;
+const coursesCacheKey = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `courses:${JSON.stringify(normalizedQuery)}`;
+};
 
 // Define the POST route for course creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the course creation logic
@@ -34,19 +33,23 @@ router.post(
 );
 
 router.put(
-  '/course/:id',
+  '/course/:courseId',
   validateCourseUpdateDetails,
   handleCourseUpdate // Controller to handle the course update logic
 );
 
 // Get course by ID
-router.get('/course/:id', cacheMiddleware(courseCacheKey), handleGetCourseById);
+router.get(
+  '/course/:courseId',
+  cacheMiddleware(courseCacheKey),
+  handleGetCourseById
+);
 
 // Get all courses
-router.get('/', cacheMiddleware(allCoursesCacheKey), handleGetCourses);
+router.get('/', cacheMiddleware(coursesCacheKey), handleGetCourses);
 
 // Delete course by ID
-router.delete('/course/:id', handleDeleteCourseById);
+router.delete('/course/:courseId', handleDeleteCourseById);
 
 // Delete all courses
 router.delete('/', handleDeleteAllCourses);

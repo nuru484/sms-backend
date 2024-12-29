@@ -1,10 +1,7 @@
 // src/routes/class/class-routes.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
 
-// Import the controller for class operations
 import {
   handleClassCreation,
   handleClassUpdate,
@@ -13,18 +10,19 @@ import {
   handleDeleteClassById,
   handleDeleteAllClasses,
 } from '../../controllers/class/index.js';
-
-// Import validation middleware for class creation
 import {
   validateClassDetails,
   validateClassUpdateDetails,
 } from '../../validators/validationMiddleware/class/class-validation-middleware.js';
-
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
 
 // Cache key generator
 const classCacheKey = (req) => `class:${req.params.id}`;
-const allClassesCacheKey = (req) => `allClasses`;
+const classesCacheKey = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `classes:${JSON.stringify(normalizedQuery)}`;
+};
 
 // Define the POST route for class creation at the '/create' endpoint
 // The route applies validation middleware and invokes the controller to handle the class creation logic
@@ -51,7 +49,7 @@ router.get(
 // Get all classes with pagination and optional search
 router.get(
   '/',
-  cacheMiddleware(allClassesCacheKey),
+  cacheMiddleware(classesCacheKey),
   handleGetClasses // Controller to fetch all classes with pagination and search
 );
 

@@ -25,16 +25,16 @@ export const createCourse = async ({ name, code }) => {
 /**
  * Repository function to update a course by its ID in the database.
  *
- * @param {number} id - The ID of the course to be updated.
+ * @param {number} courseId - The ID of the course to be updated.
  * @param {Object} updateData - The data to update (e.g., { name: 'New Name', code: 'NEW123' }).
  * @returns {Promise<Object>} - Returns the updated course object if successful.
  * @throws {CustomError} - Throws a custom error if the course is not found or if there is a database error.
  */
-export const updateCourseById = async (id, updateData) => {
+export const updateCourseById = async (courseId, updateData) => {
   try {
     // Attempt to update the course in the database
     const updatedCourse = await prisma.course.update({
-      where: { id },
+      where: { id: parseInt(courseId, 10) },
       data: updateData,
     });
 
@@ -47,15 +47,15 @@ export const updateCourseById = async (id, updateData) => {
 /**
  * Repository function to fetch a single course by its ID.
  *
- * @param {number} id - The ID of the course to fetch.
+ * @param {number} courseId - The ID of the course to fetch.
  * @returns {Promise<Object>} - Returns the course object if found.
  * @throws {CustomError} - Throws a custom error if the course is not found or there's a database error.
  */
-export const fetchCourseById = async (id) => {
+export const fetchCourseById = async (courseId) => {
   try {
     // Fetch the course by ID
     const course = await prisma.course.findUnique({
-      where: { id },
+      where: { id: parseInt(courseId, 10) },
     });
 
     return course;
@@ -72,24 +72,24 @@ export const fetchCourseById = async (id) => {
  * @returns {Promise<Object>} - Returns an object containing the courses and pagination info.
  */
 export const fetchCourses = async (options = {}) => {
-  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
     const skip = (page - 1) * limit;
 
     // Prepare search filters
     const searchFilters = {
-      ...(search && {
+      ...(searchQuery && {
         OR: [
           {
             name: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             code: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
@@ -145,10 +145,10 @@ export const fetchCourses = async (options = {}) => {
  * @param {number} id - The ID of the course to delete.
  * @returns {Promise<Object>} - Returns the deleted course object.
  */
-export const deleteCourseById = async (id) => {
+export const deleteCourseById = async (courseId) => {
   try {
     const course = await prisma.course.delete({
-      where: { id },
+      where: { id: parseInt(courseId, 10) },
     });
 
     return course;

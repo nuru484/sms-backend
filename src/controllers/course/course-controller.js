@@ -68,12 +68,12 @@ export const handleCourseCreation = async (req, res, next) => {
  * or forwards the error to centralized error handling middleware.
  */
 export const handleCourseUpdate = async (req, res, next) => {
-  const { id } = req.params; // Extract course ID from request parameters
+  const { courseId } = req.params; // Extract course ID from request parameters
   const updateData = req.body; // Extract course update data from request body
 
   try {
     // Call the service to update the course
-    const updatedCourse = await updateCourse(Number(id), updateData);
+    const updatedCourse = await updateCourse(courseId, updateData);
 
     // Respond with success
     res.status(200).json({
@@ -90,10 +90,10 @@ export const handleCourseUpdate = async (req, res, next) => {
  * Controller to fetch a single course by ID.
  */
 export const handleGetCourseById = async (req, res, next) => {
-  const { id } = req.params;
+  const { courseId } = req.params;
 
   try {
-    const course = await getCourseById(Number(id));
+    const course = await getCourseById(courseId);
 
     res
       .status(200)
@@ -113,8 +113,8 @@ export const handleGetCourses = async (req, res, next) => {
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      fetchAll: fetchAll === 'true',
-      searchQuery: searchQuery ? searchQuery : null,
+      fetchAll: fetchAll ? fetchAll === 'true' : undefined,
+      searchQuery: searchQuery ? searchQuery : undefined,
     };
 
     const result = await getCourses(options);
@@ -130,10 +130,10 @@ export const handleGetCourses = async (req, res, next) => {
  * Controller to delete a single course by ID.
  */
 export const handleDeleteCourseById = async (req, res, next) => {
-  const { id } = req.params;
+  const { courseId } = req.params;
 
   try {
-    const deletedCourse = await removeCourseById(Number(id));
+    const deletedCourse = await removeCourseById(courseId);
     res
       .status(200)
       .json({ message: 'Course deleted successfully', data: deletedCourse });

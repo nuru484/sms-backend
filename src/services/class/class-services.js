@@ -12,6 +12,7 @@ import prisma from '../../config/prismaClient.js'; // Assuming you're using Pris
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to create a single class.
@@ -48,8 +49,8 @@ export const createSingleClass = async (classData) => {
       levelId,
     });
 
-    const allClassesCacheKey = `allClasses`;
-    client.del(allClassesCacheKey); // Invalidate the cache
+    const patterns = ['classes:{*}'];
+    await invalidateCache(client, patterns);
 
     return newClass;
   } catch (error) {
@@ -90,8 +91,8 @@ export const createMultipleClasses = async (classes) => {
     const classPromises = classes.map((classData) => createClass(classData));
     const createdClasses = await Promise.all(classPromises);
 
-    const allClassesCacheKey = `allClasses`;
-    client.del(allClassesCacheKey); // Invalidate the cache
+    const patterns = ['classes:{*}'];
+    await invalidateCache(client, patterns);
 
     return createdClasses;
   } catch (error) {
@@ -127,12 +128,8 @@ export const updateClass = async (classId, updateData) => {
       );
     }
 
-    const classCacheKey = `class:${classId}`;
-    const allClassesCacheKey = `allClasses`;
-
-    // Invalidate the cache
-    await client.del(classCacheKey);
-    await client.del(allClassesCacheKey);
+    const patterns = [`class:${classId}`, 'classes:{*}'];
+    await invalidateCache(client, patterns);
 
     // Perform the update
     const updatedClass = await updateClassById(classId, updateData);
@@ -182,8 +179,8 @@ export const getClasses = async (options) => {
     }
 
     // Cache key generator
-    const classesCacheKey = `allClasses`;
-    saveToCache(classesCacheKey, response); // Save to cache
+    const classesCacheKey = `classes:${JSON.stringify(options)}`;
+    saveToCache(classesCacheKey, response); // Save the response to the cache
 
     return response;
   } catch (error) {
@@ -203,12 +200,8 @@ export const removeClassById = async (classId) => {
     // Call the repository to delete the class by ID
     const deletedClass = await deleteClassById(classId);
 
-    const classCacheKey = `class:${classId}`;
-    const allClassesCacheKey = `allClasses`;
-
-    // Invalidate the cache
-    await client.del(classCacheKey);
-    await client.del(allClassesCacheKey);
+    const patterns = [`class:${classId}`, 'classes:{*}'];
+    await invalidateCache(client, patterns);
 
     return deletedClass;
   } catch (error) {
@@ -230,9 +223,8 @@ export const removeAllClasses = async () => {
       throw new CustomError(404, 'There are no classes to delete.');
     }
 
-    // Invalidate the cache
-    const allClassesCacheKey = `allClasses`;
-    await client.del(allClassesCacheKey);
+    const patterns = [`class:*`, 'classes:{*}'];
+    await invalidateCache(client, patterns);
 
     return deletedCount;
   } catch (error) {

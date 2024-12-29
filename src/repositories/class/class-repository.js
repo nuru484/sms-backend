@@ -83,42 +83,44 @@ export const fetchClassById = async (id) => {
  * @returns {Promise<Object>} - Returns an object containing the classes and pagination info.
  */
 export const fetchClasses = async (options = {}) => {
-  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
     const skip = (page - 1) * limit;
 
     // Prepare search filters for name, code, hall, description, and roomNumber
     const searchFilters = {
-      ...(search && {
+      ...(searchQuery && {
         OR: [
           {
             name: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             code: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             hall: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             description: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             roomNumber: {
-              equals: isNaN(Number(search)) ? undefined : Number(search), // Exact match for roomNumber
+              equals: isNaN(Number(searchQuery))
+                ? undefined
+                : Number(searchQuery), // Exact match for roomNumber
             },
           },
         ],

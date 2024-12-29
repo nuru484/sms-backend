@@ -12,6 +12,7 @@ import prisma from '../../config/prismaClient.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { saveToCache, client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to create a single course.
@@ -28,8 +29,8 @@ export const createSingleCourse = async (courseData) => {
     const course = await createCourse({ name, code });
 
     // Invalidate the cache for all courses
-    const allCoursesCacheKey = `allCourses`;
-    await client.del(allCoursesCacheKey);
+    const patterns = ['courses:{*}'];
+    await invalidateCache(client, patterns);
 
     return course;
   } catch (error) {
@@ -56,8 +57,8 @@ export const createMultipleCourses = async (courses) => {
     const createdCourses = await prisma.$transaction(coursePromises);
 
     // Invalidate the cache for all courses
-    const allCoursesCacheKey = `allCourses`;
-    await client.del(allCoursesCacheKey);
+    const patterns = ['courses:{*}'];
+    await invalidateCache(client, patterns);
 
     return createdCourses;
   } catch (error) {
@@ -73,18 +74,14 @@ export const createMultipleCourses = async (courses) => {
  * @returns {Promise<Object>} - Returns the updated course object.
  * @throws {CustomError} - Throws an error if the update fails.
  */
-export const updateCourse = async (id, updateData) => {
+export const updateCourse = async (courseId, updateData) => {
   try {
-    // Cache keys for the course and all courses
-    const courseCacheKey = `course:${id}`;
-    const allCoursesCacheKey = `allCourses`;
-
-    // Invalidate the cache
-    await client.del(courseCacheKey);
-    await client.del(allCoursesCacheKey);
-
     // Call the repository to update the course
-    const updatedCourse = await updateCourseById(id, updateData);
+    const updatedCourse = await updateCourseById(courseId, updateData);
+
+    // Invalidate the cache for all courses
+    const patterns = [`course:${courseId}`, 'courses:{*}'];
+    await invalidateCache(client, patterns);
 
     return updatedCourse;
   } catch (error) {
@@ -95,19 +92,19 @@ export const updateCourse = async (id, updateData) => {
 /**
  * Service function to fetch a single course by its ID.
  *
- * @param {number} id - The ID of the course to fetch.
+ * @param {number} courseId - The ID of the course to fetch.
  * @returns {Promise<Object>} - Returns the course object.
  */
-export const getCourseById = async (id) => {
+export const getCourseById = async (courseId) => {
   try {
-    const course = await fetchCourseById(id);
+    const course = await fetchCourseById(courseId);
 
     if (!course) {
-      throw new CustomError(404, `Course with ID of ${id} not found.`);
+      throw new CustomError(404, `Course with ID of ${courseId} not found.`);
     }
 
     // Cache the course data
-    const courseCacheKey = `course:${id}`;
+    const courseCacheKey = `course:${courseId}`;
     saveToCache(courseCacheKey, course);
 
     return course;
@@ -128,8 +125,8 @@ export const getCourses = async (options) => {
     }
 
     // Cache the courses data
-    const allCoursesCacheKey = `allCourses`;
-    saveToCache(allCoursesCacheKey, response);
+    const coursesCacheKey = `courses:${JSON.stringify(options)}`;
+    saveToCache(coursesCacheKey, response);
 
     return response;
   } catch (error) {
@@ -140,20 +137,16 @@ export const getCourses = async (options) => {
 /**
  * Service function to delete a single course by its ID.
  *
- * @param {number} id - The ID of the course to delete.
+ * @param {number} courseId - The ID of the course to delete.
  * @returns {Promise<Object>} - Returns the deleted course object.
  */
-export const removeCourseById = async (id) => {
+export const removeCourseById = async (courseId) => {
   try {
-    // Cache keys for the course and all courses
-    const courseCacheKey = `course:${id}`;
-    const allCoursesCacheKey = `allCourses`;
+    // Invalidate the cache for all courses
+    const patterns = [`course:${courseId}`, 'courses:{*}'];
+    await invalidateCache(client, patterns);
 
-    // Invalidate the cache
-    await client.del(courseCacheKey);
-    await client.del(allCoursesCacheKey);
-
-    return await deleteCourseById(id);
+    return await deleteCourseById(courseId);
   } catch (error) {
     handlePrismaError(error, 'Course');
   }
@@ -176,8 +169,8 @@ export const removeAllCourses = async () => {
     }
 
     // Invalidate the cache for all courses
-    const allCoursesCacheKey = `allCourses`;
-    await client.del(allCoursesCacheKey);
+    const patterns = [`course:*`, 'courses:{*}'];
+    await invalidateCache(client, patterns);
 
     return response;
   } catch (error) {
