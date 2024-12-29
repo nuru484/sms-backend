@@ -80,49 +80,47 @@ export const deleteUserAttendance = async (attendanceId) => {
   }
 };
 
+export const deleteAllUserAttendance = async (userId) => {
+  try {
+    const deletedAttendance = await prisma.attendance.deleteMany({
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+
+    return deletedAttendance;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Get All User Attendances
 export const getUserAllAttendance = async (userId, options = {}) => {
-  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
+  const { page = 1, limit = 10, fetchAll = false } = options;
 
   try {
     const skip = (page - 1) * limit;
 
-    // Prepare search filters based on the searchQuery
-    const searchFilters = {
+    // Prepare search filter
+    const where = {
       userId: parseInt(userId),
-      ...(searchQuery && {
-        OR: [
-          {
-            absenceReason: {
-              contains: searchQuery,
-              mode: 'insensitive', // Case insensitive match
-            },
-          },
-          {
-            location: {
-              contains: searchQuery,
-              mode: 'insensitive',
-            },
-          },
-        ],
-      }),
     };
 
     // Fetch total count
     const total = await prisma.attendance.count({
-      where: searchFilters,
+      where,
     });
 
     let attendance;
     if (fetchAll) {
       // Fetch all records if fetchAll is true
       attendance = await prisma.attendance.findMany({
-        where: searchFilters,
+        where,
       });
     } else {
       // Fetch paginated results
       attendance = await prisma.attendance.findMany({
-        where: searchFilters,
+        where,
         skip,
         take: limit,
       });

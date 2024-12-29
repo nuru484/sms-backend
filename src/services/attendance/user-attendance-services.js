@@ -13,6 +13,7 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import prisma from '../../config/prismaClient.js';
 import { saveToCache, client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to create attendance for a user.
@@ -89,8 +90,8 @@ export const createAttendanceDetails = async (
       recorderId
     );
 
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
-    client.del(userAllAttendanceCacheKey); // Invalidate the cache
+    const patterns = ['attendance:user:*{*}'];
+    await invalidateCache(client, patterns);
 
     return newAttendance;
   } catch (error) {
@@ -130,12 +131,8 @@ export const updateAttendanceDetails = async (
       recorderId
     );
 
-    const userAttendanceCacheKey = `attendance:${attendanceId}`;
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${attendance.userId}`;
-
-    // Invalidate the cache
-    await client.del(userAttendanceCacheKey);
-    await client.del(userAllAttendanceCacheKey);
+    const patterns = [`attendance:${attendanceId}`, 'attendance:user:*{*}'];
+    await invalidateCache(client, patterns);
 
     return updatedAttendance;
   } catch (error) {
@@ -158,8 +155,8 @@ export const getAttendanceDetails = async (attendanceId) => {
     }
 
     // Cache key generator
-    const userAttendanceCacheKey = `attendance:${attendanceId}`;
-    saveToCache(userAttendanceCacheKey, attendance); // Save to cache
+    const attendanceCacheKey = `attendance:${attendanceId}`;
+    saveToCache(attendanceCacheKey, attendance); // Save to cache
 
     return attendance;
   } catch (error) {
@@ -181,12 +178,8 @@ export const deleteAttendanceDetails = async (attendanceId) => {
       );
     }
 
-    const userAttendanceCacheKey = `attendance:${attendanceId}`;
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${deletedAttendance.userId}`;
-
-    // Invalidate the cache
-    await client.del(userAttendanceCacheKey);
-    await client.del(userAllAttendanceCacheKey);
+    const patterns = [`attendance:${attendanceId}`, 'attendance:user:*{*}'];
+    await invalidateCache(client, patterns);
 
     return deletedAttendance;
   } catch (error) {
@@ -208,9 +201,10 @@ export const getUserAllAttendanceService = async (userId, options = {}) => {
       );
     }
 
-    // Cache key generator
-    const userAllAttendanceCacheKey = `allAttendanceOfUser:${userId}`;
-    saveToCache(userAllAttendanceCacheKey, response); // Save to cache
+    const userAttendanceCacheKey = `attendance:user:${userId}${JSON.stringify(
+      options
+    )}`;
+    saveToCache(userAttendanceCacheKey, response); // Save the response to the cache
 
     return response;
   } catch (error) {

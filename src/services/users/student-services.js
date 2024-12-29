@@ -5,10 +5,12 @@ import {
   getStudentById,
   deleteAllStudents,
 } from '../../repositories/users/student-repository.js';
+import { deleteAllUserAttendance } from '../../repositories/attendance/user-attendance-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
 import prisma from '../../config/prismaClient.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to fetch all students with pagination and optional search.
@@ -73,6 +75,9 @@ export const removeStudentById = async (studentId) => {
       throw new CustomError(404, `Student with ID ${studentId} not found.`);
     }
 
+    // Delete all attendance records for the student
+    await deleteAllUserAttendance(studentId.user.id);
+
     const studentParents = await prisma.parent.findMany({
       where: {
         wards: {
@@ -97,16 +102,8 @@ export const removeStudentById = async (studentId) => {
       }),
     ]);
 
-    // Invalidate cache
-    const studentCacheKey = `student:${id}`;
-    const studentsCacheKeyPattern = `students:*`;
-    await Promise.all([
-      client.del(studentCacheKey),
-      // Replace wildcard deletion logic
-      client
-        .keys(studentsCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
-    ]);
+    const patterns = [`student:${studentId}`, 'students:{*}'];
+    await invalidateCache(client, patterns);
 
     return response;
   } catch (error) {
@@ -125,18 +122,9 @@ export const removeAllStudents = async () => {
     const result = await deleteAllStudents();
 
     // Invalidate cache
-    const studentCacheKeyPattern = `student:*`;
-    const studentsCacheKeyPattern = `students:*`;
-    await Promise.all([
-      client
-        .keys(studentCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
+    const patterns = [`student:*`, 'students:{*}'];
+    await invalidateCache(client, patterns);
 
-      // Replace wildcard deletion logic
-      client
-        .keys(studentsCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
-    ]);
     return result;
   } catch (error) {
     handlePrismaError(error, 'student');

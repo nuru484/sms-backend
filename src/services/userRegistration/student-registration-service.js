@@ -24,6 +24,7 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import prisma from '../../config/prismaClient.js';
 import { checkUniquenessOnUpdate } from '../../utils/helpers/validation-helpers.js';
 import { client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 // Main function to process student registration
 export const processStudentRegistration = async (payload, profilePhotos) => {
@@ -187,13 +188,8 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     logger.info(`Student mother personal details created successfully.`);
 
     // Invalidate cache
-    const studentsCacheKeyPattern = `students:*`;
-    await Promise.all([
-      // Replace wildcard deletion logic
-      client
-        .keys(studentsCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
-    ]);
+    const patterns = ['students:{*}'];
+    await invalidateCache(client, patterns);
 
     // Return success message after all steps are successfully completed
     return {
@@ -264,15 +260,8 @@ export const updateStudentBasicAndPersonalDetails = async (
     logger.info(`Student personal details updated successfully.`);
 
     // Invalidate cache
-    const studentCacheKey = `student:${studentId}`;
-    const studentsCacheKeyPattern = `students:*`;
-    await Promise.all([
-      client.del(studentCacheKey),
-      // Replace wildcard deletion logic
-      client
-        .keys(studentsCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
-    ]);
+    const patterns = [`student:${studentId}`, 'students:{*}'];
+    await invalidateCache(client, patterns);
 
     return updatedStudent;
   } catch (error) {
@@ -357,17 +346,9 @@ export const updateParentDetails = async (parentId, payload, profilePhoto) => {
     logger.info(`Parent personal details updated successfully.`);
 
     // Invalidate cache
-    const studentsCacheKeyPattern = `students:*`;
-    await Promise.all([
-      wardsIds.map((wardId) => {
-        const studentCacheKey = `student:${wardId}`;
-        return client.del(studentCacheKey);
-      }), // Replace wildcard deletion logic
-
-      client
-        .keys(studentsCacheKeyPattern)
-        .then((keys) => (keys.length > 0 ? client.del(...keys) : null)),
-    ]);
+    const parentWardsCacheKeys = wardsIds.map((wardId) => `student:${wardId}`);
+    const patterns = ['students:{*}', ...parentWardsCacheKeys];
+    await invalidateCache(client, patterns);
 
     return updatedParent;
   } catch (error) {

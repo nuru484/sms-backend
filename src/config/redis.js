@@ -10,6 +10,7 @@ await client.connect();
 const cacheMiddleware = (keyGenerator) => async (req, res, next) => {
   try {
     const cacheKey = keyGenerator(req);
+
     const data = await client.get(cacheKey);
     if (data) {
       logger.info('Cache hit');

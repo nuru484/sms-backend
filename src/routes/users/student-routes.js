@@ -1,6 +1,4 @@
 // src/routes/student/student-routes.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
 
@@ -12,27 +10,14 @@ import {
   handleDeleteAllStudents,
 } from '../../controllers/users/index.js';
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
 
 // Cache key generator
-
-// Cache key generator
-const normalizeQuery = (query) => {
-  // Convert numeric string values to numbers
-  return Object.fromEntries(
-    Object.entries(query).map(([key, value]) => [
-      key,
-      !isNaN(value) ? Number(value) : value,
-    ])
-  );
-};
-
+const studentCacheKey = (req) => `student:${req.params.studentId}`;
 const allStudentsCacheKey = (req) => {
   const normalizedQuery = normalizeQuery(req.query);
   return `students:${JSON.stringify(normalizedQuery)}`;
 };
-
-const studentCacheKey = (req) => `student:${req.params.studentId}`;
-// const allStudentsCacheKey = (req) => `students:${JSON.stringify(req.query)}`;
 
 // Get all students with pagination and optional search
 router.get(

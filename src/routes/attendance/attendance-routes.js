@@ -1,4 +1,6 @@
 // src/routes/attendance/attendance-routes.js
+import { Router } from 'express';
+const router = Router();
 
 import {
   createUserAttendance,
@@ -7,30 +9,29 @@ import {
   deleteUserAttendance,
   getUserAllAttendance,
 } from '../../controllers/attendance/index.js';
-
-// Import the Router function from Express to define route handlers
-import { Router } from 'express';
-const router = Router();
-
 import {
   validateAttendanceDetails,
   validateAttendanceUpdate,
 } from '../../validators/validationMiddleware/attendance-validation-middleware.js';
-
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
 
-// Cache key generator
-const userAttendanceCacheKey = (req) => `attendance:${req.params.attendanceId}`;
-const userAllAttendanceCacheKey = (req) =>
-  `allAttendanceOfUser:${req.params.userId}`;
+const userAttendance = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `attendance:user:${req.params.userId}${JSON.stringify(
+    normalizedQuery
+  )}`;
+};
+const attendanceCacheKey = (req) => `attendance:${req.params.attendanceId}`;
 
+// Define the route handlers for the attendance routes
 router.post('/:userId', validateAttendanceDetails, createUserAttendance);
 
 router.put('/:attendanceId', validateAttendanceUpdate, updateUserAttendance);
 
 router.get(
   '/:attendanceId',
-  cacheMiddleware(userAttendanceCacheKey),
+  cacheMiddleware(attendanceCacheKey),
   getUserAttendance
 );
 
@@ -38,7 +39,7 @@ router.delete('/:attendanceId', deleteUserAttendance);
 
 router.get(
   '/user/:userId',
-  cacheMiddleware(userAllAttendanceCacheKey),
+  cacheMiddleware(userAttendance),
   getUserAllAttendance
 );
 

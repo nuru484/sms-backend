@@ -99,13 +99,12 @@ export const getUserAllAttendance = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const { page, limit, fetchAll, searchQuery } = req.query;
+    const { page, limit, fetchAll } = req.query;
 
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      fetchAll: fetchAll === 'true',
-      searchQuery: searchQuery || null,
+      fetchAll: fetchAll ? fetchAll === 'true' : undefined,
     };
 
     const response = await getUserAllAttendanceService(userId, options);
