@@ -31,54 +31,53 @@ enum admissionStatus {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  firstName      String          @db.VarChar(255)
-  middleName     String?         @db.VarChar(255)
-  lastName       String          @db.VarChar(255)
-  username       String          @unique @db.VarChar(255)
-  gender         String          @db.VarChar(50)
-  profilePhoto   String?         @db.VarChar(255)
-  email          String?         @unique
-  password       String?
-  phoneNumber    String?         @db.VarChar(15)
-  dateOfBirth    DateTime?
-  refreshToken   String?         @unique
-  role           role
-  employmentType employmentType?
-  isRevoked      Boolean         @default(false) // Flag to indicate if access is revoked
-  metadata       Json? // Additional details about the user
-
-  // Password reset mechanism
-  resetToken       String?   @unique // Store a unique reset token
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  firstName        String          @db.VarChar(255)
+  middleName       String?         @db.VarChar(255)
+  lastName         String          @db.VarChar(255)
+  username         String          @unique @db.VarChar(255)
+  gender           String          @db.VarChar(50)
+  profilePhoto     String?         @db.VarChar(255)
+  email            String?         @unique
+  password         String?
+  phoneNumber      String?         @db.VarChar(15)
+  dateOfBirth      DateTime?
+  refreshToken     String?         @unique
+  role             role
+  employmentType   employmentType?
+  isRevoked        Boolean         @default(false) // Flag to indicate if access is revoked
+  metadata         Json? // Additional details about the user
+  resetToken       String?         @unique // Store a unique reset token
   resetTokenExpiry DateTime? // Expiry for the reset token
+  passwordHistory  String[] // Array of previously hashed passwords
 
-  // Optional password history to prevent reuse
-  passwordHistory String[] // Array of previously hashed passwords
-
-  // Relations to specific profiles
+  // One to one relations
   student Student?
   teacher Teacher?
   parent  Parent?
   address Address?
 
-  Events                   Event[]
-  Trip                     Trip[]
-  Position                 Position[]
+  // One-to-many relations
+  HealthAndSafety          HealthAndSafety[]
   Attendance               Attendance[]
+  Position                 Position[]
   EducationalBackground    EducationalBackground[]
   WorkExperience           WorkExperience[]
-  HealthAndSafety          HealthAndSafety[]
   Salary                   Salary[]
   StaffAccountDetails      StaffAccountDetails[]
   PerformanceAndEvaluation PerformanceAndEvaluation[]
   PerformanceAndEvaluators PerformanceAndEvaluation[] @relation("Evaluators")
   AttendanceRecorders      Attendance[]               @relation("AttendanceRecorder")
   StudentBehavior          StudentBehavior[]
-  class                    Class[]
-  courses                  Course[]
-  Vehicle                  Vehicle[]
+
+  // Implicit many-to-many relations
+  Events  Event[]
+  Trip    Trip[]
+  Vehicle Vehicle[]
+  class   Class[]
+  courses Course[]
 }
 
 model Student {
@@ -669,7 +668,6 @@ model Vehicle {
   capacity     Int // Capacity of the vehicle (number of passengers)
 
   driver User[]
-
   routes Route[] // Relation to Route model for vehicle routes
 }
 

@@ -1,5 +1,4 @@
 // src/services/class/class-services.js
-
 import {
   createClass,
   updateClassById,

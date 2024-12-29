@@ -80,20 +80,6 @@ export const deleteUserAttendance = async (attendanceId) => {
   }
 };
 
-export const deleteAllUserAttendance = async (userId) => {
-  try {
-    const deletedAttendance = await prisma.attendance.deleteMany({
-      where: {
-        userId: parseInt(userId),
-      },
-    });
-
-    return deletedAttendance;
-  } catch (error) {
-    throw error;
-  }
-};
-
 // Get All User Attendances
 export const getUserAllAttendance = async (userId, options = {}) => {
   const { page = 1, limit = 10, fetchAll = false } = options;

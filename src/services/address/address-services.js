@@ -32,9 +32,8 @@ const updateAddressDetails = async (addressId, payload) => {
       digitalAddress,
     });
 
-    const cacheKey = `address:${addressId}`;
-
     // Invalidate the cache
+    const cacheKey = `address:${addressId}`;
     await client.del(cacheKey);
 
     logger.info(`Address updated successfully.`);

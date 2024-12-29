@@ -5,7 +5,6 @@ import {
   getStudentById,
   deleteAllStudents,
 } from '../../repositories/users/student-repository.js';
-import { deleteAllUserAttendance } from '../../repositories/attendance/user-attendance-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
@@ -74,9 +73,6 @@ export const removeStudentById = async (studentId) => {
     if (!student) {
       throw new CustomError(404, `Student with ID ${studentId} not found.`);
     }
-
-    // Delete all attendance records for the student
-    await deleteAllUserAttendance(studentId.user.id);
 
     const studentParents = await prisma.parent.findMany({
       where: {
