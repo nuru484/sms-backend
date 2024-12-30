@@ -4,7 +4,8 @@ import prisma from '../../config/prismaClient.js';
 // Create Disciplinary Action
 export const createDisciplinaryAction = async (
   studentId,
-  disciplinaryActionData
+  disciplinaryActionData,
+  studentBehaviorIds
 ) => {
   try {
     const newDisciplinaryAction = await prisma.disciplinaryAction.create({
@@ -12,6 +13,9 @@ export const createDisciplinaryAction = async (
         ...disciplinaryActionData,
         student: {
           connect: { id: parseInt(studentId, 10) },
+        },
+        StudentBehavior: {
+          connect: studentBehaviorIds.map((id) => ({ id })),
         },
       },
     });
@@ -115,6 +119,9 @@ export const getStudentDisciplinaryActions = async (
       // Fetch all records without pagination
       disciplinaryActions = await prisma.disciplinaryAction.findMany({
         where: searchFilters,
+        include: {
+          disciplinaryAction: true,
+        },
         orderBy: {
           date: 'desc', // Changed to 'date' if 'createdAt' is unavailable
         },

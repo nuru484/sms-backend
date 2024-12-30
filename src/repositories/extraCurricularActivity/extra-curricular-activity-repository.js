@@ -13,7 +13,7 @@ export const createExtracurricularActivity = async (
         data: {
           ...extracurricularActivityData,
           student: {
-            connect: { id: parseInt(studentId) },
+            connect: { id: parseInt(studentId, 10) },
           },
         },
       });

@@ -1,3 +1,4 @@
+import { body } from 'express-validator';
 import { validateInput, validateDateInput } from './general-validators.js';
 
 // Factory function to generate DisciplinaryAction-specific validators
@@ -10,6 +11,9 @@ const createDisciplinaryActionValidators = () => ({
     required: true,
   }),
   validateRemarks: validateInput('remarks'),
+  validateRemarks: body('studentBehaviorIds')
+    .isArray({ min: 1 })
+    .withMessage('Student Behavior IDs must be a non-empty array.'),
 
   validateDate: validateDateInput('date', {
     required: false,

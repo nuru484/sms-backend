@@ -12,24 +12,47 @@ import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
 import invalidateCache from '../../utils/helpers/invalidate-cache.js';
+import prisma from '../../config/prismaClient.js';
 
 /**
  * Service function to create a disciplinary action for a student.
  */
 export const createDisciplinaryActionDetails = async (
   studentId,
-  disciplinaryActionData
+  disciplinaryActionPayload
 ) => {
   try {
+    const { studentBehaviorIds, ...disciplinaryActionData } =
+      disciplinaryActionPayload;
+
     const student = await getStudentById(studentId);
 
     if (!student) {
       throw new CustomError(404, `Student with ID ${studentId} not found.`);
     }
 
+    if (studentBehaviorIds && studentBehaviorIds.length > 0) {
+      // Validate each behavior ID using Promise.all
+      await Promise.all(
+        studentBehaviorIds.map(async (behaviorId) => {
+          const validBehavior = await prisma.studentBehavior.findUnique({
+            where: { id: parseInt(behaviorId, 10) },
+          });
+
+          if (!validBehavior) {
+            throw new CustomError(
+              404,
+              `Behavior with ID ${behaviorId} not found!`
+            );
+          }
+        })
+      );
+    }
+
     const newDisciplinaryAction = await createDisciplinaryAction(
       studentId,
-      disciplinaryActionData
+      disciplinaryActionData,
+      studentBehaviorIds
     );
 
     const patterns = [`disciplinaryActions:student:${studentId}{*}`];
