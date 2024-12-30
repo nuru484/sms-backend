@@ -13,7 +13,7 @@ export const createUserHealthAndSafety = async (
       data: {
         ...healthAndSafetyData,
         user: {
-          connect: { id: parseInt(userId) },
+          connect: { id: parseInt(userId, 10) },
         },
       },
     });
@@ -31,7 +31,7 @@ export const updateUserHealthAndSafety = async (
 ) => {
   try {
     const updatedHealthAndSafety = await prisma.healthAndSafety.update({
-      where: { id: parseInt(healthAndSafetyId) },
+      where: { id: parseInt(healthAndSafetyId, 10) },
       data: healthAndSafetyData,
     });
 
@@ -44,7 +44,7 @@ export const updateUserHealthAndSafety = async (
 export const getUserHealthAndSafety = async (healthAndSafetyId) => {
   try {
     const healthAndSafety = await prisma.healthAndSafety.findUnique({
-      where: { id: parseInt(healthAndSafetyId) },
+      where: { id: parseInt(healthAndSafetyId, 10) },
     });
 
     return healthAndSafety;
@@ -57,7 +57,7 @@ export const getUserHealthAndSafety = async (healthAndSafetyId) => {
 export const deleteUserHealthAndSafety = async (healthAndSafetyId) => {
   try {
     const deletedHealthAndSafety = await prisma.healthAndSafety.delete({
-      where: { id: parseInt(healthAndSafetyId) },
+      where: { id: parseInt(healthAndSafetyId, 10) },
     });
 
     return deletedHealthAndSafety;
@@ -69,7 +69,7 @@ export const deleteUserHealthAndSafety = async (healthAndSafetyId) => {
 export const deleteAllUserHealthAndSafety = async (userId) => {
   try {
     const response = await prisma.healthAndSafety.deleteMany({
-      where: { userId: parseInt(userId) },
+      where: { userId: parseInt(userId, 10) },
     });
 
     return response;
@@ -87,7 +87,7 @@ export const getUserAllHealthAndSafety = async (userId, options = {}) => {
 
     // Prepare search filters based on the searchQuery
     const searchFilters = {
-      userId: parseInt(userId),
+      userId: parseInt(userId, 10),
       ...(searchQuery && {
         OR: [
           {

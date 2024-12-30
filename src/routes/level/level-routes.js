@@ -10,27 +10,33 @@ import {
   handleDeleteLevelById,
   handleDeleteAllLevels,
 } from '../../controllers/level/index.js';
-
 import {
   validateLevelDetails,
   validateLevelUpdateDetails,
 } from '../../validators/validationMiddleware/level/level-validation-middleware.js';
-
 import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
 
 // Cache key generator
-const levelCacheKey = (req) => `level:${req.params.id}`;
-const allLevelsCacheKey = (req) => `allLevels`;
+const levelCacheKey = (req) => `level:${req.params.levelId}`;
+const levelsCacheKey = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `levels:${JSON.stringify(normalizedQuery)}`;
+};
 
 router.post('/level', validateLevelDetails, handleLevelCreation);
 
-router.put('/level/:id', validateLevelUpdateDetails, handleLevelUpdate);
+router.put('/level/:levelId', validateLevelUpdateDetails, handleLevelUpdate);
 
-router.get('/level/:id', cacheMiddleware(levelCacheKey), handleGetLevelById);
+router.get(
+  '/level/:levelId',
+  cacheMiddleware(levelCacheKey),
+  handleGetLevelById
+);
 
-router.get('/', cacheMiddleware(allLevelsCacheKey), handleGetLevels);
+router.get('/', cacheMiddleware(levelsCacheKey), handleGetLevels);
 
-router.delete('/level/:id', handleDeleteLevelById);
+router.delete('/level/:levelId', handleDeleteLevelById);
 
 router.delete('/', handleDeleteAllLevels);
 

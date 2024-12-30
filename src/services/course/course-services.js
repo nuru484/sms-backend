@@ -1,5 +1,4 @@
 // src/services/course/course-creation-service.js
-
 import {
   createCourse,
   updateCourseById,
@@ -22,11 +21,9 @@ import invalidateCache from '../../utils/helpers/invalidate-cache.js';
  * @throws {CustomError} - Throws an error if course creation fails.
  */
 export const createSingleCourse = async (courseData) => {
-  const { name, code } = courseData;
-
   try {
     // Call the repository to create the course
-    const course = await createCourse({ name, code });
+    const course = await createCourse(courseData);
 
     // Invalidate the cache for all courses
     const patterns = ['courses:{*}'];

@@ -1,7 +1,5 @@
 // src/controllers/level/level-controller.js
-
 import { CustomError } from '../../utils/middleware/errorHandler.js';
-import logger from '../../utils/logger.js'; // Logger for logging errors and information
 import {
   createSingleLevel,
   createMultipleLevels,
@@ -64,12 +62,12 @@ export const handleLevelCreation = async (req, res, next) => {
  * or forwards the error to centralized error handling middleware.
  */
 export const handleLevelUpdate = async (req, res, next) => {
-  const { id } = req.params; // Extract level ID from request parameters
+  const { levelId } = req.params; // Extract level ID from request parameters
   const updateData = req.body; // Extract level update data from request body
 
   try {
     // Call the service to update the level
-    const updatedLevel = await updateLevel(Number(id), updateData);
+    const updatedLevel = await updateLevel(levelId, updateData);
 
     // Respond with success
     res.status(200).json({
@@ -86,10 +84,10 @@ export const handleLevelUpdate = async (req, res, next) => {
  * Controller to fetch a single level by ID.
  */
 export const handleGetLevelById = async (req, res, next) => {
-  const { id } = req.params;
+  const { levelId } = req.params;
 
   try {
-    const level = await getLevelById(Number(id));
+    const level = await getLevelById(levelId);
 
     res.status(200).json({
       message: 'Level fetched successfully',
@@ -110,8 +108,8 @@ export const handleGetLevels = async (req, res, next) => {
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      fetchAll: fetchAll === 'true',
-      searchQuery: searchQuery ? searchQuery : null,
+      fetchAll: fetchAll ? fetchAll === 'true' : undefined,
+      searchQuery: searchQuery ? searchQuery : undefined,
     };
 
     const result = await getLevels(options);
@@ -129,13 +127,14 @@ export const handleGetLevels = async (req, res, next) => {
  * Controller to delete a single level by ID.
  */
 export const handleDeleteLevelById = async (req, res, next) => {
-  const { id } = req.params;
+  const { levelId } = req.params;
 
   try {
-    const deletedLevel = await removeLevelById(Number(id));
+    const response = await removeLevelById(levelId);
+
     res.status(200).json({
       message: 'Level deleted successfully',
-      data: deletedLevel,
+      data: response,
     });
   } catch (error) {
     next(error);

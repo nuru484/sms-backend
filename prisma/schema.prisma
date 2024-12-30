@@ -96,15 +96,15 @@ model Student {
   level   Level[]
 
   // One to many relations
-  Grade                   Grade[]
-  ReportDetail            ReportDetail[]
-  Payment                 Payment[]
-  Sale                    Sale[]
-  BookIssue               BookIssue[]
-  DisciplinaryAction      DisciplinaryAction[]
-  FormerSchools           FormerSchool[]
-  StudentBehavior         StudentBehavior[]
-  ExtracurricularActivity ExtracurricularActivity[]
+  Grade                            Grade[]
+  ReportDetail                     ReportDetail[]
+  Payment                          Payment[]
+  Sale                             Sale[]
+  BookIssue                        BookIssue[]
+  FormerSchools                    FormerSchool[]
+  StudentBehavior                  StudentBehavior[]
+  StudentDisciplinaryAction        StudentDisciplinaryAction[]
+  studentExtracurricularActivities studentExtracurricularActivities[]
 }
 
 model StudentApplicationNumber {
@@ -218,9 +218,10 @@ model PerformanceAndEvaluation {
 }
 
 model Course {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(100)
-  code String @unique @db.VarChar(50)
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(100)
+  code        String  @unique @db.VarChar(50)
+  description String? @db.VarChar(255)
 
   user  User[]
   class Class[] @relation("ClassCourses")
@@ -620,43 +621,80 @@ model BookCategory {
   books       Book[] // Relation to Book model, representing books in this category
 }
 
-// Model tracking disciplinary actions taken against students
-model DisciplinaryAction {
-  id      Int      @id @default(autoincrement()) // Unique identifier for each disciplinary action
-  date    DateTime @default(now()) // Date of the action
-  action  String   @db.VarChar(255) // Type of action (e.g., "Suspension", "Detention")
-  reason  String   @db.Text // Reason for the disciplinary action
-  status  String   @default("Pending") // Status of the action (e.g., "Resolved", "Pending")
-  remarks String?  @db.VarChar(255) // Optional remarks about the action
+model Behavior {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(255) // The name of the behavior (e.g., "Late to class")
+  description String? @db.Text // Optional description of the behavior
 
-  student         Student[]
-  StudentBehavior StudentBehavior[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students StudentBehavior[] // Many-to-many relationship to Student through StudentBehavior
+}
+
+model DisciplinaryAction {
+  id          Int     @id @default(autoincrement())
+  action      String  @db.VarChar(255) // Type of disciplinary action (e.g., "Suspension")
+  description String? @db.Text // Optional description
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students StudentDisciplinaryAction[] // Many-to-many relationship to Student through StudentDisciplinaryAction
 }
 
 model StudentBehavior {
   id           Int      @id @default(autoincrement())
-  behaviorDate DateTime // Date of the behavior record
-  behaviorType String? // Type of behavior (e.g., Positive, Negative, Neutral)
-  behavior     String // The behavior name
+  behaviorDate DateTime // Date when the student exhibited this behavior
+  behaviorType String? // Type of behavior (e.g., "Positive", "Negative")
   description  String // Detailed description of the behavior
 
-  disciplinaryAction DisciplinaryAction[]
-  reporter           User                 @relation(fields: [reporterId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
-  student            Student              @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  reporterId         Int
-  studentId          Int
+  studentId Int // Foreign key to Student
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  behaviorId Int // Foreign key to Behavior
+  behavior   Behavior @relation(fields: [behaviorId], references: [id], onDelete: Cascade)
+
+  reporterId Int // Foreign key to User (who reported the behavior)
+  reporter   User @relation(fields: [reporterId], references: [id], onDelete: SetDefault)
+}
+
+model StudentDisciplinaryAction {
+  id         Int      @id @default(autoincrement())
+  actionDate DateTime // Date when the disciplinary action was applied
+  status     String   @default("Pending") // Status of the disciplinary action (e.g., "Resolved", "Pending")
+  remarks    String? // Optional remarks for the action
+
+  studentId Int // Foreign key to Student
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  disciplinaryActionId Int // Foreign key to DisciplinaryAction
+  disciplinaryAction   DisciplinaryAction @relation(fields: [disciplinaryActionId], references: [id], onDelete: Cascade)
 }
 
 model ExtracurricularActivity {
-  id           Int       @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   activityName String // Name of the extracurricular activity (e.g., Soccer, Drama Club)
+  description  String? @db.Text // Additional description or details about the activity
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students studentExtracurricularActivities[]
+}
+
+model studentExtracurricularActivities {
+  id           Int       @id @default(autoincrement())
   startDate    DateTime // Start date of the activity
   endDate      DateTime? // End date of the activity (if applicable)
   position     String? // Position or role in the activity (e.g., Team Captain)
-  description  String? // Additional description or details about the activity
+  remarks      String?   @db.Text // Additional description or details about the activity
   achievements String[] // List of achievements (e.g., awards, recognitions)
-  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  studentId    Int
+
+  activity                  ExtracurricularActivity @relation(fields: [extracurricularActivityId], references: [id])
+  student                   Student                 @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  studentId                 Int
+  extracurricularActivityId Int
 }
 
 // Model representing vehicles used for student transportation

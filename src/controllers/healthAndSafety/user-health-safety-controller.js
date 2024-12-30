@@ -3,7 +3,7 @@ import {
   updateHealthAndSafetyDetails,
   getHealthAndSafetyDetails,
   deleteHealthAndSafetyDetails,
-  getUserAllHealthAndSafetyService,
+  getUserHealthAndSafetyService,
 } from '../../services/healthAndSafety/user-health-safety-services.js';
 
 /**
@@ -96,11 +96,11 @@ export const getUserAllHealthAndSafety = async (req, res, next) => {
     const options = {
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      fetchAll: fetchAll === 'true',
-      searchQuery: searchQuery ? searchQuery : null,
+      fetchAll: fetchAll ? fetchAll === 'true' : undefined,
+      searchQuery: searchQuery ? searchQuery : undefined,
     };
 
-    const response = await getUserAllHealthAndSafetyService(userId, options);
+    const response = await getUserHealthAndSafetyService(userId, options);
 
     return res.status(200).json({
       message: 'Student health and safety details successfully fetched.',

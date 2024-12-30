@@ -1,16 +1,6 @@
 // src/routes/healthAndSafety/user-health-safety-routes.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
-
-import { cacheMiddleware } from '../../config/redis.js';
-
-// Cache key generator
-const userHealthAndSafetyCacheKey = (req) =>
-  `healthAndSafety:${req.params.healthAndSafetyId}`;
-const userAllHealthAndSafetyCacheKey = (req) =>
-  `allHealthAndSafetyOfUser:${req.params.userId}`;
 
 import {
   createUserHealthAndSafety,
@@ -19,14 +9,26 @@ import {
   deleteUserHealthAndSafety,
   getUserAllHealthAndSafety,
 } from '../../controllers/healthAndSafety/index.js';
-
 import {
   validateHealthAndSafetyDetails,
   validateHealthAndSafetyUpdate,
 } from '../../validators/validationMiddleware/health-safety-validation-middleware.js';
+import { cacheMiddleware } from '../../config/redis.js';
+import normalizeQuery from '../../utils/helpers/normalize-query.js';
+
+// Cache key generator
+const healthAndSafetyCacheKey = (req) =>
+  `healthAndSafety:${req.params.healthAndSafetyId}`;
+
+const userHealthAndSafetyCacheKey = (req) => {
+  const normalizedQuery = normalizeQuery(req.query);
+  return `healthAndSafety:user:${req.params.userId}${JSON.stringify(
+    normalizedQuery
+  )}`;
+};
 
 router.post(
-  '/:userId',
+  '/user/:userId',
   validateHealthAndSafetyDetails,
   createUserHealthAndSafety
 );
@@ -39,7 +41,7 @@ router.put(
 
 router.get(
   '/:healthAndSafetyId',
-  cacheMiddleware(userHealthAndSafetyCacheKey),
+  cacheMiddleware(healthAndSafetyCacheKey),
   getUserHealthAndSafety
 );
 
@@ -47,7 +49,7 @@ router.delete('/:healthAndSafetyId', deleteUserHealthAndSafety);
 
 router.get(
   '/user/:userId',
-  cacheMiddleware(userAllHealthAndSafetyCacheKey),
+  cacheMiddleware(userHealthAndSafetyCacheKey),
   getUserAllHealthAndSafety
 );
 

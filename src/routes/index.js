@@ -13,7 +13,6 @@ import admissionsRouter from './admissions/index.js';
 import classRouter from './class/index.js';
 import addressRouter from './address/index.js';
 import healthAndSafetyRouter from './healthAndSafety/index.js';
-import extraCurricularActivityRouter from './extraCurricularActivitiy/index.js';
 import attendanceRouter from './attendance/index.js';
 import usersRouter from './users/index.js';
 
@@ -38,8 +37,6 @@ routes.use('/classes', classRouter); // Level
 routes.use('/address', addressRouter);
 
 routes.use('/health-safety', healthAndSafetyRouter);
-
-routes.use('/extra-curricular-activity', extraCurricularActivityRouter);
 
 routes.use('/attendance', attendanceRouter);
 

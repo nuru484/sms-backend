@@ -8,11 +8,11 @@ import prisma from '../../config/prismaClient.js'; // Prisma client for database
  * @returns {Promise<Object>} - Returns the created course object if successful.
  * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
  */
-export const createCourse = async ({ name, code }) => {
+export const createCourse = async (courseData) => {
   try {
     // Create the course record in the database using Prisma
     const course = await prisma.course.create({
-      data: { name, code },
+      data: courseData,
     });
 
     return course; // Return the created course object
@@ -164,9 +164,9 @@ export const deleteCourseById = async (courseId) => {
  */
 export const deleteAllCourses = async () => {
   try {
-    const deletedCount = await prisma.course.deleteMany();
+    const response = await prisma.course.deleteMany();
 
-    return deletedCount.count;
+    return response.count;
   } catch (error) {
     throw error;
   }

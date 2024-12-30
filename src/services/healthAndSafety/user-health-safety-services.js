@@ -1,5 +1,4 @@
 // src/services/healthAndSafety/user-health-safety-services.js
-
 import {
   createUserHealthAndSafety,
   updateUserHealthAndSafety,
@@ -11,6 +10,7 @@ import { getUserById } from '../../repositories/users/general-user-repository.js
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
 
 /**
  * Service function to create health and safety details for a user.
@@ -31,7 +31,9 @@ export const createHealthAndSafetyDetails = async (
       healthAndSafetyData
     );
 
-    client.del(`allHealthAndSafetyOfUser:${userId}`);
+    // Invalidate the cache for all user health and safety
+    const patterns = [`healthAndSafety:user:${userId}{*}`];
+    await invalidateCache(client, patterns);
 
     return newHealthAndSafety;
   } catch (error) {
@@ -62,11 +64,12 @@ export const updateHealthAndSafetyDetails = async (
       healthAndSafetyData
     );
 
-    const userHealthAndSafetyCacheKey = `healthAndSafety:${healthAndSafetyId}`;
-    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${healthAndSafety.userId}`;
-
-    client.del(userHealthAndSafetyCacheKey);
-    client.del(userAllHealthAndSafetyCacheKey);
+    // Invalidate the cache for all user health and safety
+    const patterns = [
+      `healthAndSafety:user:${healthAndSafety.userId}{*}`,
+      `healthAndSafety:${healthAndSafetyId}`,
+    ];
+    await invalidateCache(client, patterns);
 
     return updatedHealthAndSafety;
   } catch (error) {
@@ -115,11 +118,12 @@ export const deleteHealthAndSafetyDetails = async (healthAndSafetyId) => {
       );
     }
 
-    const userHealthAndSafetyCacheKey = `healthAndSafety:${healthAndSafetyId}`;
-    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${deletedHealthAndSafety.userId}`;
-
-    client.del(userHealthAndSafetyCacheKey);
-    client.del(userAllHealthAndSafetyCacheKey);
+    // Invalidate the cache for all user health and safety
+    const patterns = [
+      `healthAndSafety:user:${deletedHealthAndSafety.userId}{*}`,
+      `healthAndSafety:${healthAndSafetyId}`,
+    ];
+    await invalidateCache(client, patterns);
 
     return deletedHealthAndSafety;
   } catch (error) {
@@ -128,10 +132,7 @@ export const deleteHealthAndSafetyDetails = async (healthAndSafetyId) => {
 };
 
 // Service function
-export const getUserAllHealthAndSafetyService = async (
-  userId,
-  options = {}
-) => {
+export const getUserHealthAndSafetyService = async (userId, options = {}) => {
   try {
     const response = await getUserAllHealthAndSafety(userId, options);
 
@@ -142,8 +143,10 @@ export const getUserAllHealthAndSafetyService = async (
       );
     }
 
-    const userAllHealthAndSafetyCacheKey = `allHealthAndSafetyOfUser:${userId}`;
-    saveToCache(userAllHealthAndSafetyCacheKey, response);
+    const userHealthAndSafetyCacheKey = `healthAndSafety:user:${userId}${JSON.stringify(
+      options
+    )}`;
+    saveToCache(userHealthAndSafetyCacheKey, response);
 
     return response;
   } catch (error) {

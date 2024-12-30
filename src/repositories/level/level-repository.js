@@ -1,6 +1,4 @@
 // src/repositories/level/level-repository.js
-
-// Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 /**
@@ -10,11 +8,11 @@ import prisma from '../../config/prismaClient.js'; // Prisma client for database
  * @returns {Promise<Object>} - Returns the created level object if successful.
  * @throws {CustomError} - Throws a custom error if there is an issue during the creation process or database interaction.
  */
-export const createLevel = async ({ name, code, description, order }) => {
+export const createLevel = async (levelData) => {
   try {
     // Create the level record in the database using Prisma
     const level = await prisma.level.create({
-      data: { name, code, description, order },
+      data: levelData,
     });
 
     return level; // Return the created level object
@@ -32,11 +30,11 @@ export const createLevel = async ({ name, code, description, order }) => {
  * @returns {Promise<Object>} - Returns the updated level object if successful.
  * @throws {CustomError} - Throws a custom error if the level is not found or if there is a database error.
  */
-export const updateLevelById = async (id, updateData) => {
+export const updateLevelById = async (levelId, updateData) => {
   try {
     // Attempt to update the level in the database
     const updatedLevel = await prisma.level.update({
-      where: { id },
+      where: { id: parseInt(levelId, 10) },
       data: updateData,
     });
 
@@ -53,11 +51,11 @@ export const updateLevelById = async (id, updateData) => {
  * @returns {Promise<Object>} - Returns the level object if found.
  * @throws {CustomError} - Throws a custom error if the level is not found or there's a database error.
  */
-export const fetchLevelById = async (id) => {
+export const fetchLevelById = async (levelId) => {
   try {
     // Fetch the level by ID
     const level = await prisma.level.findUnique({
-      where: { id },
+      where: { id: parseInt(levelId, 10) },
     });
 
     return level;
@@ -73,36 +71,38 @@ export const fetchLevelById = async (id) => {
  * @returns {Promise<Object>} - Returns an object containing the levels and pagination info.
  */
 export const fetchLevels = async (options = {}) => {
-  const { page = 1, limit = 10, fetchAll = false, search = '' } = options;
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
     const skip = (page - 1) * limit;
 
     // Prepare search filters for name, code, description, and order
     const searchFilters = {
-      ...(search && {
+      ...(searchQuery && {
         OR: [
           {
             name: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             code: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             description: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             order: {
-              equals: isNaN(Number(search)) ? undefined : Number(search), // If search is a valid number, match on 'order'
+              equals: isNaN(Number(searchQuery))
+                ? undefined
+                : Number(searchQuery), // If search is a valid number, match on 'order'
             },
           },
         ],
@@ -157,10 +157,10 @@ export const fetchLevels = async (options = {}) => {
  * @param {number} id - The ID of the level to delete.
  * @returns {Promise<Object>} - Returns the deleted level object.
  */
-export const deleteLevelById = async (id) => {
+export const deleteLevelById = async (levelId) => {
   try {
     const level = await prisma.level.delete({
-      where: { id },
+      where: { id: parseInt(levelId, 10) },
     });
 
     return level;
@@ -176,9 +176,9 @@ export const deleteLevelById = async (id) => {
  */
 export const deleteAllLevels = async () => {
   try {
-    const deletedCount = await prisma.level.deleteMany();
+    const response = await prisma.level.deleteMany();
 
-    return deletedCount.count;
+    return response.count;
   } catch (error) {
     throw error;
   }

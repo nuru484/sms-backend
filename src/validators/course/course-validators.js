@@ -36,6 +36,17 @@ const createCourseValidators = () => ({
             `Course at index ${index} code should not exceed 50 characters`
           );
         }
+
+        if (!course.description || typeof course.description !== 'string') {
+          throw new Error(
+            `Course at index ${index} must have a valid 'description' as a string.`
+          );
+        }
+        if (course.description.length > 255) {
+          throw new Error(
+            `Course at index ${index} description should not exceed 255 characters.`
+          );
+        }
       });
       return true;
     }),
@@ -46,6 +57,7 @@ const updateCourseValidators = () => ({
   // Validator for course update
   valdiateCourseName: validateInput('name', { required: false }),
   valdiateCourseCode: validateInput('code', { required: false }),
+  valdiateCourseCode: validateInput('description', { required: false }),
 });
 
 // Generate all the course-specific validators using the factory function
