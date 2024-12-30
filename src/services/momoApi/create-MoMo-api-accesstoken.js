@@ -1,7 +1,7 @@
 // Importing the logger utility for logging application events and errors
 
 // Importing repository functions to interact with the MoMo API user details
-import { momoApiUserDetails } from '../../repositories/momo/momo-api-user-respository.js';
+import { momoApiUserDetails } from '../../repositories/momoApi/momo-api-user-respository.js';
 
 // Importing service functions for creating MoMo API users, keys, and access tokens
 import {

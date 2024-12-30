@@ -104,15 +104,36 @@ export const getStudentBehaviorDetails = async (behaviorId) => {
  */
 export const deleteStudentBehaviorDetails = async (behaviorId) => {
   try {
-    const deletedStudentBehavior = await deleteStudentBehavior(behaviorId);
+    // Find the student behavior record first to get associated data
+    const studentBehavior = await prisma.studentBehavior.findUnique({
+      where: { id: behaviorId },
+      include: { disciplinaryAction: true }, // Include related disciplinary actions
+    });
 
-    if (!deletedStudentBehavior) {
+    if (!studentBehavior) {
       throw new CustomError(
         404,
         `Student Behavior with ID ${behaviorId} not found.`
       );
     }
 
+    // Delete associated disciplinary actions if they exist
+    if (studentBehavior.disciplinaryAction.length > 0) {
+      await prisma.disciplinaryAction.deleteMany({
+        where: {
+          id: {
+            in: studentBehavior.disciplinaryAction.map((action) => action.id),
+          },
+        },
+      });
+    }
+
+    // Delete the student behavior record
+    const deletedStudentBehavior = await prisma.studentBehavior.delete({
+      where: { id: behaviorId },
+    });
+
+    // Invalidate the cache for the student behavior and the student's behaviors list
     const studentBehaviorCacheKey = `studentBehavior:${behaviorId}`;
     const studentBehaviorsCacheKey = `studentBehaviors:student:${deletedStudentBehavior.studentId}`;
     client.del(studentBehaviorCacheKey);

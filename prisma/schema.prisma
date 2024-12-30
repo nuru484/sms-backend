@@ -629,8 +629,7 @@ model DisciplinaryAction {
   status  String   @default("Pending") // Status of the action (e.g., "Resolved", "Pending")
   remarks String?  @db.VarChar(255) // Optional remarks about the action
 
-  student         Student           @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade) // Relation to Student model
-  studentId       Int // Foreign key to the student involved in the action
+  student         Student[]
   StudentBehavior StudentBehavior[]
 }
 

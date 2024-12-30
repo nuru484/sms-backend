@@ -1,9 +1,5 @@
 // src/routes/index.js
-
-// Importing the Router function from the Express library to create a root router for all application routes
 import { Router } from 'express';
-
-// Creating an instance of the Router to define the main application routes
 const routes = Router();
 
 // Importing the routes modules, which contains route handlers for the given-related functionality
@@ -17,8 +13,6 @@ import admissionsRouter from './admissions/index.js';
 import classRouter from './class/index.js';
 import addressRouter from './address/index.js';
 import healthAndSafetyRouter from './healthAndSafety/index.js';
-import disciplinaryActionRouter from './disciplinaryAction/index.js';
-import studentBehaviorRouter from './studentBehavior/index.js';
 import extraCurricularActivityRouter from './extraCurricularActivitiy/index.js';
 import attendanceRouter from './attendance/index.js';
 import usersRouter from './users/index.js';
@@ -44,10 +38,6 @@ routes.use('/classes', classRouter); // Level
 routes.use('/address', addressRouter);
 
 routes.use('/health-safety', healthAndSafetyRouter);
-
-routes.use('/disciplinary-action', disciplinaryActionRouter);
-
-routes.use('/student-behavior', studentBehaviorRouter);
 
 routes.use('/extra-curricular-activity', extraCurricularActivityRouter);
 
