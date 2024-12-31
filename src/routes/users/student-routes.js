@@ -2,7 +2,6 @@
 import { Router } from 'express';
 const router = Router();
 
-// Import the controller for student operations
 import {
   handleGetAllStudents,
   handleGetStudentById,

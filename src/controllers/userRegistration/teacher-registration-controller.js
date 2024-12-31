@@ -23,7 +23,7 @@ import validateProfilePhotos from '../../validators/validationMiddleware/files-v
 export const registerTeacher = [
   upload.fields([{ name: 'profilePhoto' }, { name: 'digitalSignature' }]),
 
-  validateProfilePhotos(['profilePhoto', 'digitalSignature']),
+  // validateProfilePhotos(['profilePhoto', 'digitalSignature']),
   validateTeacherDetails, // Middleware to validate teacher details
   validateAddressDetails, // Middleware to validate address details
 

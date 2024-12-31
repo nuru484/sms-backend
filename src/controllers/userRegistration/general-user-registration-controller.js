@@ -1,10 +1,6 @@
 // src/controllers/userRegistration/general-user-registration-controller.js
-
 import upload from '../../config/multer.js';
-
 import { processUserRegistration } from '../../services/userRegistration/general-user-registration-service.js';
-
-// Import validation middleware for user registration details
 import validateUserDetails from '../../validators/validationMiddleware/userRegistration/user-registration-validation-middleware.js';
 
 /**

@@ -47,7 +47,7 @@ export const getStudents = async (options = {}) => {
 export const getStudentById = async (studentId) => {
   try {
     const student = await prisma.student.findUnique({
-      where: { id: parseInt(studentId) },
+      where: { id: parseInt(studentId, 10) },
       include: {
         user: true,
       },

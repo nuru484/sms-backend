@@ -105,7 +105,7 @@ export const fetchUsers = async (options = {}) => {
 export const getUserById = async (userId) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: parseInt(userId, 10) },
     });
 
     return user;
@@ -117,7 +117,7 @@ export const getUserById = async (userId) => {
 export const deleteUserById = async (userId) => {
   try {
     const deletedUser = await prisma.user.delete({
-      where: { id: parseInt(userId) },
+      where: { id: parseInt(userId, 10) },
     });
 
     return deletedUser;

@@ -1,14 +1,10 @@
 // src/controllers/userRegistration/student-registration-controller.js
 import upload from '../../config/multer.js';
-
-// Import the service responsible for processing the student registration logic.
 import {
   processStudentRegistration,
   updateStudentBasicAndPersonalDetails,
   updateParentDetails,
 } from '../../services/userRegistration/student-registration-service.js';
-
-// Import validation middleware for student registration, parent details, and address details
 import {
   validateStudentDetails,
   validateStudentUpdateDetails,
@@ -37,11 +33,11 @@ export const registerStudent = [
     { name: 'motherProfilePhoto' },
   ]), // Handle the profile photos uploads
 
-  validateProfilePhotos([
-    'studentProfilePhoto',
-    'fatherProfilePhoto',
-    'motherProfilePhoto',
-  ]), // Validate presence of required profile photos
+  // validateProfilePhotos([
+  //   'studentProfilePhoto',
+  //   'fatherProfilePhoto',
+  //   'motherProfilePhoto',
+  // ]), // Validate presence of required profile photos
 
   validateStudentDetails,
   validateStudentParentsDetails,
