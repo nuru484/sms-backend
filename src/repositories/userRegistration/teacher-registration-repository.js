@@ -1,6 +1,4 @@
 // src/repositories/userRegistration/teacher-registration-repository.js
-
-// Import necessary modules
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
 
 /**
@@ -21,11 +19,12 @@ export const createTeacherPersonalDetails = async ({
 }) => {
   try {
     // Prepare data to be stored
-    const teacherData = { digitalSignature, spokenLanguages, maritalStatus };
-
-    if (socialMediaHandles) {
-      teacherData.socialMediaHandles = socialMediaHandles; // Include socialMediaHandles only if provided
-    }
+    const teacherData = {
+      digitalSignature,
+      spokenLanguages,
+      maritalStatus,
+      socialMediaHandles,
+    };
 
     const teacherDataToCreate = {
       ...teacherData,
@@ -51,6 +50,53 @@ export const createTeacherPersonalDetails = async ({
     });
 
     return personalDetails; // Return the created teacher details object
+  } catch (error) {
+    // Throw a generic internal server error if an unexpected error occurs
+    throw error;
+  }
+};
+
+export const updateTeacherPersonalDetails = async ({
+  teacherId,
+  digitalSignature,
+  spokenLanguages,
+  socialMediaHandles,
+  maritalStatus,
+  coursesIds,
+  classesIds,
+}) => {
+  try {
+    // Prepare data to be updated
+    const teacherDataToUpdate = {
+      ...(digitalSignature && { digitalSignature }),
+      ...(spokenLanguages && { spokenLanguages }),
+      ...(maritalStatus && { maritalStatus }),
+      ...(socialMediaHandles && { socialMediaHandles }),
+    };
+
+    const connectCourses = coursesIds?.map((id) => ({ id }));
+    const connectClasses = classesIds?.map((id) => ({ id }));
+
+    // Update the teacher record in the database using Prisma
+    const updatedPersonalDetails = await prisma.teacher.update({
+      where: { id: parseInt(teacherId, 10) }, // Specify the teacher to update
+      data: {
+        ...teacherDataToUpdate,
+        // Handle connections for courses and classes if provided
+        ...(connectCourses?.length > 0 && {
+          courses: {
+            connect: connectCourses,
+          },
+        }),
+        ...(connectClasses?.length > 0 && {
+          classes: {
+            connect: connectClasses,
+          },
+        }),
+      },
+    });
+
+    return updatedPersonalDetails; // Return the updated teacher details object
   } catch (error) {
     // Throw a generic internal server error if an unexpected error occurs
     throw error;

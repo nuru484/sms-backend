@@ -1,12 +1,15 @@
 // src/controllers/userRegistration/teacher-registration-controller.js
-
 import upload from '../../config/multer.js';
-
-// Import the service responsible for processing the teacher registration logic.
-import processTeacherRegistration from '../../services/userRegistration/teacher-registration-service.js';
+import {
+  processTeacherRegistration,
+  processUpdateTeacherDetails,
+} from '../../services/userRegistration/teacher-registration-service.js';
 
 // Import validation middleware for teacher registration and address details
-import validateTeacherDetails from '../../validators/validationMiddleware/userRegistration/teacher-registration-validation-middleware.js';
+import {
+  validateTeacherDetails,
+  validateTeacherUpdateDetails,
+} from '../../validators/validationMiddleware/userRegistration/teacher-registration-validation-middleware.js';
 import { validateAddressDetails } from '../../validators/validationMiddleware/address-validation-middleware.js';
 import validateProfilePhotos from '../../validators/validationMiddleware/files-validation-middleware.js';
 
@@ -44,6 +47,34 @@ export const registerTeacher = [
       return res.status(201).json(response);
     } catch (error) {
       // Delegate the error to the next middleware for centralized handling.
+      next(error);
+    }
+  },
+];
+
+export const updateTeacherDetailsController = [
+  upload.fields([{ name: 'profilePhoto' }, { name: 'digitalSignature' }]),
+
+  validateTeacherUpdateDetails,
+
+  async (req, res, next) => {
+    // Extract the teacher update data from the request body and files
+    const teacherUpdatePayload = Object.assign({}, req.body);
+    const payloadFiles = req.files;
+    const { teacherId } = req.params;
+
+    try {
+      // Call the service function to handle the business logic of updating teacher details
+      const response = await processUpdateTeacherDetails(
+        teacherId,
+        teacherUpdatePayload,
+        payloadFiles
+      );
+
+      // Respond with a success status and the result of the update process
+      return res.status(200).json(response);
+    } catch (error) {
+      // Delegate the error to the next middleware for centralized handling
       next(error);
     }
   },

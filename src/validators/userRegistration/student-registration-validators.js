@@ -77,35 +77,35 @@ export const studentRegistrationValidators = Object.values(studentValidators);
 
 // Factory function to generate student-specific validators for updates
 const createStudentUpdateValidators = () => ({
-  validateFirstName: validateInput('studentFirstName', {
+  validateFirstName: validateInput('firstName', {
     maxLength: 100,
     required: false, // Not required on update
   }),
-  validateMiddleName: validateInput('studentMiddleName', { required: false }),
-  validateLastName: validateInput('studentLastName', {
+  validateMiddleName: validateInput('middleName', { required: false }),
+
+  validateLastName: validateInput('lastName', {
     maxLength: 100,
     required: false, // Not required on update
   }),
-  validateGender: validateInput('studentGender', {
+  validateGender: validateInput('gender', {
     maxLength: 50,
     required: false, // Not required on update
   }),
 
-  validateApplicationNumber: validateInput('studentApplicationNumber', {
-    required: false,
-  }),
+  validateRole: validateInput('role', { required: false })
+    .isIn(['STUDENT'])
+    .withMessage('Invalid student role, student role must be STUDENT!'),
 
   validateEthnicity: validateInput('ethnicity', { required: false }), // Ethnicity may not be updated
+
   validateDateOfBirth: validateDateInput('dateOfBirth', { required: false }), // Not required on update
-  validateUsername: validateInput('studentUsername', {
+
+  validateUsername: validateInput('username', {
     required: false,
   }), // Not required if not changing
-  validatePassword: validatePassword.optional(), // Only validate if password is updated
-  validateConfirmPassword: validateConfirmPassword.optional(), // Only validate if password is updated
 });
 
 // Generate student update validators
-
 const studentUpdateValidatorsFuntion = createStudentUpdateValidators();
 
 // Grouped export for middleware integration

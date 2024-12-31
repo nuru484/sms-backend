@@ -50,6 +50,7 @@ export const getStudentById = async (studentId) => {
       where: { id: parseInt(studentId, 10) },
       include: {
         user: true,
+        StudentApplicationNumber: true,
       },
     });
 

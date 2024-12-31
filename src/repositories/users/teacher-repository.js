@@ -61,25 +61,3 @@ export const getTeacherById = async (teacherId) => {
     throw error;
   }
 };
-
-export const deleteTeacherById = async (teacherId) => {
-  try {
-    const teacher = await prisma.teacher.delete({
-      where: { id: parseInt(teacherId) },
-    });
-
-    return teacher;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const deleteAllTeachers = async () => {
-  try {
-    const deletedCount = await prisma.teacher.deleteMany();
-
-    return { message: `${deletedCount.count} teachers deleted.` };
-  } catch (error) {
-    throw error;
-  }
-};

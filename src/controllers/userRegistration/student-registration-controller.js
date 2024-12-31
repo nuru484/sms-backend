@@ -57,7 +57,9 @@ export const registerStudent = [
       );
 
       // Respond with a success status and the result of the registration process.
-      return res.status(201).json(response);
+      return res
+        .status(201)
+        .json({ message: 'student registration successful.', ...response });
     } catch (error) {
       // Delegate the error to the next middleware for centralized handling.
       next(error);
@@ -73,6 +75,7 @@ export const updateStudentBasicAndPersonal = [
 
   async (req, res, next) => {
     const studentUpdatePayload = Object.assign({}, req.body);
+    console.log(studentUpdatePayload);
     const profilePhoto = req.file; // Get profile photo uploaded in the request
     const { studentId } = req.params;
 
@@ -85,7 +88,7 @@ export const updateStudentBasicAndPersonal = [
 
       return res.status(200).json({
         message: 'Student basic and personal details updated successfully.',
-        data: response,
+        ...response,
       });
     } catch (error) {
       next(error);
@@ -113,7 +116,7 @@ export const updateParentBasicAndPersonal = [
 
       return res.status(200).json({
         message: 'Parent basic and personal details updated successfully.',
-        data: response,
+        ...response,
       });
     } catch (error) {
       next(error);

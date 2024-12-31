@@ -39,15 +39,9 @@ export const createUserBasicDetails = async (userDetails) => {
  * @throws {CustomError} - Throws a custom error if there is a problem with user update or database interaction.
  */
 export const updateUserBasicDetails = async (userId, userData) => {
-  const hashedPassword = userData.password
-    ? await bcrypt.hash(userData.password, 10)
-    : null;
-
-  userData.password = hashedPassword;
-
   try {
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
+      where: { id: parseInt(userId, 10) },
       data: userData,
     });
 

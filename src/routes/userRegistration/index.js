@@ -1,10 +1,7 @@
 // src/routes/userRegistration/index.js
-
-// Import the Router function from Express to define route handlers
 import { Router } from 'express';
 const router = Router();
 
-// Import the routes for student and admin registration
 import studentRoutes from './student-registration-route.js';
 import userRoutes from './user-registration-route.js';
 import teacherRoutes from './teacher-registration-route.js';

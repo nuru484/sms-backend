@@ -1,14 +1,23 @@
 // src/services/userRegistration/teacher-registration-service.js
-
-// Import required repository functions for user and teacher data handling
-import { createUserBasicDetails } from '../../repositories/userRegistration/general-user-registration-repository.js';
+import {
+  createUserBasicDetails,
+  updateUserBasicDetails,
+} from '../../repositories/userRegistration/general-user-registration-repository.js';
+import {
+  createTeacherPersonalDetails,
+  updateTeacherPersonalDetails,
+} from '../../repositories/userRegistration/teacher-registration-repository.js';
+import {
+  uploadFileToCloudinary,
+  deleteFileFromCloudinary,
+} from '../../config/claudinary.js';
+import { getTeacherById } from '../../repositories/users/teacher-repository.js';
 import { createUserAddress } from '../address/address-services.js';
-import { createTeacherPersonalDetails } from '../../repositories/userRegistration/teacher-registration-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js';
-import prisma from '../../config/prismaClient.js'; // Assuming you're using Prisma for database operations
-import { uploadFileToCloudinary } from '../../config/claudinary.js';
+import prisma from '../../config/prismaClient.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
+import { checkUniquenessOnUpdate } from '../../utils/helpers/validation-helpers.js';
 
 /**
  * Main function to process teacher registration.
@@ -17,7 +26,7 @@ import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
  * @returns {Promise<Object>} - Returns a success message if registration is successful.
  * @throws {CustomError} - Throws an error if any step in the process fails.
  */
-const processTeacherRegistration = async (payload, payloadFiles) => {
+export const processTeacherRegistration = async (payload, payloadFiles) => {
   const {
     firstName,
     middleName,
@@ -98,64 +107,173 @@ const processTeacherRegistration = async (payload, payloadFiles) => {
     const teacherDigitalSignatureUrl =
       digitalSignature && (await uploadFileToCloudinary(digitalSignature[0]));
 
-    // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
-      // Step 2: Create Teacher User Record
-      const teacher = await createUserBasicDetails({
-        firstName,
-        middleName,
-        lastName,
-        username,
-        password,
-        role,
-        gender,
-        profilePhoto: teacherProfilePhotoUrl,
-        email,
-        phoneNumber,
-        employmentType,
-        dateOfBirth,
-        tx, // Pass transaction object to repository
-      });
-
-      logger.info('Teacher basic details successfully created');
-
-      // Step 3: Create Teacher Personal Details
-
-      const teacherPersonalDetails = await createTeacherPersonalDetails({
-        digitalSignature: teacherDigitalSignatureUrl,
-        spokenLanguages,
-        socialMediaHandles,
-        maritalStatus,
-        userId: teacher.id,
-        coursesIds: validCoursesIds.length > 0 ? validCoursesIds : [],
-        classesIds: validClassesIds.length > 0 ? validClassesIds : [],
-        tx, // Pass transaction object to repository
-      });
-
-      logger.info('Teacher personal details successfully created.');
-
-      // Step 4: Create Teacher Address
-      const teacherAddress = await createUserAddress({
-        city,
-        country,
-        region,
-        postalCode,
-        digitalAddress,
-        userId: teacher.id,
-        tx, // Pass transaction object to repository
-      });
-
-      logger.info('Teacher address successfully created.');
-
-      return {
-        message: 'Teacher registration successful.',
-      };
+    const teacher = await createUserBasicDetails({
+      firstName,
+      middleName,
+      lastName,
+      username,
+      password,
+      role,
+      gender,
+      profilePhoto: teacherProfilePhotoUrl,
+      email,
+      phoneNumber,
+      employmentType,
+      dateOfBirth,
     });
 
-    return result; // Return the result of the transaction
+    logger.info('Teacher basic details successfully created');
+
+    // Step 3: Create Teacher Personal Details
+
+    const teacherPersonalDetails = await createTeacherPersonalDetails({
+      digitalSignature: teacherDigitalSignatureUrl,
+      spokenLanguages,
+      socialMediaHandles,
+      maritalStatus,
+      userId: teacher.id,
+      coursesIds: validCoursesIds.length > 0 ? validCoursesIds : [],
+      classesIds: validClassesIds.length > 0 ? validClassesIds : [],
+    });
+
+    logger.info('Teacher personal details successfully created.');
+
+    // Step 4: Create Teacher Address
+    const teacherAddress = await createUserAddress({
+      city,
+      country,
+      region,
+      postalCode,
+      digitalAddress,
+      userId: teacher.id,
+    });
+
+    logger.info('Teacher address successfully created.');
+
+    return {
+      message: 'Teacher registration successful.',
+    };
   } catch (error) {
     handlePrismaError(error, 'Teacher Registration');
   }
 };
 
-export default processTeacherRegistration;
+export const processUpdateTeacherDetails = async (
+  teacherId,
+  payload,
+  payloadFiles
+) => {
+  try {
+    const {
+      firstName,
+      middleName,
+      lastName,
+      gender,
+      username,
+      role,
+      email,
+      phoneNumber,
+      employmentType,
+      dateOfBirth,
+      spokenLanguages,
+      socialMediaHandles,
+      maritalStatus,
+      coursesIds,
+      classesIds,
+    } = payload;
+
+    const teacher = await getTeacherById(teacherId);
+    if (!teacher) {
+      throw new CustomError(400, `Teacher with ID ${teacherId} not found!`);
+    }
+
+    await checkUniquenessOnUpdate('user', 'email', email, teacher.user.id);
+    await checkUniquenessOnUpdate(
+      'user',
+      'username',
+      username,
+      teacher.user.id
+    );
+
+    // Validate and process courses and classes
+    if (coursesIds && Array.isArray(coursesIds)) {
+      const courseValidationPromises = coursesIds.map(async (courseId) => {
+        const course = await prisma.course.findUnique({
+          where: { id: parseInt(courseId) },
+        });
+
+        if (!course) {
+          throw new CustomError(404, `Course with ID ${courseId} not found.`);
+        }
+      });
+
+      await Promise.all(courseValidationPromises);
+    }
+
+    if (classesIds && Array.isArray(classesIds)) {
+      const classValidationPromises = classesIds.map(async (classId) => {
+        const cls = await prisma.class.findUnique({
+          where: { id: parseInt(classId) },
+        });
+
+        if (!cls) {
+          throw new CustomError(404, `Class with ID ${classId} not found.`);
+        }
+      });
+
+      await Promise.all(classValidationPromises);
+    }
+
+    const { profilePhoto, digitalSignature } = payloadFiles;
+
+    const profilePhotoUrl =
+      profilePhoto && (await uploadFileToCloudinary(profilePhoto[0]));
+
+    const digitalSignatureUrl =
+      digitalSignature && (await uploadFileToCloudinary(digitalSignature[0]));
+
+    if (teacher.user.profilePhoto) {
+      await deleteFileFromCloudinary(teacher.user.profilePhoto);
+    }
+    if (teacher.user.digitalSignature) {
+      await deleteFileFromCloudinary(teacher.user.digitalSignature);
+    }
+
+    // Update basic details
+    const updatedTeacher = await updateUserBasicDetails(teacher.user.id, {
+      firstName,
+      middleName,
+      lastName,
+      profilePhoto: profilePhotoUrl,
+      gender,
+      username,
+      role,
+      email,
+      phoneNumber,
+      employmentType,
+      dateOfBirth,
+    });
+
+    logger.info(`Teacher basic details updated successfully.`);
+
+    // Update personal details
+    const teacherPersonalDetails = await updateTeacherPersonalDetails({
+      teacherId: teacher.id,
+      spokenLanguages,
+      socialMediaHandles,
+      digitalSignature: digitalSignatureUrl,
+      maritalStatus,
+      coursesIds: coursesIds && coursesIds.map(Number),
+      classesIds: classesIds && classesIds.map(Number),
+    });
+
+    logger.info(`Teacher personal details updated successfully.`);
+
+    return {
+      message: 'Teacher details update successful.',
+      data: { ...updatedTeacher, teacherPersonalDetails },
+    };
+  } catch (error) {
+    handlePrismaError(error);
+  }
+};

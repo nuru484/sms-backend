@@ -2,13 +2,17 @@
 
 // Import necessary functions for validation and error handling
 import handleValidationErrors from '../../../utils/middleware/validation-error-handler.js';
-import { teacherRegistrationValidators } from '../../userRegistration/teacher-registration-validators.js';
+import {
+  teacherRegistrationValidators,
+  TeacherUpdateValidationMiddleware,
+} from '../../userRegistration/teacher-registration-validators.js';
 
-// Validation middleware for Teacher registration route
-// Combines the individual teacher registration validators and the error handler
-const validateTeacherDetails = [
+export const validateTeacherDetails = [
   ...teacherRegistrationValidators, // Spread the individual validation rules for teacher registration
   handleValidationErrors, // Handle any validation errors that arise during the process
 ];
 
-export default validateTeacherDetails; // Export the validation middleware to be used in routes
+export const validateTeacherUpdateDetails = [
+  ...TeacherUpdateValidationMiddleware, // Spread the individual validation rules for teacher updates
+  handleValidationErrors, // Handle any validation errors that arise during the process
+];

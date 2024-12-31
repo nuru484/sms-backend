@@ -80,9 +80,9 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     });
 
     // Step 1: Create Student User Record
-    const studentProfilePhotoUrl = await uploadFileToCloudinary(
-      studentProfilePhoto[0]
-    );
+    const studentProfilePhotoUrl =
+      studentProfilePhoto &&
+      (await uploadFileToCloudinary(studentProfilePhoto[0]));
 
     const student = await createUserBasicDetails({
       firstName: studentFirstName,
@@ -130,9 +130,9 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     logger.info(`Student address created successfully.`);
 
     // Step 5: Create Father User Record
-    const fatherProfilePhotoUrl = await uploadFileToCloudinary(
-      fatherProfilePhoto[0]
-    );
+    const fatherProfilePhotoUrl =
+      fatherProfilePhoto &&
+      (await uploadFileToCloudinary(fatherProfilePhoto[0]));
 
     const studentFather = await createUserBasicDetails({
       firstName: studentFatherFirstName,
@@ -159,9 +159,9 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     logger.info(`Student father personal details created successfully.`);
 
     // Step 8: Create Mother User Record
-    const motherProfilePhotoUrl = await uploadFileToCloudinary(
-      motherProfilePhoto[0]
-    );
+    const motherProfilePhotoUrl =
+      motherProfilePhoto &&
+      (await uploadFileToCloudinary(motherProfilePhoto[0]));
 
     const studentMother = await createUserBasicDetails({
       firstName: studentMotherFirstName,
@@ -193,8 +193,7 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
 
     // Return success message after all steps are successfully completed
     return {
-      message: 'Student registration successful.',
-      'admission status': admissionStatus, // The admission status is set to pending initially
+      student: { ...student, studentPersonalDetails }, // The admission status is set to pending initially
     };
   } catch (error) {
     handlePrismaError(error);
@@ -208,17 +207,7 @@ export const updateStudentBasicAndPersonalDetails = async (
   profilePhoto
 ) => {
   try {
-    const {
-      studentFirstName,
-      studentMiddleName,
-      studentLastName,
-      studentGender,
-      studentUsername,
-      studentRole,
-      dateOfBirth,
-      studentPhoneNumber,
-      ethnicity,
-    } = payload;
+    const { ethnicity, ...studentBasicDetails } = payload;
 
     const student = await getStudentById(studentId);
     if (!student) {
@@ -228,7 +217,7 @@ export const updateStudentBasicAndPersonalDetails = async (
     await checkUniquenessOnUpdate(
       'user',
       'username',
-      studentUsername,
+      studentBasicDetails.username,
       student.user.id
     );
 
@@ -239,17 +228,12 @@ export const updateStudentBasicAndPersonalDetails = async (
       await deleteFileFromCloudinary(student.user.profilePhoto);
     }
 
-    const updatedStudent = await updateUserBasicDetails(student.user.id, {
-      firstName: studentFirstName,
-      middleName: studentMiddleName,
-      lastName: studentLastName,
-      profilePhoto: studentProfilePhotoUrl,
-      gender: studentGender,
-      username: studentUsername,
-      role: studentRole,
-      dateOfBirth,
-      phoneNumber: studentPhoneNumber,
-    });
+    studentBasicDetails.profilePhoto = studentProfilePhotoUrl;
+
+    const updatedStudent = await updateUserBasicDetails(
+      student.user.id,
+      studentBasicDetails
+    );
 
     logger.info(`Student basic details updated successfully.`);
 
@@ -263,7 +247,9 @@ export const updateStudentBasicAndPersonalDetails = async (
     const patterns = [`student:${studentId}`, 'students:{*}'];
     await invalidateCache(client, patterns);
 
-    return updatedStudent;
+    return {
+      student: { ...updatedStudent, studentPersonalDetails },
+    };
   } catch (error) {
     handlePrismaError(error);
   }
@@ -350,7 +336,9 @@ export const updateParentDetails = async (parentId, payload, profilePhoto) => {
     const patterns = ['students:{*}', ...parentWardsCacheKeys];
     await invalidateCache(client, patterns);
 
-    return updatedParent;
+    return {
+      parent: { ...updatedParent, parentPersonalDetails },
+    };
   } catch (error) {
     handlePrismaError(error);
   }
