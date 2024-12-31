@@ -150,8 +150,12 @@ export const processTeacherRegistration = async (payload, payloadFiles) => {
 
     logger.info('Teacher address successfully created.');
 
+    // Invalidate cache
+    const patterns = ['teachers:{*}'];
+    await invalidateCache(client, patterns);
+
     return {
-      message: 'Teacher registration successful.',
+      teacher: { ...teacher, teacherPersonalDetails },
     };
   } catch (error) {
     handlePrismaError(error, 'Teacher Registration');
@@ -269,8 +273,11 @@ export const processUpdateTeacherDetails = async (
 
     logger.info(`Teacher personal details updated successfully.`);
 
+    // Invalidate cache
+    const patterns = ['teachers:{*}', `teacher:${teacherId}`];
+    await invalidateCache(client, patterns);
+
     return {
-      message: 'Teacher details update successful.',
       data: { ...updatedTeacher, teacherPersonalDetails },
     };
   } catch (error) {

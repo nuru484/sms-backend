@@ -44,7 +44,9 @@ export const registerTeacher = [
       );
 
       // Respond with a success status and the result of the registration process.
-      return res.status(201).json(response);
+      return res
+        .status(201)
+        .json({ message: 'Teacher registration successful', ...response });
     } catch (error) {
       // Delegate the error to the next middleware for centralized handling.
       next(error);
@@ -72,7 +74,9 @@ export const updateTeacherDetailsController = [
       );
 
       // Respond with a success status and the result of the update process
-      return res.status(200).json(response);
+      return res
+        .status(200)
+        .json({ message: 'Teacher details update successful.', ...response });
     } catch (error) {
       // Delegate the error to the next middleware for centralized handling
       next(error);

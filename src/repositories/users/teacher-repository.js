@@ -2,21 +2,39 @@
 import prisma from '../../config/prismaClient.js';
 
 export const getTeachers = async (options = {}) => {
-  const { page = 1, limit = 10, search = '' } = options;
+  const { page = 1, limit = 10, searchQuery = '' } = options;
 
   try {
     const skip = (page - 1) * limit;
 
-    const where = search
+    const where = searchQuery
       ? {
           OR: [
-            { user: { username: { contains: search, mode: 'insensitive' } } },
-            { user: { firstName: { contains: search, mode: 'insensitive' } } },
-            { user: { lastName: { contains: search, mode: 'insensitive' } } },
-            { user: { middleName: { contains: search, mode: 'insensitive' } } },
-            { user: { email: { contains: search, mode: 'insensitive' } } },
             {
-              user: { phoneNumber: { contains: search, mode: 'insensitive' } },
+              user: {
+                username: { contains: searchQuery, mode: 'insensitive' },
+              },
+            },
+            {
+              user: {
+                firstName: { contains: searchQuery, mode: 'insensitive' },
+              },
+            },
+            {
+              user: {
+                lastName: { contains: searchQuery, mode: 'insensitive' },
+              },
+            },
+            {
+              user: {
+                middleName: { contains: searchQuery, mode: 'insensitive' },
+              },
+            },
+            { user: { email: { contains: searchQuery, mode: 'insensitive' } } },
+            {
+              user: {
+                phoneNumber: { contains: searchQuery, mode: 'insensitive' },
+              },
             },
           ],
         }
@@ -50,7 +68,7 @@ export const getTeachers = async (options = {}) => {
 export const getTeacherById = async (teacherId) => {
   try {
     const teacher = await prisma.teacher.findUnique({
-      where: { id: parseInt(teacherId) },
+      where: { id: parseInt(teacherId, 10) },
       include: {
         user: true,
       },
