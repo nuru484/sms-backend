@@ -75,7 +75,7 @@ export const handleDeleteAllStudents = async (req, res, next) => {
 
     res.status(200).json({
       message: 'All students deleted successfully',
-      data: result,
+      result,
     });
   } catch (error) {
     next(error);

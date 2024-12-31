@@ -18,6 +18,8 @@ import logger from '../../utils/logger.js';
 import prisma from '../../config/prismaClient.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { checkUniquenessOnUpdate } from '../../utils/helpers/validation-helpers.js';
+import invalidateCache from '../../utils/helpers/invalidate-cache.js';
+import { client } from '../../config/redis.js';
 
 /**
  * Main function to process teacher registration.
@@ -151,7 +153,7 @@ export const processTeacherRegistration = async (payload, payloadFiles) => {
     logger.info('Teacher address successfully created.');
 
     // Invalidate cache
-    const patterns = ['teachers:{*}'];
+    const patterns = ['teachers:{*}', 'users:{*}'];
     await invalidateCache(client, patterns);
 
     return {
@@ -274,7 +276,12 @@ export const processUpdateTeacherDetails = async (
     logger.info(`Teacher personal details updated successfully.`);
 
     // Invalidate cache
-    const patterns = ['teachers:{*}', `teacher:${teacherId}`];
+    const patterns = [
+      'teachers:{*}',
+      `teacher:${teacherId}`,
+      `user:${teacher.user.id}`,
+      'users:{*}',
+    ];
     await invalidateCache(client, patterns);
 
     return {

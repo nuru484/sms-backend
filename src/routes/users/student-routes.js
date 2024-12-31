@@ -14,6 +14,7 @@ import authorizeRole from '../../utils/middleware/authorizeRole.js';
 
 // Cache key generator
 const studentCacheKey = (req) => `student:${req.params.studentId}`;
+
 const allStudentsCacheKey = (req) => {
   const normalizedQuery = normalizeQuery(req.query);
   return `students:${JSON.stringify(normalizedQuery)}`;

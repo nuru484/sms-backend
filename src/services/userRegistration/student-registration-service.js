@@ -188,7 +188,7 @@ export const processStudentRegistration = async (payload, profilePhotos) => {
     logger.info(`Student mother personal details created successfully.`);
 
     // Invalidate cache
-    const patterns = ['students:{*}'];
+    const patterns = ['students:{*}', `users:{*}`];
     await invalidateCache(client, patterns);
 
     // Return success message after all steps are successfully completed
@@ -244,7 +244,12 @@ export const updateStudentBasicAndPersonalDetails = async (
     logger.info(`Student personal details updated successfully.`);
 
     // Invalidate cache
-    const patterns = [`student:${studentId}`, 'students:{*}'];
+    const patterns = [
+      `student:${studentId}`,
+      'students:{*}',
+      `users:{*}`,
+      `user:${student.user.id}`,
+    ];
     await invalidateCache(client, patterns);
 
     return {
@@ -333,7 +338,12 @@ export const updateParentDetails = async (parentId, payload, profilePhoto) => {
 
     // Invalidate cache
     const parentWardsCacheKeys = wardsIds.map((wardId) => `student:${wardId}`);
-    const patterns = ['students:{*}', ...parentWardsCacheKeys];
+    const patterns = [
+      'students:{*}',
+      `users:{*}`,
+      `user:{}`,
+      ...parentWardsCacheKeys,
+    ];
     await invalidateCache(client, patterns);
 
     return {

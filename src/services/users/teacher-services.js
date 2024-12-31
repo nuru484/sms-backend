@@ -3,6 +3,7 @@ import {
   getTeachers,
   getTeacherById,
 } from '../../repositories/users/teacher-repository.js';
+import { deleteUserById } from '../../repositories/users/general-user-repository.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { saveToCache, client } from '../../config/redis.js';
@@ -48,7 +49,7 @@ export const getSingleTeacherById = async (teacherId) => {
     }
 
     const teacherCacheKey = `teacher:${teacherId}`;
-    saveToCache(teacherCacheKey, teacher); // Save the teacher to the cache
+    saveToCache(teacherCacheKey, { teacher }); // Save the teacher to the cache
 
     return teacher;
   } catch (error) {
@@ -74,12 +75,7 @@ export const removeTeacherById = async (teacherId) => {
     // Collect user ID for deletion
     const userId = teacher.user?.id;
 
-    const response = await prisma.$transaction([
-      // Delete teacher user
-      prisma.user.delete({
-        where: { id: parseInt(userId, 10) },
-      }),
-    ]);
+    const response = await deleteUserById(userId);
 
     const patterns = [`teacher:${teacherId}`, 'teachers:{*}'];
     await invalidateCache(client, patterns);

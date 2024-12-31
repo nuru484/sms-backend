@@ -19,7 +19,7 @@ const cacheMiddleware = (keyGenerator) => async (req, res, next) => {
 
       return res.status(200).json({
         message: `${cacheKey} successfully fetched from redis`,
-        data: JSON.parse(data),
+        ...JSON.parse(data), // Spread the object values directly
       });
     }
 

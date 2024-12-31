@@ -6,7 +6,7 @@ export const fetchUsers = async (options = {}) => {
     page = 1,
     limit = 10,
     fetchAll = false,
-    search = '',
+    searchQuery = '',
     role = null,
   } = options;
 
@@ -15,35 +15,35 @@ export const fetchUsers = async (options = {}) => {
 
     // Prepare search filters for username, firstName, middleName, lastName, phoneNumber
     const searchFilters = {
-      ...(search && {
+      ...(searchQuery && {
         OR: [
           {
             username: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive', // Case-insensitive search
             },
           },
           {
             firstName: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive',
             },
           },
           {
             middleName: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive',
             },
           },
           {
             lastName: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive',
             },
           },
           {
             phoneNumber: {
-              contains: search,
+              contains: searchQuery,
               mode: 'insensitive',
             },
           },
@@ -113,7 +113,6 @@ export const getUserById = async (userId) => {
     throw error;
   }
 };
-
 export const deleteUserById = async (userId) => {
   try {
     const deletedUser = await prisma.user.delete({

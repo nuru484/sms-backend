@@ -10,7 +10,14 @@ import {
   handleDeleteTeacherById,
   handleDeleteAllTeachers,
 } from './teacher-controller.js';
-import { forgetPassword, resetPassword } from './general-user-controller.js';
+import {
+  forgetPassword,
+  resetPassword,
+  handleGetAllUsers,
+  handleGetUserById,
+  handleDeleteUserById,
+  handleDeleteAllUsers,
+} from './general-user-controller.js';
 
 export {
   handleGetAllStudents,
@@ -23,4 +30,8 @@ export {
   handleDeleteAllTeachers,
   forgetPassword,
   resetPassword,
+  handleGetAllUsers,
+  handleGetUserById,
+  handleDeleteUserById,
+  handleDeleteAllUsers,
 };
