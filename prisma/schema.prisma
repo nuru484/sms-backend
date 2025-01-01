@@ -791,35 +791,38 @@ model HealthAndSupport {
 }
 
 model AcademicCalendar {
-  id        Int       @id @default(autoincrement())
-  year      String    @unique // Academic year, e.g., "2024/2025" or "2025"
+  id        Int      @id @default(autoincrement())
+  year      String   @unique // Academic year, e.g., "2024/2025" or "2025"
   startDate DateTime // Start date of the academic year
   endDate   DateTime // End date of the academic year
-  terms     Term[] // 1:N relation to Term
-  holidays  Holiday[] // 1:N relation to Holiday
-  events    Event[] // 1:N relation to Event
   metadata  Json? // For additional fields, such as custom attributes
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  terms    Term[] // 1:N relation to Term
+  holidays Holiday[] // 1:N relation to Holiday
+  events   Event[] // 1:N relation to Event
 
   @@index([startDate]) // Index for querying by start date
   @@index([endDate]) // Index for querying by end date
 }
 
 model Term {
-  id                 Int               @id @default(autoincrement())
-  name               String // Name of the term, e.g., "Fall", "Spring", etc.
-  startDate          DateTime // Start date of the term
-  endDate            DateTime // End date of the term
+  id        Int      @id @default(autoincrement())
+  name      String // Name of the term, e.g., "Fall", "Spring", etc.
+  startDate DateTime // Start date of the term
+  endDate   DateTime // End date of the term
+  metadata  Json? // For custom attributes or extensions
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   academicCalendarId Int // Foreign key to AcademicCalendar
-  academicCalendar   AcademicCalendar  @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  sessions           Session[] // 1:N relation to Session
-  metadata           Json? // For custom attributes or extensions
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  LessonTimetable    LessonTimetable[]
-  Exam               Exam[]
-  ReportDetail       ReportDetail[]
+  academicCalendar   AcademicCalendar @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  LessonTimetable LessonTimetable[]
+  Exam            Exam[]
+  ReportDetail    ReportDetail[]
 
   @@unique([academicCalendarId, name]) // Ensure term names are unique within an academic calendar
   @@index([startDate]) // Index for querying by start date
@@ -843,35 +846,21 @@ model Holiday {
 }
 
 model Event {
-  id                 Int              @id @default(autoincrement())
-  name               String // Event name, e.g., "Parent-Teacher Conference"
-  date               DateTime // Event date
-  description        String? // Optional description
+  id          Int      @id @default(autoincrement())
+  name        String // Event name, e.g., "Parent-Teacher Conference"
+  date        DateTime // Event date
+  description String? // Optional description
+  metadata    Json? // For additional event-specific details
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants User[] // Relation to participants
+
   academicCalendarId Int // Foreign key to AcademicCalendar
   academicCalendar   AcademicCalendar @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  metadata           Json? // For additional event-specific details
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  participants       User[] // Relation to participants
 
   @@unique([academicCalendarId, name, date]) // Prevent duplicate events with the same name on the same date
   @@index([date]) // Index for querying by event date
   @@index([academicCalendarId]) // Optimize foreign key queries
-}
-
-model Session {
-  id        Int      @id @default(autoincrement())
-  name      String // Name of the session, e.g., "Midterms", "Final Exams"
-  startDate DateTime // Session start date
-  endDate   DateTime // Session end date
-  termId    Int // Foreign key to Term
-  term      Term     @relation(fields: [termId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  metadata  Json? // For session-specific data
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([termId, name]) // Ensure session names are unique within a term
-  @@index([startDate]) // Index for querying by start date
-  @@index([endDate]) // Index for querying by end date
-  @@index([termId]) // Optimize foreign key queries
 }

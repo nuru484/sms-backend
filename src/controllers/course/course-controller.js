@@ -1,5 +1,4 @@
 //  src/controllers/course/course-controller.js
-
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import logger from '../../utils/logger.js'; // Logger for logging errors and information
 import {

@@ -15,6 +15,7 @@ import addressRouter from './address/index.js';
 import healthAndSafetyRouter from './healthAndSafety/index.js';
 import attendanceRouter from './attendance/index.js';
 import usersRouter from './users/index.js';
+import academicCalendarRouter from './academicCalendar/index.js';
 
 // Mounting the all the routes under the `/api/v1` prefix
 
@@ -41,6 +42,8 @@ routes.use('/health-safety', healthAndSafetyRouter);
 routes.use('/attendance', attendanceRouter);
 
 routes.use('/users', usersRouter);
+
+routes.use('/academic-calendars', academicCalendarRouter);
 
 // Exporting the configured root router to be used in the main server setup
 export default routes; // To be exported to server
