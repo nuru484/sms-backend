@@ -1,5 +1,4 @@
 // src/validators/level/level-validators.js
-
 import { validateInput } from '../general-validators.js';
 import { body } from 'express-validator';
 
@@ -58,6 +57,10 @@ const createLevelValidators = () => ({
     }),
 });
 
+// Generate all the level-specific validators using the factory function
+const levelValidators = createLevelValidators();
+export const levelCreationValidators = Object.values(levelValidators);
+
 // Factory function to generate validators specific to level update
 const updateLevelValidators = () => ({
   // Validator for level update (using the generic validation function for name and code)
@@ -70,15 +73,7 @@ const updateLevelValidators = () => ({
     .withMessage('Order must be an integer'),
 });
 
-// Generate all the level-specific validators using the factory function
-const levelValidators = createLevelValidators();
-
 const updateLevelValidatorsFunction = updateLevelValidators();
-
-// Grouping all individual validators into one array for ease of use in middleware
-// This array is later used in the level creation route for validation
-export const levelCreationValidators = Object.values(levelValidators);
-
 export const levelUpdateValidators = Object.values(
   updateLevelValidatorsFunction
 );

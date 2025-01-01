@@ -10,11 +10,10 @@ import {
   handleDeleteAcademicCalendarById,
   handleDeleteAllAcademicCalendars,
 } from '../../controllers/academicCalendar/index.js';
-
-// import {
-//   validateAcademicCalendarDetails,
-//   validateAcademicCalendarUpdateDetails,
-// } from '../../validators/validationMiddleware/academic-calendar/academic-calendar-validation-middleware.js';
+import {
+  validateAcademicCalendarDetails,
+  validateAcademicCalendarUpdateDetails,
+} from '../../validators/validationMiddleware/academicCalendar/academic-calendar-validation-middleware.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 import { cacheMiddleware } from '../../config/redis.js';
 import normalizeQuery from '../../utils/helpers/normalize-query.js';
@@ -30,14 +29,14 @@ const academicCalendarsCacheKey = (req) => {
 // Route to create an academic calendar
 router.post(
   '/academic-calendar',
-  //   validateAcademicCalendarDetails, // Middleware to validate academic calendar details
+  validateAcademicCalendarDetails,
   handleCreateAcademicCalendar // Controller to handle creation logic
 );
 
 // Route to update an academic calendar by ID
 router.put(
   '/academic-calendar/:calendarId',
-  //   validateAcademicCalendarUpdateDetails, // Middleware to validate update details
+  validateAcademicCalendarUpdateDetails,
   handleUpdateAcademicCalendar // Controller to handle update logic
 );
 

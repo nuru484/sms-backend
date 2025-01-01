@@ -1,5 +1,4 @@
 //  src/validators/studentFormerSchool/former-school-validators.js
-
 import {
   validateInput,
   validateDateInput,
