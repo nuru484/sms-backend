@@ -814,6 +814,7 @@ model Term {
   startDate DateTime // Start date of the term
   endDate   DateTime // End date of the term
   metadata  Json? // For custom attributes or extensions
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
