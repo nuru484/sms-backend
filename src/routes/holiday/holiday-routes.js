@@ -10,10 +10,10 @@ import {
   handleDeleteAllHolidays,
 } from '../../controllers/holiday/index.js';
 
-// import {
-//   validateHolidayDetails,
-//   validateHolidayUpdateDetails,
-// } from '../../validators/validationMiddleware/holiday/holiday-validation-middleware.js';
+import {
+  validateHolidayDetails,
+  validateHolidayUpdateDetails,
+} from '../../validators/validationMiddleware/holiday/holiday-validation-middleware.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 import { cacheMiddleware } from '../../config/redis.js';
 import normalizeQuery from '../../utils/helpers/normalize-query.js';
@@ -28,14 +28,14 @@ const holidaysCacheKey = (req) => {
 // Route to create a holiday
 router.post(
   '/holiday',
-  //   validateHolidayDetails,
+  validateHolidayDetails,
   handleCreateHoliday // Controller to handle creation logic
 );
 
 // Route to update a holiday by ID
 router.put(
   '/holiday/:holidayId',
-  //   validateHolidayUpdateDetails,
+  validateHolidayUpdateDetails,
   handleUpdateHoliday // Controller to handle update logic
 );
 
