@@ -51,9 +51,7 @@ const createCourseValidators = () => ({
     }),
 });
 
-// Generate all the course-specific validators using the factory function
-const courseValidators = createCourseValidators();
-export const courseCreationValidators = Object.values(courseValidators);
+export const courseCreationValidators = Object.values(createCourseValidators());
 
 // Factory function to generate validators specific to course update
 const updateCourseValidators = () => ({
@@ -63,8 +61,4 @@ const updateCourseValidators = () => ({
   valdiateCourseCode: validateInput('description', { required: false }),
 });
 
-const updateCourseValidatorsFunction = updateCourseValidators();
-
-export const courseUpdateValidators = Object.values(
-  updateCourseValidatorsFunction
-);
+export const courseUpdateValidators = Object.values(updateCourseValidators());

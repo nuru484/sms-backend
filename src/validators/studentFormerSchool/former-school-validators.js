@@ -49,10 +49,7 @@ const createFormerSchoolValidators = () => ({
   }),
 });
 
-// Generate validators using the factory function
-const formerSchoolValidators = createFormerSchoolValidators();
-
 // Group validators into an array for middleware usage
 export const formerSchoolValidationMiddleware = Object.values(
-  formerSchoolValidators
+  createFormerSchoolValidators()
 );

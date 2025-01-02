@@ -1,6 +1,11 @@
 // src/validators/term/term-validators.js
 import { body } from 'express-validator';
-import { validateInput, validateDateInput } from '../general-validators.js';
+import {
+  validateInput,
+  validateDateInput,
+  validateObject,
+  validateInteger,
+} from '../general-validators.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { fetchAcademicCalendarById } from '../../repositories/academicCalendar/academic-calendar-repository.js';
 
@@ -16,16 +21,10 @@ const termValidators = () => ({
   validateEndDate: validateDateInput('endDate'),
 
   // Validator for metadata (optional, valid JSON)
-  validateMetadata: body('metadata')
-    .optional()
-    .isObject()
-    .withMessage('Metadata must be an object')
-    .bail(),
+  validateMetadata: validateObject('metadata'),
 
   // Validator for academicCalendarId (required, must be a valid integer)
-  validateAcademicCalendarId: body('academicCalendarId')
-    .isInt()
-    .withMessage('AcademicCalendar ID must be a valid integer')
+  validateAcademicCalendarId: validateInteger('academicCalendarId')
     .custom(async (value) => {
       // Check if the academic calendar exists
       const academicCalendar = await fetchAcademicCalendarById(value);
@@ -57,17 +56,10 @@ const termUpdateValidators = () => ({
   validateEndDate: validateDateInput('endDate', { required: false }),
 
   // Validator for metadata (optional, valid JSON)
-  validateMetadata: body('metadata')
-    .optional()
-    .isObject()
-    .withMessage('Metadata must be an object')
-    .bail(),
+  validateMetadata: validateObject('metadata'),
 
   // Validator for academicCalendarId (optional, must be a valid integer if provided)
-  validateAcademicCalendarId: body('academicCalendarId')
-    .optional()
-    .isInt()
-    .withMessage('AcademicCalendar ID must be a valid integer')
+  validateAcademicCalendarId: validateInteger('academicCalendarId')
     .custom(async (value) => {
       // Check if the academic calendar exists
       const academicCalendar = await fetchAcademicCalendarById(value);

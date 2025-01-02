@@ -1,5 +1,9 @@
-import { validateInput } from '../general-validators.js';
-import { body } from 'express-validator';
+// src/validators/studentFormerSchool/academic-perfomance-validators.js
+import {
+  validateArray,
+  validateInput,
+  validateObject,
+} from '../general-validators.js';
 
 // Factory function to generate validators for AcademicPerformance model
 const createAcademicPerformanceValidators = () => ({
@@ -15,17 +19,10 @@ const createAcademicPerformanceValidators = () => ({
     maxLength: 50,
   }),
 
-  // Validator for courses (optional, must be a valid object)
-  validateCourses: body('courses')
-    .optional()
-    .isArray()
-    .withMessage('Course must be a valid array.'),
+  validateCourses: validateArray('courses'),
 
   // Validator for grades (optional, must be a valid object)
-  validateGrades: body('grades')
-    .optional()
-    .isObject()
-    .withMessage('Grades must be a valid json object.'),
+  validateGrades: validateObject('grades'),
 
   // Validator for classRanking (optional, max length 50 characters)
   validateClassRanking: validateInput('classRanking', {
@@ -34,16 +31,10 @@ const createAcademicPerformanceValidators = () => ({
   }),
 
   // Validator for specialPrograms (optional, must be a valid array)
-  validateSpecialPrograms: body('specialPrograms')
-    .optional()
-    .isArray()
-    .withMessage('Special Programs must be a valid array.'),
+  validateSpecialPrograms: validateArray('specialPrograms'),
 });
-
-// Generate validators using the factory function
-const academicPerformanceValidators = createAcademicPerformanceValidators();
 
 // Group validators into an array for middleware usage
 export const academicPerformanceValidationMiddleware = Object.values(
-  academicPerformanceValidators
+  createAcademicPerformanceValidators()
 );

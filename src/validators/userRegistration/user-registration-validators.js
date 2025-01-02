@@ -1,5 +1,4 @@
 // src/validators/userRegistration/admin-registration-validators.js
-
 import {
   validateInput, // General input validation function for various fields
   validateUsernameInput,
@@ -52,9 +51,4 @@ const createUserValidators = () => ({
   validateConfirmPassword,
 });
 
-// Generate all the admin-specific validators using the factory function
-const userValidators = createUserValidators();
-
-// Grouping all individual validators into one array for ease of use in middleware
-// This array is later used in the admin registration route for validation
-export const userRegistrationValidators = Object.values(userValidators);
+export const userRegistrationValidators = Object.values(createUserValidators());

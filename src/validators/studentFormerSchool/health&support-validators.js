@@ -1,15 +1,10 @@
 // src/validators/studentFormerSchool/health&support-validators.js
-
-import { validateInput } from '../general-validators.js';
-import { body } from 'express-validator';
+import { validateInput, validateObject } from '../general-validators.js';
 
 // Factory function to generate validators for HealthAndSupport model
 const createHealthAndSupportValidators = () => ({
   // Validator for healthRecords (optional, must be valid JSON)
-  validateHealthRecords: body('healthRecords')
-    .optional()
-    .isObject()
-    .withMessage('Health Records must be a valid json object.'),
+  validateHealthRecords: validateObject('healthRecords'),
 
   // Validator for specialNeeds (optional, max length 500 characters)
   validateSpecialNeeds: validateInput('specialNeeds', {
@@ -18,10 +13,7 @@ const createHealthAndSupportValidators = () => ({
   }),
 });
 
-// Generate validators using the factory function
-const healthAndSupportValidators = createHealthAndSupportValidators();
-
 // Group validators into an array for middleware usage
 export const healthAndSupportValidationMiddleware = Object.values(
-  healthAndSupportValidators
+  createHealthAndSupportValidators()
 );

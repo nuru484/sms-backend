@@ -1,5 +1,4 @@
 // src/validators/address-validators.js
-
 import { validateInput } from './general-validators.js';
 
 // Factory function to generate address-specific validators
@@ -11,11 +10,10 @@ const createAddressValidators = () => ({
   validateDigitalAddress: validateInput('digitalAddress'),
 });
 
-// Generate address validators
-const addressValidators = createAddressValidators();
-
 // Grouped export for middleware integration
-export const addressRegistrationValidators = Object.values(addressValidators);
+export const addressRegistrationValidators = Object.values(
+  createAddressValidators()
+);
 
 // Factory function to generate address-specific validators for updates
 const createAddressUpdateValidators = () => ({
@@ -26,10 +24,7 @@ const createAddressUpdateValidators = () => ({
   validateDigitalAddress: validateInput('digitalAddress', { required: false }), // Not required on update
 });
 
-// Generate address update validators
-const addressUpdateValidatorsFunction = createAddressUpdateValidators();
-
 // Grouped export for middleware integration
 export const addressUpdateValidators = Object.values(
-  addressUpdateValidatorsFunction
+  createAddressUpdateValidators()
 );

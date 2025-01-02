@@ -1,3 +1,4 @@
+// src/validators/payment/momo-payment-validators.js
 import { validateInput } from '../general-validators.js';
 
 const createInitializeMomoTransactionValidators = () => ({
@@ -15,11 +16,9 @@ const createInitializeMomoTransactionValidators = () => ({
     .escape(),
 });
 
-const momoTransactionValidators = createInitializeMomoTransactionValidators();
-
 // Export as an array of validators for express-validator middleware use
 export const InitializeMomoTransactionValidators = Object.values(
-  momoTransactionValidators
+  createInitializeMomoTransactionValidators()
 );
 
 // Create MTN Callback Validators
@@ -51,10 +50,7 @@ const createMtnCallbackValidators = () => ({
   }),
 });
 
-// Initialize Validators
-const mtnCallbackValidators = createMtnCallbackValidators();
-
 // Export Validators as an Array for Middleware Use
 export const validateMtnCallbackRequestBody = Object.values(
-  mtnCallbackValidators
+  createMtnCallbackValidators()
 );

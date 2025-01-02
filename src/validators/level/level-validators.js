@@ -57,9 +57,7 @@ const createLevelValidators = () => ({
     }),
 });
 
-// Generate all the level-specific validators using the factory function
-const levelValidators = createLevelValidators();
-export const levelCreationValidators = Object.values(levelValidators);
+export const levelCreationValidators = Object.values(createLevelValidators());
 
 // Factory function to generate validators specific to level update
 const updateLevelValidators = () => ({
@@ -73,7 +71,4 @@ const updateLevelValidators = () => ({
     .withMessage('Order must be an integer'),
 });
 
-const updateLevelValidatorsFunction = updateLevelValidators();
-export const levelUpdateValidators = Object.values(
-  updateLevelValidatorsFunction
-);
+export const levelUpdateValidators = Object.values(updateLevelValidators());

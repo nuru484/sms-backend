@@ -69,11 +69,10 @@ const createStudentValidators = () => ({
   validateConfirmPassword,
 });
 
-// Generate student validators
-const studentValidators = createStudentValidators();
-
 // Grouped export for middleware integration
-export const studentRegistrationValidators = Object.values(studentValidators);
+export const studentRegistrationValidators = Object.values(
+  createStudentValidators()
+);
 
 // Factory function to generate student-specific validators for updates
 const createStudentUpdateValidators = () => ({
@@ -105,10 +104,7 @@ const createStudentUpdateValidators = () => ({
   }), // Not required if not changing
 });
 
-// Generate student update validators
-const studentUpdateValidatorsFuntion = createStudentUpdateValidators();
-
 // Grouped export for middleware integration
 export const studentUpdateValidators = Object.values(
-  studentUpdateValidatorsFuntion
+  createStudentUpdateValidators()
 );

@@ -1,5 +1,5 @@
-import { body } from 'express-validator';
-import { validateInput } from './general-validators.js';
+// src/validators/health-safety-validators.js
+import { validateInput, validateArray } from './general-validators.js';
 
 // Factory function to generate Health and Safety-specific validators
 const createHealthAndSafetyValidators = () => ({
@@ -11,15 +11,9 @@ const createHealthAndSafetyValidators = () => ({
     maxLength: 15,
     required: false,
   }),
-  validateAllergies: body('allergies')
-    .optional()
-    .isArray()
-    .withMessage('Allergies must be an array'),
+  validateAllergies: validateArray('allergies'),
 
-  validateMedicalConditions: body('medicalConditions')
-    .optional()
-    .isArray()
-    .withMessage('Medical conditions must be an array'),
+  validateMedicalConditions: validateArray('medicalConditions'),
 
   validateHealthInsurancePolicyId: validateInput('healthInsurancePolicyId', {
     maxLength: 50,
@@ -31,12 +25,9 @@ const createHealthAndSafetyValidators = () => ({
   }),
 });
 
-// Generate Health and Safety validators
-const healthAndSafetyValidators = createHealthAndSafetyValidators();
-
 // Grouped export for middleware integration
 export const healthAndSafetyRegistrationValidators = Object.values(
-  healthAndSafetyValidators
+  createHealthAndSafetyValidators()
 );
 
 // Factory function to generate Health and Safety-specific validators for updates
@@ -49,15 +40,9 @@ const createHealthAndSafetyUpdateValidators = () => ({
     maxLength: 15,
     required: false,
   }), // Not required on update
-  validateAllergies: body('allergies')
-    .optional()
-    .isArray()
-    .withMessage('Allergies must be an array'), // Not required on update
+  validateAllergies: validateArray('allergies'),
 
-  validateMedicalConditions: body('medicalConditions')
-    .optional()
-    .isArray()
-    .withMessage('Medical conditions must be an array'), // Not required on update
+  validateMedicalConditions: validateArray('medicalConditions'),
 
   validateHealthInsurancePolicyId: validateInput('healthInsurancePolicyId', {
     maxLength: 50,
@@ -69,11 +54,7 @@ const createHealthAndSafetyUpdateValidators = () => ({
   }), // Not required on update
 });
 
-// Generate Health and Safety update validators
-const healthAndSafetyUpdateValidatorsFunction =
-  createHealthAndSafetyUpdateValidators();
-
 // Grouped export for middleware integration
 export const healthAndSafetyUpdateValidators = Object.values(
-  healthAndSafetyUpdateValidatorsFunction
+  createHealthAndSafetyUpdateValidators()
 );

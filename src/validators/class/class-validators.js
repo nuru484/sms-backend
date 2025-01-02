@@ -1,5 +1,5 @@
 // src/validators/class/class-validators.js
-import { validateInput } from '../general-validators.js';
+import { validateInput, validateInteger } from '../general-validators.js';
 import { body } from 'express-validator';
 
 // Factory function to generate validators for class creation
@@ -79,10 +79,7 @@ const createClassValidators = () => ({
     }),
 });
 
-// Generate all the class-specific validators using the factory function
-const classValidators = createClassValidators();
-
-export const classCreationValidators = Object.values(classValidators);
+export const classCreationValidators = Object.values(createClassValidators());
 
 // Factory function to generate validators specific to class update
 const updateClassValidators = () => ({
@@ -91,13 +88,7 @@ const updateClassValidators = () => ({
   validateClassCode: validateInput('code', { required: false }),
   validateClassHall: validateInput('hall', { required: false }),
   validateClassDescription: validateInput('description', { required: false }),
-  validateClassRoomNumber: body('roomNumber')
-    .isInt()
-    .withMessage('Room number must be an integer'),
+  validateClassRoomNumber: validateInteger('roomNumber'),
 });
 
-const updateClassValidatorsFunction = updateClassValidators();
-
-export const classUpdateValidators = Object.values(
-  updateClassValidatorsFunction
-);
+export const classUpdateValidators = Object.values(updateClassValidators());

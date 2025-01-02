@@ -26,15 +26,14 @@ const createParentValidators = (prefix) => ({
   validateEmail: validateEmailInput(`${prefix}Email`, { required: false }),
 });
 
-// Create validators for father and mother
-const fatherValidators = createParentValidators('studentFather');
-const motherValidators = createParentValidators('studentMother');
-
 // Export grouped validators for route handlers
-export const studentFatherRegistrationValidators =
-  Object.values(fatherValidators);
-export const studentMotherRegistrationValidators =
-  Object.values(motherValidators);
+export const studentFatherRegistrationValidators = Object.values(
+  createParentValidators('studentFather')
+);
+
+export const studentMotherRegistrationValidators = Object.values(
+  createParentValidators('studentMother')
+);
 
 // Factory function to create parent-specific validators for updates
 const createParentUpdateValidators = () => ({
@@ -68,10 +67,7 @@ const createParentUpdateValidators = () => ({
     .withMessage('Invalid wardsIds, they should be an array of student IDs.'),
 });
 
-// Create update validators for father and mother
-const parentUpdateValidators = createParentUpdateValidators('studentFather');
-
 // Export grouped validators for route handlers
 export const studentParentUpdateValidators = Object.values(
-  parentUpdateValidators
+  createParentUpdateValidators()
 );

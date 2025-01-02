@@ -1,7 +1,5 @@
 // src/validators/studentFormerSchool/behaviour&Extracuricullar-validators.js
-
-import { validateInput } from '../general-validators.js';
-import { body } from 'express-validator';
+import { validateArray, validateInput } from '../general-validators.js';
 
 // Factory function to generate validators for BehaviorAndExtracurricular model
 const createBehaviorAndExtracurricularValidators = () => ({
@@ -18,23 +16,13 @@ const createBehaviorAndExtracurricularValidators = () => ({
   }),
 
   // Validator for extracurriculars (optional, must be a valid JSON array)
-  validateExtracurriculars: body('extracurriculars')
-    .optional()
-    .isArray()
-    .withMessage('Extracurriculars must be a valid Array.'),
+  validateExtracurriculars: validateArray('extracurriculars'),
 
   // Validator for achievements (optional, must be a valid JSON array)
-  validateAchievements: body('achievements')
-    .optional()
-    .isArray()
-    .withMessage('Extracurriculars must be a valid Array.'),
+  validateAchievements: validateArray('achievements'),
 });
-
-// Generate validators using the factory function
-const behaviorAndExtracurricularValidators =
-  createBehaviorAndExtracurricularValidators();
 
 // Group validators into an array for middleware usage
 export const behaviorAndExtracurricularValidationMiddleware = Object.values(
-  behaviorAndExtracurricularValidators
+  createBehaviorAndExtracurricularValidators()
 );

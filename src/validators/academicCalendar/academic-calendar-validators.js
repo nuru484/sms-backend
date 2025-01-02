@@ -1,5 +1,8 @@
-import { body } from 'express-validator';
-import { validateInput, validateDateInput } from '../general-validators.js';
+import {
+  validateInput,
+  validateDateInput,
+  validateObject,
+} from '../general-validators.js';
 
 // Factory function to generate validators for AcademicCalendar model
 const academicCalendarValidators = () => ({
@@ -12,11 +15,7 @@ const academicCalendarValidators = () => ({
   validateEndDate: validateDateInput('endDate', { required: true }),
 
   // Validator for metadata (optional, valid JSON)
-  validateMetadata: body('metadata')
-    .optional()
-    .isObject()
-    .withMessage('Metadata must be an object')
-    .bail(),
+  validateMetadata: validateObject('metadata'),
 });
 
 // Validators for creating an AcademicCalendar
@@ -36,11 +35,7 @@ const academicCalendarUpdateValidators = () => ({
   validateEndDate: validateDateInput('endDate', { required: false }),
 
   // Validator for metadata (optional, valid JSON)
-  validateMetadata: body('metadata')
-    .optional()
-    .isObject()
-    .withMessage('Metadata must be an object')
-    .bail(),
+  validateMetadata: validateObject('metadata'),
 });
 
 // Validators for updating an AcademicCalendar

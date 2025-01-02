@@ -1,6 +1,4 @@
 // src/validators/userRegistration/teacher-registration-validators.js
-import { body } from 'express-validator';
-
 import {
   validateInput, // General input validation function for various fields
   validateEmailInput, // Validation function for validating email format
@@ -8,6 +6,8 @@ import {
   validateConfirmPassword, // Validation function for confirming password match
   validateDateInput, // Validation function for validating date of birth
   validateUsernameInput,
+  validateArray,
+  validateObject,
 } from '../general-validators.js';
 
 // Importing the `role` and `employmentType` enums from Prisma client
@@ -62,31 +62,20 @@ const createTeacherValidators = () => ({
     .withMessage('Invalid employment type.'),
 
   // Validator for spoken languages input
-  validateSpokenLanguages: body('spokenLanguages')
-    .isArray({ min: 1 })
-    .withMessage('Spoken languages must be a non-empty array')
-    .bail() // Stop further validations if this fails
+  validateSpokenLanguages: validateArray('spokenLanguages', {
+    required: true,
+    minLength: 1,
+  })
     .custom((arr) => arr.every((lang) => typeof lang === 'string'))
     .withMessage('All spoken languages must be strings'),
 
   // Validator for course ID
-  validateCoursesIds: body('coursesIds')
-    .optional()
-    .isArray()
-    .withMessage('Course IDs must be an array')
-    .bail(),
+  validateCoursesIds: validateArray('coursesIds'),
 
   // Validator for class ID
-  validateClassesIds: body('classesIds')
-    .optional()
-    .isArray()
-    .withMessage('Class IDs must be an array')
-    .bail(),
+  validateClassesIds: validateArray('classesIds'),
 
-  validateSocialMediaHandles: body('socialMediaHandles')
-    .optional()
-    .isObject()
-    .withMessage('Social media handles must be a valid JSON object.'),
+  validateSocialMediaHandles: validateObject('socialMediaHandles'),
 
   // Validator for marital status input (optional)
   validateMaritalStatus: validateInput('maritalStatus', { required: false }),
@@ -96,12 +85,9 @@ const createTeacherValidators = () => ({
   validateConfirmPassword,
 });
 
-// Generate all the teacher-specific validators using the factory function
-const teacherValidators = createTeacherValidators();
-
-// Grouping all individual validators into one array for ease of use in middleware
-// This array is later used in the teacher registration route for validation
-export const teacherRegistrationValidators = Object.values(teacherValidators);
+export const teacherRegistrationValidators = Object.values(
+  createTeacherValidators()
+);
 
 const createTeacherUpdateValidators = () => ({
   // Validator for first name with a max length of 100 characters (optional for updates)
@@ -143,39 +129,22 @@ const createTeacherUpdateValidators = () => ({
   // Validator for date of birth (optional for updates)
   validateDateOfBirth: validateDateInput('dateOfBirth', { required: false }),
 
-  validateSpokenLanguages: body('spokenLanguages')
-    .optional()
-    .isArray()
-    .withMessage('Spoken languages must be a non-empty array')
-    .bail() // Stop further validations if this fails
+  validateSpokenLanguages: validateArray('spokenLanguages')
     .custom((arr) => arr.every((lang) => typeof lang === 'string'))
     .withMessage('All spoken languages must be strings'),
 
   // Validator for course ID
-  validateCoursesIds: body('coursesIds')
-    .optional()
-    .isArray()
-    .withMessage('Course IDs must be an array')
-    .bail(),
+  validateCoursesIds: validateArray('coursesIds'),
 
   // Validator for class ID
-  validateClassesIds: body('classesIds')
-    .optional()
-    .isArray()
-    .withMessage('Class IDs must be an array')
-    .bail(),
+  validateClassesIds: validateArray('classesIds'),
 
-  validateSocialMediaHandles: body('socialMediaHandles')
-    .optional()
-    .isObject()
-    .withMessage('Social media handles must be a valid JSON object.'),
+  validateSocialMediaHandles: validateObject('socialMediaHandles'),
 
   // Validator for marital status input (optional)
   validateMaritalStatus: validateInput('maritalStatus', { required: false }),
 });
 
-const teacherUpdateValidators = createTeacherUpdateValidators();
-
 export const TeacherUpdateValidationMiddleware = Object.values(
-  teacherUpdateValidators
+  createTeacherUpdateValidators()
 );
