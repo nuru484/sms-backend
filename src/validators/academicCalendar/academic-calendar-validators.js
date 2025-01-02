@@ -1,5 +1,6 @@
 import { body } from 'express-validator';
 import { validateInput, validateDateInput } from '../general-validators.js';
+import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 // Factory function to generate validators for AcademicCalendar model
 const academicCalendarValidators = () => ({
@@ -17,7 +18,7 @@ const academicCalendarValidators = () => ({
       const endDate = value ? new Date(value) : null;
 
       if (startDate && endDate && endDate <= startDate) {
-        throw new Error('End date must be later than start date.');
+        throw new CustomError(400, 'End date must be later than start date.');
       }
 
       return true;
@@ -54,7 +55,7 @@ const academicCalendarUpdateValidators = () => ({
       const endDate = value ? new Date(value) : null;
 
       if (startDate && endDate && endDate <= startDate) {
-        throw new Error('End date must be later than start date.');
+        throw new CustomError(400, 'End date must be later than start date.');
       }
 
       return true;

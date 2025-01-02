@@ -9,10 +9,11 @@ import {
   handleDeleteTermById,
   handleDeleteAllTerms,
 } from '../../controllers/term/index.js';
-// import {
-//   validateTermDetails,
-//   validateTermUpdateDetails,
-// } from '../../validators/validationMiddleware/term/term-validation-middleware.js';
+
+import {
+  validateTermDetails,
+  validateTermUpdateDetails,
+} from '../../validators/validationMiddleware/term/term-validation-middleware.js';
 import authorizeRole from '../../utils/middleware/authorizeRole.js';
 import { cacheMiddleware } from '../../config/redis.js';
 import normalizeQuery from '../../utils/helpers/normalize-query.js';
@@ -27,14 +28,14 @@ const termsCacheKey = (req) => {
 // Route to create a term
 router.post(
   '/term',
-  //   validateTermDetails,
+  validateTermDetails,
   handleCreateTerm // Controller to handle creation logic
 );
 
 // Route to update a term by ID
 router.put(
   '/term/:termId',
-  //   validateTermUpdateDetails,
+  validateTermUpdateDetails,
   handleUpdateTerm // Controller to handle update logic
 );
 
