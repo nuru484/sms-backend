@@ -1,5 +1,4 @@
 // src/services/attendance/attendance-services.js
-
 import * as turf from '@turf/turf';
 import {
   createUserAttendance,

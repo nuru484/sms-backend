@@ -72,11 +72,12 @@ model User {
   StudentBehavior          StudentBehavior[]
 
   // Implicit many-to-many relations
-  Events  Event[]
-  Trip    Trip[]
-  Vehicle Vehicle[]
-  class   Class[]
-  courses Course[]
+  Events       Event[]
+  Trip         Trip[]
+  Vehicle      Vehicle[]
+  class        Class[]
+  courses      Course[]
+  Notification Notification[]
 }
 
 model Student {
@@ -867,4 +868,36 @@ model Event {
   @@unique([academicCalendarId, name, date]) // Prevent duplicate events with the same name on the same date
   @@index([date]) // Index for querying by event date
   @@index([academicCalendarId]) // Optimize foreign key queries
+}
+
+enum NotificationType {
+  SMS
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Notification {
+  id      Int                @id @default(autoincrement())
+  type    NotificationType
+  message String
+  read    Boolean            @default(false) // Read status of the notification
+  status  NotificationStatus // Enum for status
+  error   String?
+  optIn   Boolean            @default(true) // Opt-in status for receiving notifications
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([status]) // Index on status for filtering notifications by status
+  @@index([optIn]) // Index on optIn for quick opt-in filtering
+  @@index([createdAt]) // Index on createdAt for sorting by date
+  @@index([status, optIn]) // Optional composite index for filtering by both status and optIn
 }

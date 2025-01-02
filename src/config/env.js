@@ -26,6 +26,9 @@ const ENV = {
   EMAIL_SECURE: process.env.EMAIL_SECURE,
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_PASS: process.env.EMAIL_PASS,
+  ARKESEL_API_KEY: process.env.ARKESEL_API_KEY,
+  ARKESEL_SENDER_ID: process.env.ARKESEL_SENDER_ID,
+  ARKESEL_SMS_URL: process.env.ARKESEL_SMS_URL,
 };
 
 export default ENV;
