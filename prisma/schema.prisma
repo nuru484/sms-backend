@@ -51,6 +51,7 @@ model User {
   metadata                 Json? // Additional details about the user
   resetPasswordToken       String?         @unique // Store a unique reset token
   resetPasswordTokenExpiry DateTime? // Expiry for the reset token
+  notification             Boolean?        @default(true) // Enable or disable notifications for the user
 
   // One to one relations
   student Student?
@@ -888,7 +889,6 @@ model Notification {
   read    Boolean            @default(false) // Read status of the notification
   status  NotificationStatus // Enum for status
   error   String?
-  optIn   Boolean            @default(true) // Opt-in status for receiving notifications
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -897,7 +897,5 @@ model Notification {
   user   User @relation(fields: [userId], references: [id])
 
   @@index([status]) // Index on status for filtering notifications by status
-  @@index([optIn]) // Index on optIn for quick opt-in filtering
   @@index([createdAt]) // Index on createdAt for sorting by date
-  @@index([status, optIn]) // Optional composite index for filtering by both status and optIn
 }
