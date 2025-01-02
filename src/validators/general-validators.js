@@ -1,6 +1,7 @@
 // src/validators/general-validators.js
 import { body } from 'express-validator';
 import { checkUniqueness } from '../utils/helpers/validation-helpers.js';
+import { CustomError } from '../utils/middleware/errorHandler.js';
 
 export const validateInput = (
   inputName,
@@ -58,6 +59,21 @@ export const validateDateInput = (
   // Only validate ISO8601 format if the field is not empty (or required)
   if (options.required || options.allowEmpty === false) {
     validation.isISO8601().toDate();
+  }
+
+  if (dateInputName === 'endDate') {
+    validation.custom((value, { req }) => {
+      const startDate = req.body.startDate
+        ? new Date(req.body.startDate)
+        : null;
+      const endDate = value ? new Date(value) : null;
+
+      if (startDate && endDate && endDate <= startDate) {
+        throw new CustomError(400, 'End date must be later than start date.');
+      }
+
+      return true;
+    });
   }
 
   return validation;

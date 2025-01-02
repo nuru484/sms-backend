@@ -2,6 +2,7 @@
 import { body } from 'express-validator';
 import { validateInput, validateDateInput } from '../general-validators.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
+import { fetchAcademicCalendarById } from '../../repositories/academicCalendar/academic-calendar-repository.js';
 
 // Factory function to generate validators for Term model
 const termValidators = () => ({
@@ -12,16 +13,7 @@ const termValidators = () => ({
   validateStartDate: validateDateInput('startDate'),
 
   // Validator for endDate (required, valid ISO 8601 date format and must be later than startDate)
-  validateEndDate: validateDateInput('endDate').custom((value, { req }) => {
-    const startDate = req.body.startDate ? new Date(req.body.startDate) : null;
-    const endDate = value ? new Date(value) : null;
-
-    if (startDate && endDate && endDate <= startDate) {
-      throw new CustomError(400, 'End date must be later than start date.');
-    }
-
-    return true;
-  }),
+  validateEndDate: validateDateInput('endDate'),
 
   // Validator for metadata (optional, valid JSON)
   validateMetadata: body('metadata')
@@ -34,6 +26,19 @@ const termValidators = () => ({
   validateAcademicCalendarId: body('academicCalendarId')
     .isInt()
     .withMessage('AcademicCalendar ID must be a valid integer')
+    .custom(async (value) => {
+      // Check if the academic calendar exists
+      const academicCalendar = await fetchAcademicCalendarById(value);
+
+      if (!academicCalendar) {
+        throw new CustomError(
+          404,
+          `Academic calendar with ID ${value} not found.`
+        );
+      }
+
+      return true;
+    })
     .bail(),
 });
 
@@ -49,20 +54,7 @@ const termUpdateValidators = () => ({
   validateStartDate: validateDateInput('startDate', { required: false }),
 
   // Validator for endDate (optional, valid ISO 8601 date format and must be later than startDate)
-  validateEndDate: validateDateInput('endDate', { required: false }).custom(
-    (value, { req }) => {
-      const startDate = req.body.startDate
-        ? new Date(req.body.startDate)
-        : null;
-      const endDate = value ? new Date(value) : null;
-
-      if (startDate && endDate && endDate <= startDate) {
-        throw new CustomError(400, 'End date must be later than start date.');
-      }
-
-      return true;
-    }
-  ),
+  validateEndDate: validateDateInput('endDate', { required: false }),
 
   // Validator for metadata (optional, valid JSON)
   validateMetadata: body('metadata')
@@ -76,6 +68,19 @@ const termUpdateValidators = () => ({
     .optional()
     .isInt()
     .withMessage('AcademicCalendar ID must be a valid integer')
+    .custom(async (value) => {
+      // Check if the academic calendar exists
+      const academicCalendar = await fetchAcademicCalendarById(value);
+
+      if (!academicCalendar) {
+        throw new CustomError(
+          404,
+          `Academic calendar with ID ${value} not found.`
+        );
+      }
+
+      return true;
+    })
     .bail(),
 });
 

@@ -22,17 +22,6 @@ import invalidateCache from '../../utils/helpers/invalidate-cache.js';
  */
 export const processCreateTerm = async (termData) => {
   try {
-    const academicCalendar =
-      termData.academicCalendarId &&
-      (await fetchAcademicCalendarById(termData.academicCalendarId));
-
-    if (!academicCalendar) {
-      throw new CustomError(
-        404,
-        `Academic calendar with ID ${termData.academicCalendarId} not found.`
-      );
-    }
-
     const term = await createTerm(termData);
 
     // Invalidate the cache for all terms and related academic calendar
@@ -58,17 +47,6 @@ export const processCreateTerm = async (termData) => {
  */
 export const processUpdateTerm = async (termId, updateData) => {
   try {
-    const academicCalendar =
-      updateData.academicCalendarId &&
-      (await fetchAcademicCalendarById(updateData.academicCalendarId));
-
-    if (!academicCalendar) {
-      throw new CustomError(
-        404,
-        `Academic calendar with ID ${updateData.academicCalendarId} not found.`
-      );
-    }
-
     const updatedTerm = await updateTermById(termId, updateData);
 
     // Invalidate the cache for this specific term and related academic calendar

@@ -40,20 +40,7 @@ const createFormerSchoolValidators = () => ({
   validateStartDate: validateDateInput('startDate', { required: false }),
 
   // Validator for endDate (optional, valid ISO 8601 date format and must be later than startDate)
-  validateEndDate: validateDateInput('endDate', { required: false }).custom(
-    (value, { req }) => {
-      const startDate = req.body.startDate
-        ? new Date(req.body.startDate)
-        : null;
-      const endDate = value ? new Date(value) : null;
-
-      if (startDate && endDate && endDate <= startDate) {
-        throw new Error('End date must be later than start date.');
-      }
-
-      return true;
-    }
-  ),
+  validateEndDate: validateDateInput('endDate', { required: false }),
 
   // Validator for reasonForLeaving (optional, max length 500 characters)
   validateReasonForLeaving: validateInput('reasonForLeaving', {

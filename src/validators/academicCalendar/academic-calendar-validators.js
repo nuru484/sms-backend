@@ -1,6 +1,5 @@
 import { body } from 'express-validator';
 import { validateInput, validateDateInput } from '../general-validators.js';
-import { CustomError } from '../../utils/middleware/errorHandler.js';
 
 // Factory function to generate validators for AcademicCalendar model
 const academicCalendarValidators = () => ({
@@ -10,20 +9,7 @@ const academicCalendarValidators = () => ({
   validateStartDate: validateDateInput('startDate'),
 
   // Validator for endDate (required, valid ISO 8601 date format and must be later than startDate)
-  validateEndDate: validateDateInput('endDate', { required: true }).custom(
-    (value, { req }) => {
-      const startDate = req.body.startDate
-        ? new Date(req.body.startDate)
-        : null;
-      const endDate = value ? new Date(value) : null;
-
-      if (startDate && endDate && endDate <= startDate) {
-        throw new CustomError(400, 'End date must be later than start date.');
-      }
-
-      return true;
-    }
-  ),
+  validateEndDate: validateDateInput('endDate', { required: true }),
 
   // Validator for metadata (optional, valid JSON)
   validateMetadata: body('metadata')
@@ -47,20 +33,7 @@ const academicCalendarUpdateValidators = () => ({
   validateStartDate: validateDateInput('startDate', { required: false }),
 
   // Validator for endDate (optional, valid ISO 8601 date format and must be later than startDate)
-  validateEndDate: validateDateInput('endDate', { required: false }).custom(
-    (value, { req }) => {
-      const startDate = req.body.startDate
-        ? new Date(req.body.startDate)
-        : null;
-      const endDate = value ? new Date(value) : null;
-
-      if (startDate && endDate && endDate <= startDate) {
-        throw new CustomError(400, 'End date must be later than start date.');
-      }
-
-      return true;
-    }
-  ),
+  validateEndDate: validateDateInput('endDate', { required: false }),
 
   // Validator for metadata (optional, valid JSON)
   validateMetadata: body('metadata')
