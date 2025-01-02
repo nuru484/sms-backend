@@ -7,7 +7,6 @@ import {
   deleteTermById,
   deleteAllTerms,
 } from '../../repositories/term/term-repository.js';
-import { fetchAcademicCalendarById } from '../../repositories/academicCalendar/academic-calendar-repository.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { saveToCache, client } from '../../config/redis.js';

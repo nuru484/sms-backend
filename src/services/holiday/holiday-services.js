@@ -7,7 +7,6 @@ import {
   deleteHolidayById,
   deleteAllHolidays,
 } from '../../repositories/holiday/holiday-repository.js';
-import { fetchAcademicCalendarById } from '../../repositories/academicCalendar/academic-calendar-repository.js';
 import { handlePrismaError } from '../../utils/prisma-error-handlers.js';
 import { CustomError } from '../../utils/middleware/errorHandler.js';
 import { saveToCache, client } from '../../config/redis.js';
@@ -22,17 +21,6 @@ import invalidateCache from '../../utils/helpers/invalidate-cache.js';
  */
 export const processCreateHoliday = async (holidayData) => {
   try {
-    const academicCalendar =
-      holidayData.academicCalendarId &&
-      (await fetchAcademicCalendarById(holidayData.academicCalendarId));
-
-    if (!academicCalendar) {
-      throw new CustomError(
-        404,
-        `Academic calendar with ID ${holidayData.academicCalendarId} not found.`
-      );
-    }
-
     const holiday = await createHoliday(holidayData);
 
     // Invalidate the cache for all holidays and related academic calendar
@@ -58,17 +46,6 @@ export const processCreateHoliday = async (holidayData) => {
  */
 export const processUpdateHoliday = async (holidayId, updateData) => {
   try {
-    const academicCalendar =
-      updateData.academicCalendarId &&
-      (await fetchAcademicCalendarById(updateData.academicCalendarId));
-
-    if (!academicCalendar) {
-      throw new CustomError(
-        404,
-        `Academic calendar with ID ${updateData.academicCalendarId} not found.`
-      );
-    }
-
     const updatedHoliday = await updateHolidayById(holidayId, updateData);
 
     // Invalidate the cache for this specific holiday and related academic calendar
