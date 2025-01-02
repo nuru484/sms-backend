@@ -117,3 +117,65 @@ export const validateConfirmPassword = body('confirmPassword')
   .custom((value, { req }) => value === req.body.password)
   .withMessage('The passwords do not match')
   .trim();
+
+export const validateObject = (fieldName, options = { required: false }) => {
+  const validation = body(fieldName)
+    .optional(!options.required)
+    .isObject()
+    .withMessage(`${fieldName} must be an object`)
+    .bail();
+
+  return validation;
+};
+
+export const validateArray = (fieldName, options = { required: false }) => {
+  const validation = body(fieldName)
+    .optional(!options.required)
+    .isArray()
+    .withMessage(`${fieldName} must be an array`)
+    .bail();
+
+  if (options.minLength !== undefined) {
+    validation
+      .isLength({ min: options.minLength })
+      .withMessage(
+        `${fieldName} must have at least ${options.minLength} items.`
+      );
+  }
+
+  if (options.maxLength !== undefined) {
+    validation
+      .isLength({ max: options.maxLength })
+      .withMessage(
+        `${fieldName} must have no more than ${options.maxLength} items.`
+      );
+  }
+
+  return validation;
+};
+
+export const validateInteger = (fieldName, options = { required: false }) => {
+  const validation = body(fieldName)
+    .optional(!options.required)
+    .isInt()
+    .withMessage(`${fieldName} must be an integer`)
+    .bail();
+
+  if (options.min !== undefined) {
+    validation
+      .isInt({ min: options.min })
+      .withMessage(
+        `${fieldName} must be greater than or equal to ${options.min}.`
+      );
+  }
+
+  if (options.max !== undefined) {
+    validation
+      .isInt({ max: options.max })
+      .withMessage(
+        `${fieldName} must be less than or equal to ${options.max}.`
+      );
+  }
+
+  return validation;
+};
