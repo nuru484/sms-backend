@@ -818,8 +818,8 @@ model Term {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  academicCalendarId Int // Foreign key to AcademicCalendar
   academicCalendar   AcademicCalendar @relation(fields: [academicCalendarId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  academicCalendarId Int // Foreign key to AcademicCalendar
 
   LessonTimetable LessonTimetable[]
   Exam            Exam[]
