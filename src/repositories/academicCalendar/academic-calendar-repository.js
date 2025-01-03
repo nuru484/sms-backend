@@ -1,6 +1,5 @@
 // src/repositories/academicCalendar/academic-calendar-repository.js
 import prisma from '../../config/prismaClient.js'; // Prisma client for database operations
-
 /**
  * Repository function to create a single academic calendar entry.
  *

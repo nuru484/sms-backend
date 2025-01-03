@@ -24,7 +24,9 @@ const sendSMS = async ({
     if (!response.data) {
       throw new Error('No response data received');
     }
+
     logger.info(JSON.stringify(response.data));
+
     return response.data;
   } catch (error) {
     logger.error('SMS sending failed:', error);

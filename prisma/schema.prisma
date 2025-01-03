@@ -52,6 +52,7 @@ model User {
   resetPasswordToken       String?         @unique // Store a unique reset token
   resetPasswordTokenExpiry DateTime? // Expiry for the reset token
   notification             Boolean?        @default(true) // Enable or disable notifications for the user
+  notificationChannel      String          @default("SMS") // Preferred notification channel
 
   // One to one relations
   student Student?
@@ -871,21 +872,16 @@ model Event {
   @@index([academicCalendarId]) // Optimize foreign key queries
 }
 
-enum NotificationType {
-  SMS
-  EMAIL
-}
-
 enum NotificationStatus {
-  PENDING
-  SENT
-  FAILED
+  pending
+  success
+  failed
 }
 
 model Notification {
   id      Int                @id @default(autoincrement())
-  type    NotificationType
   message String
+  subject String?
   read    Boolean            @default(false) // Read status of the notification
   status  NotificationStatus // Enum for status
   error   String?

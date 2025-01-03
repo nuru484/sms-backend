@@ -7,6 +7,7 @@ import {
   processRemoveAcademicCalendarById,
   processRemoveAllAcademicCalendars,
 } from '../../services/academicCalendar/academic-calendar-services.js';
+import sendSMS from '../../config/arkselApi.js';
 
 /**
  * Controller function to handle academic calendar creation.

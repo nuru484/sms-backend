@@ -39,5 +39,7 @@ export const handleError = (error, req, res, next) => {
   }
 
   // For non-CustomError errors, send a generic 500 internal server error response
-  res.status(error.status || 500).json(error || 'Internal Server Error');
+  res
+    .status(error.status || 500)
+    .json(error.message || 'Internal Server Error');
 };

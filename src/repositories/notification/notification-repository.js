@@ -10,9 +10,11 @@ import prisma from '../../config/prismaClient.js'; // Prisma client for database
 export const createNotification = async (notificationData) => {
   try {
     const { userId, ...rest } = notificationData;
+    console.log(rest);
+
     const notification = await prisma.notification.create({
       data: {
-        rest,
+        ...rest,
         user: {
           connect: {
             id: userId, // Connect to the user by userId
@@ -74,36 +76,61 @@ export const fetchNotificationById = async (notificationId) => {
  * @returns {Promise<Object>} - Returns an object containing the notifications and pagination info.
  */
 export const fetchUserNotifications = async (userId, options = {}) => {
-  const { page = 1, limit = 10 } = options;
+  const { page = 1, limit = 10, fetchAll = false, searchQuery = '' } = options;
 
   try {
+    const parsedUserId = parseInt(userId, 10);
+    if (isNaN(parsedUserId)) {
+      throw new Error('Invalid userId');
+    }
+
     const skip = (page - 1) * limit;
 
-    const total = await prisma.notification.count({
-      where: {
-        userId: parseInt(userId, 10),
-      },
-    });
+    // Determine filters based on searchQuery
+    let readFilter = undefined;
+    if (searchQuery.toLowerCase() === 'read') {
+      readFilter = true;
+    } else if (searchQuery.toLowerCase() === 'unread') {
+      readFilter = false;
+    }
 
-    const notifications = await prisma.notification.findMany({
-      where: {
-        userId: parseInt(userId, 10),
-      },
-      skip,
-      take: limit,
-      orderBy: {
-        createdAt: 'desc', // Sort by creation date, latest first
-      },
-    });
+    const searchFilters = {
+      userId: parsedUserId,
+      ...(readFilter !== undefined && { read: readFilter }),
+      ...(searchQuery &&
+        searchQuery.toLowerCase() !== 'read' &&
+        searchQuery.toLowerCase() !== 'unread' && {
+          message: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
+        }),
+    };
+
+    const [total, notifications] = await prisma.$transaction([
+      prisma.notification.count({
+        where: searchFilters,
+      }),
+
+      prisma.notification.findMany({
+        where: searchFilters,
+        ...(fetchAll ? {} : { skip, take: limit }),
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
 
     return {
       data: notifications,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: fetchAll
+        ? null
+        : {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
     };
   } catch (error) {
     throw error;

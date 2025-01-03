@@ -1,4 +1,6 @@
 import {
+  handleCreateNotification,
+  handleUpdateNotification,
   handleGetNotificationById,
   handleGetUserNotifications,
   handleDeleteNotificationById,
@@ -6,6 +8,8 @@ import {
 } from './notification-controller.js';
 
 export {
+  handleCreateNotification,
+  handleUpdateNotification,
   handleGetNotificationById,
   handleGetUserNotifications,
   handleDeleteNotificationById,

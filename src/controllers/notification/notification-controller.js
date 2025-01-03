@@ -1,10 +1,67 @@
 // src/controllers/notification/notification-controller.js
 import {
+  processCreateNotification,
+  processUpdateNotification,
   processGetNotificationById,
   processGetUserNotifications,
   processRemoveNotificationById,
   processRemoveAllUserNotifications,
 } from '../../services/notification/notification-services.js';
+
+/**
+ * Controller function to handle creating a notification.
+ *
+ * @param {Object} req - Express request object containing notification data in `req.body`.
+ * @param {Object} res - Express response object used to send the response back to the client.
+ * @param {Function} next - Express middleware function to pass control to the next middleware in case of an error.
+ *
+ * @returns {Promise<void>} - Sends a 201 Created response with the created notification data,
+ * or forwards the error to centralized error handling middleware.
+ */
+export const handleCreateNotification = async (req, res, next) => {
+  const notificationData = req.body;
+
+  try {
+    const notification = await processCreateNotification(notificationData);
+
+    res.status(201).json({
+      message: 'Notification sent successfully',
+      data: notification,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller function to handle updating a notification.
+ *
+ * @param {Object} req - Express request object containing the notification ID in `req.params.id`
+ * and update data in `req.body`.
+ * @param {Object} res - Express response object used to send the response back to the client.
+ * @param {Function} next - Express middleware function to pass control to the next middleware in case of an error.
+ *
+ * @returns {Promise<void>} - Sends a 200 OK response with the updated notification data,
+ * or forwards the error to centralized error handling middleware.
+ */
+export const handleUpdateNotification = async (req, res, next) => {
+  const { notificationId } = req.params; // Extract notification ID from request parameters
+  const updateData = req.body; // Extract update data from request body
+
+  try {
+    const updatedNotification = await processUpdateNotification(
+      notificationId,
+      updateData
+    );
+
+    res.status(200).json({
+      message: 'Notification updated successfully',
+      data: updatedNotification,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * Controller function to fetch a single notification by ID.
