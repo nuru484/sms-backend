@@ -16,69 +16,119 @@ import logger from '../../utils/logger.js';
 import normalizePhoneNumber from '../../utils/helpers/normalize-phone-numbers.js';
 import transporter from '../../config/nodemailer.js';
 
-/**
- * Service function to create a new notification.
- *
- * @param {Object} notificationData - The data to create the notification (e.g., type, message, userId, etc.).
- * @returns {Promise<Object>} - Returns the created notification object.
- * @throws {CustomError} - Throws an error if the creation fails.
- */
+const BATCH_SIZE = 100; // Batch size for processing
+
 export const processCreateNotification = async (notificationData) => {
+  const { userIds, subject, message } = notificationData;
+
   try {
-    const { userIds, subject, message } = notificationData;
+    // Divide userIds into batches
+    const userBatches = [];
+    for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
+      userBatches.push(userIds.slice(i, i + BATCH_SIZE));
+    }
 
-    for (const userId of userIds) {
-      try {
-        const user = await prisma.user.findUnique({
-          where: {
-            id: parseInt(userId, 10), // Ensure userId is properly matched with DB schema
-          },
-        });
+    for (const batch of userBatches) {
+      // Prefetch user data in a single query
+      const users = await Promise.all(
+        batch.map(async (userId) => {
+          const cacheKey = `user:${userId}`;
+          const cachedData = await client.get(cacheKey);
 
-        if (!user) {
-          throw new CustomError(404, `User with ID ${userId} not found.`);
-        }
+          if (cachedData) {
+            return JSON.parse(cachedData);
+          } else {
+            const user = await prisma.user.findUnique({
+              where: { id: parseInt(userId, 10) },
+              select: {
+                id: true,
+                phoneNumber: true,
+                email: true,
+                notificationChannel: true,
+              },
+            });
+            if (user) {
+              await client.set(cacheKey, JSON.stringify(user), 'EX', 3600); // Cache for 1 hour
+            }
+            return user;
+          }
+        })
+      );
 
-        if (user.phoneNumber && user.notificationChannel === 'SMS') {
+      // Filter out invalid or missing users
+      const validUsers = users.filter((user) => user);
+
+      // Mapping for notification channels
+      const channelHandlers = {
+        SMS: async (user) => {
           const normalizedPhoneNumber = normalizePhoneNumber(user.phoneNumber);
-
           const response = await sendSMS({
             message,
             recipients: [normalizedPhoneNumber],
           });
-
-          const notification = await createNotification({
-            message,
-            subject,
-            userId, // Add userId explicitly here
-            status: response.status,
+          return { status: response.status, error: null };
+        },
+        EMAIL: async (user) => {
+          try {
+            await transporter.sendMail({
+              from: '"Notification Service" <notifications@example.com>',
+              to: user.email,
+              subject,
+              text: message,
+            });
+            return { status: 'success', error: null };
+          } catch (error) {
+            logger.error(
+              `Failed to send email to user ${user.id}: ${error.message}`
+            );
+            return { status: 'failed', error: error.message };
+          }
+        },
+        PUSH: async (user) => {
+          const response = await sendPushNotification({
+            userId: user.id,
+            title: subject,
+            body: message,
           });
+          return { status: response.status, error: null };
+        },
+      };
 
-          // Invalidate cache for all notifications related to the user
-          const patterns = [`notifications:user:${userId}*`];
-          await invalidateCache(client, patterns);
+      const notificationResults = await Promise.allSettled(
+        validUsers.map(async (user) => {
+          try {
+            if (!channelHandlers[user.notificationChannel]) {
+              throw new CustomError(
+                500,
+                `Unsupported notification channel: ${user.notificationChannel}`
+              );
+            }
 
-          // Optionally log success for debugging purposes
-          logger.info(`Notification created for user with ID ${userId}`);
-        } else if (user.notificationChannel === 'EMAIL') {
-          const info = transporter.sendMail({
-            from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
-            to: user.email, // list of receivers
-            subject, // Subject line
-            text: message, // plain text body
-          });
+            const { status, error } = await channelHandlers[
+              user.notificationChannel
+            ](user);
 
-          const notification = await createNotification({
-            message,
-            subject,
-            userId, // Add userId explicitly here
-            status: response.status,
-          });
-        } else {
-          logger.warn(`User with ID ${userId} has no phoneNumber or email.`);
-        }
-      } catch (error) {
-        handlePrismaError(error, 'Notification');
+            return {
+              message,
+              subject,
+              userId: user.id,
+              type: user.notificationChannel,
+              status,
+              error,
+            };
+          } catch (error) {
+            handlePrismaError(error, 'Notification');
+          }
+        })
+      );
+
+      const notifications = notificationResults
+        .map((result) => (result.status === 'fulfilled' ? result.value : null))
+        .filter(Boolean);
+
+      // Bulk insert notifications
+      if (notifications.length > 0) {
+        await prisma.notification.createMany({ data: notifications });
       }
     }
   } catch (error) {

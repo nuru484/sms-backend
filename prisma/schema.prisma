@@ -878,10 +878,17 @@ enum NotificationStatus {
   failed
 }
 
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+}
+
 model Notification {
   id      Int                @id @default(autoincrement())
   message String
   subject String?
+  type    NotificationType
   read    Boolean            @default(false) // Read status of the notification
   status  NotificationStatus // Enum for status
   error   String?
