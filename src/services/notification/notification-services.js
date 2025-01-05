@@ -1,5 +1,4 @@
 import {
-  createNotification,
   updateNotificationById,
   fetchNotificationById,
   fetchUserNotifications,

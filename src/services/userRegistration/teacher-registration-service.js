@@ -184,6 +184,7 @@ export const processUpdateTeacherDetails = async (
       spokenLanguages,
       socialMediaHandles,
       maritalStatus,
+      notificationChannel,
       coursesIds,
       classesIds,
     } = payload;
@@ -258,6 +259,7 @@ export const processUpdateTeacherDetails = async (
       phoneNumber,
       employmentType,
       dateOfBirth,
+      notificationChannel,
     });
 
     logger.info(`Teacher basic details updated successfully.`);
