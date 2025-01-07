@@ -8,7 +8,7 @@ const router = Router();
 import loginRoute from './login-route.js';
 
 // Mount the auth  routes under the '/auth' path
-router.use('/user', loginRoute);
+router.use('/login', loginRoute);
 
 // Export the configured router to be used in the main application
 export default router;
