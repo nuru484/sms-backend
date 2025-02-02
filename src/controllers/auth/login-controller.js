@@ -1,7 +1,5 @@
 // src/controllers/auth/login-controller.js
-
 import { loginUser } from '../../services/auth/login-service.js';
-import logger from '../../utils/logger.js';
 
 /**
  * Handles user login requests.
@@ -20,7 +18,7 @@ export const login = async (req, res, next) => {
     // Return the tokens to the client
     return res
       .status(200)
-      .json({ message: 'You have successfully login.', tokens });
+      .json({ message: 'You have successfully login.', data: tokens });
   } catch (error) {
     next(error);
   }
