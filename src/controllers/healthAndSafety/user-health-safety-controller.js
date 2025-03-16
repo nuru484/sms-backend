@@ -18,7 +18,7 @@ export const createUserHealthAndSafety = async (req, res, next) => {
       userId,
       healthAndSafetyPayload
     );
-
+// update
     return res.status(201).json({
       message: 'User health and safety details created successfully.',
       data: response,
