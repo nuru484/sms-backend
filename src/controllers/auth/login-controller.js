@@ -10,7 +10,7 @@ import { loginUser } from '../../services/auth/login-service.js';
  */
 export const login = async (req, res, next) => {
   const { username, password } = req.body;
-
+  // updated
   try {
     // Call the service function to process login
     const tokens = await loginUser({ username, password });
